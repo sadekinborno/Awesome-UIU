@@ -1,0 +1,23 @@
+{
+  "name": "cgpa-calculator",
+  "version": "1.0.0",
+  "description": "A web application for calculating CGPA and GPA based on user inputs.",
+  "main": "src/js/main.js",
+  "scripts": {
+    "start": "live-server src",
+    "build": "echo 'Build script not defined'",
+    "test": "echo 'Test script not defined'"
+  },
+  "keywords": [
+    "CGPA",
+    "GPA",
+    "calculator",
+    "education"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}

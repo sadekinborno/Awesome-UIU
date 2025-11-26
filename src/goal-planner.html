@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGPA Goal Planner - The Awesome UIU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/goal-planner.css?v=2.5">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="gradient-overlay"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="index.html" class="back-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Hub
+            </a>
+            <h1 class="nav-title">CGPA Goal Planner</h1>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+            </div>
+            <h1 class="hero-title">Can You Reach Your <span class="gradient-text">Dream CGPA</span>?</h1>
+            <p class="hero-description">Find out if your goal is achievable, or if you need a reality check 💪</p>
+        </section>
+
+        <!-- Input Form -->
+        <section class="input-section" id="inputSection">
+            <div class="form-card">
+                <h2 class="section-title">📊 Enter Your Academic Details</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select id="department" class="input-field">
+                            <option value="">Select Department</option>
+                            <option value="137">CSE (137 credits)</option>
+                            <option value="140">EEE (140 credits)</option>
+                            <option value="125">BBA (125 credits)</option>
+                            <option value="151.5">Civil (151.5 credits)</option>
+                            <option value="123">English (123 credits)</option>
+                            <option value="160">Pharmacy (160 credits)</option>
+                            <option value="138">DS (138 credits)</option>
+                            <option value="122">Economics (122 credits)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentCGPA">Current CGPA</label>
+                        <input type="number" id="currentCGPA" class="input-field" placeholder="e.g., 3.25" step="0.01" min="0" max="4">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="completedCredits">Completed Credits</label>
+                        <input type="number" id="completedCredits" class="input-field" placeholder="e.g., 90" step="0.5" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="targetCGPA">Target CGPA</label>
+                        <input type="number" id="targetCGPA" class="input-field" placeholder="e.g., 3.75" step="0.01" min="0" max="4">
+                    </div>
+                </div>
+
+                <button id="calculateBtn" class="primary-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    Calculate My Path
+                </button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section hidden" id="resultsSection">
+            <div class="results-card">
+                <h2 class="section-title">📈 Analysis Results</h2>
+                
+                <!-- Stats Grid -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-label">Remaining Credits</div>
+                        <div class="stat-value" id="remainingCredits">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Required Average GPA</div>
+                        <div class="stat-value" id="requiredGPA">0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Difficulty Level</div>
+                        <div class="stat-value" id="difficultyLevel">-</div>
+                    </div>
+                </div>
+
+                <!-- Difficulty Meter -->
+                <div class="difficulty-meter" id="difficultyMeter">
+                    <div class="meter-label">Difficulty Assessment</div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="meterFill"></div>
+                    </div>
+                    <div class="meter-labels">
+                        <span>🟢 Easy</span>
+                        <span>🟡 Moderate</span>
+                        <span>🟠 Hard</span>
+                        <span>🔴 BEAST</span>
+                        <span>⚫ Impossible</span>
+                    </div>
+                </div>
+
+                <!-- Result Message -->
+                <div class="result-message" id="resultMessage"></div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons" id="actionButtons"></div>
+            </div>
+        </section>
+
+        <!-- Retake Simulator -->
+        <section class="retake-section hidden" id="retakeSection">
+            <div class="retake-card">
+                <h2 class="section-title">🔄 Retake Simulator</h2>
+                <p class="retake-description">Select your worst courses to see if retakes can help you reach your goal</p>
+                
+                <div class="retake-form" id="retakeForm">
+                    <!-- Courses will be added dynamically -->
+                </div>
+                
+                <div class="retake-controls">
+                    <button id="addRetakeBtn" class="secondary-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Another Course
+                    </button>
+                </div>
+
+                <button id="simulateRetakesBtn" class="primary-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                    Simulate Retakes
+                </button>
+
+                <div class="retake-results hidden" id="retakeResults"></div>
+            </div>
+        </section>
+
+        <!-- GIF Display Section -->
+        <section class="gif-section hidden" id="gifSection">
+            <div class="gif-card">
+                <div id="gifContainer"></div>
+                <button id="closeGifBtn" class="secondary-btn">Close</button>
+            </div>
+        </section>
+
+        <!-- Start Over Button -->
+        <div class="start-over-container hidden" id="startOverContainer">
+            <button id="startOverBtn" class="secondary-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                    <path d="M21 3v5h-5"/>
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                    <path d="M3 21v-5h5"/>
+                </svg>
+                Start Over
+            </button>
+        </div>
+    </main>
+
+    <!-- Audio Elements -->
+    <audio id="gigachadAudio" preload="auto">
+        <source src="assets/gigachad.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="dripgokuAudio" preload="auto">
+        <source src="assets/sfx/dripgoku.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="therockAudio" preload="auto">
+        <source src="assets/sfx/therock.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="js/goal-planner.js?v=2.0"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 CGPA Calculator - The Awesome UIU</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <a href="index.html" class="back-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Back to The Awesome UIU
+                    </a>
+                    <h1>📊 CGPA Calculator</h1>
+                    <p>Calculate your academic performance with precision</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <!-- Academic Status Card -->
+            <div class="card academic-status">
+                <div class="card-header">
+                    <h2>📈 Current Academic Status</h2>
+                    <p>Enter your completed credits and current CGPA</p>
+                </div>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="total-credits">Completed Credits</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="total-credits" placeholder="e.g., 90" min="0" step="0.5">
+                            <span class="input-suffix">credits</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="current-cgpa">Current CGPA</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="current-cgpa" placeholder="e.g., 3.25" min="0" max="4" step="0.01">
+                            <span class="input-suffix">/ 4.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Card -->
+            <div class="card courses-card">
+                <div class="card-header">
+                    <div class="header-title-section">
+                        <h2>📚 Current Semester Courses</h2>
+                        <p>Add your courses and expected grades</p>
+                    </div>
+                    <button id="reset-btn" class="btn btn-danger">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                        Reset All
+                    </button>
+                </div>
+                
+                <div id="courses-container" class="courses-container">
+                    <!-- Course items will be dynamically added here -->
+                </div>
+
+                <div class="course-actions">
+                    <button id="add-course-btn" class="btn btn-outline">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Course
+                    </button>
+                    <button id="add-retake-btn" class="btn btn-secondary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.13 0 4.07.74 5.6 1.99"></path>
+                            <path d="M16 8l5-5-5-5"></path>
+                        </svg>
+                        Add Retake
+                    </button>
+                </div>
+            </div>
+
+            <!-- Calculate Button -->
+            <button id="calculate-btn" class="calculate-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                </svg>
+                Calculate Results
+            </button>
+
+            <!-- Results Section -->
+            <div id="result-section" class="card results-card" style="display: none;">
+                <div class="card-header">
+                    <h2>🎯 Your Results</h2>
+                    <p>Calculated based on your input data</p>
+                </div>
+                <div id="result-display"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/gradeSystem.js"></script>
+    <script src="js/calculator.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
