@@ -70,10 +70,14 @@ async function updateVisitorCount() {
     try {
         console.log('Fetching visitor count...');
         
-        // Use hits.sh - a reliable counter service (no signup required)
-        const response = await fetch('https://hits.sh/awesome-uiu.netlify.app.json', {
+        // Use CountAPI.xyz - a free, simple counter API with CORS support
+        // Each unique URL gets its own counter
+        const counterKey = 'theawesomeuiu';
+        const counterUrl = `https://api.countapi.xyz/hit/theawesomeuiu/${counterKey}`;
+        
+        const response = await fetch(counterUrl, {
             method: 'GET',
-            signal: AbortSignal.timeout(5000) // 5 second timeout
+            signal: AbortSignal.timeout(5000)
         });
         
         if (!response.ok) {
@@ -81,13 +85,13 @@ async function updateVisitorCount() {
         }
         
         const data = await response.json();
-        console.log('Visitor count received:', data.hits);
+        console.log('Visitor count received:', data.value);
         
-        if (data && data.hits) {
+        if (data && typeof data.value === 'number') {
             // Animate the counter from 0 to actual value
-            animateCounter('visitorCount', 0, data.hits, 2000);
+            animateCounter('visitorCount', 0, data.value, 2000);
         } else {
-            throw new Error('Invalid response from hits.sh');
+            throw new Error('Invalid response from CountAPI');
         }
         
     } catch (error) {
@@ -98,16 +102,11 @@ async function updateVisitorCount() {
         localCount++;
         localStorage.setItem('awesome-uiu-visits', localCount.toString());
         
-        console.log('Using local counter:', localCount);
+        console.log('Using localStorage fallback:', localCount);
         
         if (element) {
-            // Show local count for testing
             animateCounter('visitorCount', 0, localCount, 1000);
-            
-            // Add indicator for local mode
-            setTimeout(() => {
-                element.title = 'Local testing mode - Global counter will work on deployment';
-            }, 1000);
+            element.title = 'Fallback mode - Global counter will work when deployed';
         }
     }
 }
