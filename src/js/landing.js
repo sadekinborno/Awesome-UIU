@@ -70,8 +70,8 @@ async function updateVisitorCount() {
     try {
         console.log('Fetching visitor count...');
         
-        // Try CountAPI first
-        const response = await fetch('https://api.countapi.xyz/hit/awesome-uiu/visits', {
+        // Use hits.sh - a reliable counter service (no signup required)
+        const response = await fetch('https://hits.sh/awesome-uiu.netlify.app.json', {
             method: 'GET',
             signal: AbortSignal.timeout(5000) // 5 second timeout
         });
@@ -81,15 +81,19 @@ async function updateVisitorCount() {
         }
         
         const data = await response.json();
-        console.log('Visitor count received:', data.value);
+        console.log('Visitor count received:', data.hits);
         
-        // Animate the counter from 0 to actual value
-        animateCounter('visitorCount', 0, data.value, 2000);
+        if (data && data.hits) {
+            // Animate the counter from 0 to actual value
+            animateCounter('visitorCount', 0, data.hits, 2000);
+        } else {
+            throw new Error('Invalid response from hits.sh');
+        }
         
     } catch (error) {
-        console.error('CountAPI failed, using fallback:', error);
+        console.error('Failed to load visitor count:', error);
         
-        // Fallback: Use localStorage for local counting (demo purposes)
+        // Fallback: Use localStorage for local testing
         let localCount = parseInt(localStorage.getItem('awesome-uiu-visits') || '0');
         localCount++;
         localStorage.setItem('awesome-uiu-visits', localCount.toString());
@@ -97,12 +101,12 @@ async function updateVisitorCount() {
         console.log('Using local counter:', localCount);
         
         if (element) {
-            // Show local count with indicator it's offline
+            // Show local count for testing
             animateCounter('visitorCount', 0, localCount, 1000);
             
-            // Add small indicator (optional)
+            // Add indicator for local mode
             setTimeout(() => {
-                element.title = 'Offline mode - showing local visits';
+                element.title = 'Local testing mode - Global counter will work on deployment';
             }, 1000);
         }
     }
