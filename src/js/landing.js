@@ -62,52 +62,61 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================
-// Visitor Counter
+// Visitor Counter - Image-based (No CORS, No blocking!)
 // ============================================
-async function updateVisitorCount() {
+function updateVisitorCount() {
     const element = document.getElementById('visitorCount');
     
-    try {
-        console.log('Fetching visitor count...');
+    // Create a hidden image to trigger the counter
+    // This bypasses all CORS and DNS restrictions
+    const counterImg = new Image();
+    const pageId = 'theawesomeuiu.netlify.app';
+    
+    // Use hits.sh SVG counter - it increments when the image loads
+    counterImg.src = `https://hits.sh/${pageId}.svg?style=flat&label=visitors&extraCount=100&color=007acc`;
+    
+    console.log('Loading visitor counter via image...');
+    
+    counterImg.onload = function() {
+        console.log('Counter image loaded successfully!');
         
-        // Use CountAPI.xyz - a free, simple counter API with CORS support
-        // Each unique URL gets its own counter
-        const counterKey = 'theawesomeuiu';
-        const counterUrl = `https://api.countapi.xyz/hit/theawesomeuiu/${counterKey}`;
-        
-        const response = await fetch(counterUrl, {
-            method: 'GET',
-            signal: AbortSignal.timeout(5000)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('Visitor count received:', data.value);
-        
-        if (data && typeof data.value === 'number') {
-            // Animate the counter from 0 to actual value
-            animateCounter('visitorCount', 0, data.value, 2000);
-        } else {
-            throw new Error('Invalid response from CountAPI');
-        }
-        
-    } catch (error) {
-        console.error('Failed to load visitor count:', error);
-        
-        // Fallback: Use localStorage for local testing
-        let localCount = parseInt(localStorage.getItem('awesome-uiu-visits') || '0');
-        localCount++;
-        localStorage.setItem('awesome-uiu-visits', localCount.toString());
-        
-        console.log('Using localStorage fallback:', localCount);
-        
-        if (element) {
-            animateCounter('visitorCount', 0, localCount, 1000);
-            element.title = 'Fallback mode - Global counter will work when deployed';
-        }
+        // Parse the SVG to extract the count
+        fetch(`https://hits.sh/${pageId}.svg?style=flat&label=visitors&extraCount=100&color=007acc`)
+            .then(response => response.text())
+            .then(svgText => {
+                // Extract number from SVG text (format: >123<)
+                const match = svgText.match(/>(\d+)</);
+                if (match && match[1]) {
+                    const count = parseInt(match[1]);
+                    console.log('Visitor count:', count);
+                    animateCounter('visitorCount', 0, count, 2000);
+                } else {
+                    throw new Error('Could not parse count from SVG');
+                }
+            })
+            .catch(error => {
+                console.error('Failed to parse visitor count:', error);
+                useFallbackCounter(element);
+            });
+    };
+    
+    counterImg.onerror = function() {
+        console.error('Counter image failed to load');
+        useFallbackCounter(element);
+    };
+}
+
+function useFallbackCounter(element) {
+    // Fallback: Use localStorage for local testing
+    let localCount = parseInt(localStorage.getItem('awesome-uiu-visits') || '0');
+    localCount++;
+    localStorage.setItem('awesome-uiu-visits', localCount.toString());
+    
+    console.log('Using localStorage fallback:', localCount);
+    
+    if (element) {
+        animateCounter('visitorCount', 0, localCount, 1000);
+        element.title = 'Fallback mode - Global counter active on deployment';
     }
 }
 
