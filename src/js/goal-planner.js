@@ -87,6 +87,13 @@ elements.simulateRetakesBtn.addEventListener('click', handleSimulateRetakes);
 elements.closeGifBtn.addEventListener('click', closeGif);
 elements.startOverBtn.addEventListener('click', startOver);
 
+// Preload audio files when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    elements.gigachadAudio.load();
+    elements.dripgokuAudio.load();
+    elements.therockAudio.load();
+});
+
 // ============================================
 // Retake Course Management
 // ============================================
@@ -500,10 +507,13 @@ function showGigaChadChallenge() {
         document.body.appendChild(script);
     }
     
-    // Play audio and close when it ends
-    elements.gigachadAudio.play().catch(err => {
-        console.log('Audio play failed:', err);
-    });
+    // Wait for GIF to load and render before playing audio
+    setTimeout(() => {
+        elements.gigachadAudio.currentTime = 0;
+        elements.gigachadAudio.play().catch(err => {
+            console.log('Audio play failed:', err);
+        });
+    }, 500);
     
     // Auto-close when audio ends
     elements.gigachadAudio.onended = () => {
@@ -541,10 +551,13 @@ function showHardModeYes() {
         document.body.appendChild(script);
     }
     
-    // Play audio and close when it ends
-    elements.therockAudio.play().catch(err => {
-        console.log('Audio play failed:', err);
-    });
+    // Wait for GIF to load and render before playing audio
+    setTimeout(() => {
+        elements.therockAudio.currentTime = 0;
+        elements.therockAudio.play().catch(err => {
+            console.log('Audio play failed:', err);
+        });
+    }, 500);
     
     // Auto-close when audio ends
     elements.therockAudio.onended = () => {
@@ -583,10 +596,13 @@ function showHardModeNo() {
         document.body.appendChild(script);
     }
     
-    // Start playing audio immediately
-    elements.dripgokuAudio.play().catch(err => {
-        console.log('Audio play failed:', err);
-    });
+    // Wait for GIF to load and render before playing audio
+    setTimeout(() => {
+        elements.dripgokuAudio.currentTime = 0;
+        elements.dripgokuAudio.play().catch(err => {
+            console.log('Audio play failed:', err);
+        });
+    }, 500);
     
     // Auto-close when audio ends
     elements.dripgokuAudio.onended = () => {

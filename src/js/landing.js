@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Update visitor count
+    updateVisitorCount();
+    
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -57,3 +60,75 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(card);
     });
 });
+
+// ============================================
+// Visitor Counter
+// ============================================
+async function updateVisitorCount() {
+    const element = document.getElementById('visitorCount');
+    
+    try {
+        console.log('Fetching visitor count...');
+        
+        // Try CountAPI first
+        const response = await fetch('https://api.countapi.xyz/hit/awesome-uiu/visits', {
+            method: 'GET',
+            signal: AbortSignal.timeout(5000) // 5 second timeout
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Visitor count received:', data.value);
+        
+        // Animate the counter from 0 to actual value
+        animateCounter('visitorCount', 0, data.value, 2000);
+        
+    } catch (error) {
+        console.error('CountAPI failed, using fallback:', error);
+        
+        // Fallback: Use localStorage for local counting (demo purposes)
+        let localCount = parseInt(localStorage.getItem('awesome-uiu-visits') || '0');
+        localCount++;
+        localStorage.setItem('awesome-uiu-visits', localCount.toString());
+        
+        console.log('Using local counter:', localCount);
+        
+        if (element) {
+            // Show local count with indicator it's offline
+            animateCounter('visitorCount', 0, localCount, 1000);
+            
+            // Add small indicator (optional)
+            setTimeout(() => {
+                element.title = 'Offline mode - showing local visits';
+            }, 1000);
+        }
+    }
+}
+
+// Animate counter with easing
+function animateCounter(id, start, end, duration) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    
+    const range = end - start;
+    const increment = range / (duration / 16);
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+            element.textContent = formatNumber(end);
+            clearInterval(timer);
+        } else {
+            element.textContent = formatNumber(Math.floor(current));
+        }
+    }, 16);
+}
+
+// Format number with commas
+function formatNumber(num) {
+    return num.toLocaleString('en-US');
+}
