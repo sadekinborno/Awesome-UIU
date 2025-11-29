@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Scholarship Probability Checker - The Awesome UIU</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Enhanced Modern Dark Theme */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            font-weight: 900;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .step.active {
+            color: var(--primary);
+        }
+
+        .step-number {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .step.active .step-number {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .step.completed .step-number {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        /* Results Hero Section */
+        .results-hero {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .dept-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .submissions-count {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .submissions-count .number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Rank and Scholarship Cards - Redesigned */
+        .hero-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Scholarship Card - Main Focus */
+        .scholarship-card {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scholarship-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .scholarship-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .scholarship-icon {
+            font-size: 3rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .scholarship-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .scholarship-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .scholarship-percentage {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Rank Card - Supporting Info */
+        .rank-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rank-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .rank-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rank-percentage {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rank-position {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .scholarship-card.tier-50 {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+        }
+
+        .scholarship-card.tier-25 {
+            background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+            box-shadow: 0 8px 32px rgba(251, 146, 60, 0.3);
+        }
+
+        .scholarship-card.tier-0 {
+            background: rgba(30, 41, 59, 0.8);
+            color: var(--text-secondary);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            box-shadow: none;
+        }
+
+        .scholarship-card.tier-0::before {
+            display: none;
+        }
+
+        /* Visual Progress Bar */
+        .progress-visual {
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--danger) 100%);
+            border-radius: 10px;
+            transition: width 1s ease-out;
+        }
+
+        .progress-marker {
+            position: absolute;
+            top: -20px;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .progress-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .progress-label .tier {
+            font-weight: 600;
+        }
+
+        .progress-label .percent {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        /* Stats Grid - Compact */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.25rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tier Breakdown with Visual Bars */
+        .tier-breakdown {
+            margin-top: 2rem;
+        }
+
+        .tier-breakdown h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tier-item {
+            margin-bottom: 1.25rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .tier-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(4px);
+        }
+
+        .tier-item.tier-100 { border-color: var(--success); }
+        .tier-item.tier-50 { border-color: var(--warning); }
+        .tier-item.tier-25 { border-color: #fb923c; }
+        .tier-item.tier-0 { border-color: var(--text-secondary); }
+
+        .tier-item.current {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+        }
+
+        .tier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .tier-name {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .tier-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .tier-students {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .tier-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .tier-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-out;
+        }
+
+        .tier-100 .tier-bar-fill { background: var(--success); }
+        .tier-50 .tier-bar-fill { background: var(--warning); }
+        .tier-25 .tier-bar-fill { background: #fb923c; }
+        .tier-0 .tier-bar-fill { background: var(--text-secondary); }
+
+        .tier-details {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .tier-details .threshold {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .form-error {
+            font-size: 0.85rem;
+            color: var(--danger);
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .form-group input.error {
+            border-color: var(--danger);
+        }
+
+        .form-group input.error + .form-hint + .form-error {
+            display: block;
+        }
+
+        .otp-inputs {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .otp-input {
+            width: 3.5rem;
+            height: 3.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .error-message, .success-message {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        .timer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .resend-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .resend-link:hover {
+            color: var(--primary-dark);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .disclaimer {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+
+            .header h1 { 
+                font-size: 2rem; 
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+            }
+
+            .submissions-count .number {
+                font-size: 2.5rem;
+            }
+
+            .hero-cards { 
+                gap: 0.75rem;
+            }
+
+            .scholarship-card {
+                padding: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .scholarship-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .scholarship-percentage {
+                font-size: 2.5rem;
+            }
+
+            .scholarship-icon {
+                font-size: 2.5rem;
+            }
+
+            .rank-card {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .stats-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+
+            .rank-percentage { 
+                font-size: 2rem; 
+            }
+
+            .scholarship-percentage { 
+                font-size: 1.5rem; 
+            }
+
+            .otp-inputs {
+                gap: 0.5rem;
+            }
+
+            .otp-input {
+                width: 3rem;
+                height: 3rem;
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Selection styling */
+        ::selection {
+            background: rgba(99, 102, 241, 0.3);
+            color: var(--text-primary);
+        }
+
+        /* Active Trimester Display */
+        .active-trimester-display {
+            padding: 1.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .active-trimester-display .trimester-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .active-trimester-display .trimester-note {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        #alertContainer .alert {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        #alertContainer .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        #alertContainer .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        #alertContainer .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Coming Soon Overlay -->
+    <div id="comingSoonOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div style="text-align: center; max-width: 600px; padding: 2rem;">
+            <div style="font-size: 5rem; margin-bottom: 1rem; animation: bounce 2s ease-in-out infinite;">🚀</div>
+            <h1 style="font-size: 3rem; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem; font-weight: 900;">Coming Soon!</h1>
+            <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+                We're working hard to bring you the <strong style="color: var(--primary);">Scholarship Probability Checker</strong>. 
+                This feature will help you estimate your chances of getting a scholarship at UIU based on your GPA.
+            </p>
+            <div style="background: rgba(99, 102, 241, 0.1); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--glass-border); margin-bottom: 2rem;">
+                <p style="color: var(--text-primary); font-weight: 600; margin-bottom: 0.5rem;">📅 Expected Launch</p>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">Stay tuned for updates!</p>
+            </div>
+            <a href="index.html" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; transition: transform 0.3s ease;">
+                ← Back to Home
+            </a>
+        </div>
+    </div>
+
+    <div class="container" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 Scholarship Probability Checker</h1>
+            <p>Find out your chances of getting a scholarship at UIU</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step1Indicator">
+                <div class="step-number">1</div>
+                <span>Verify Email</span>
+            </div>
+            <div class="step" id="step2Indicator">
+                <div class="step-number">2</div>
+                <span>Enter GPA</span>
+            </div>
+            <div class="step" id="step3Indicator">
+                <div class="step-number">3</div>
+                <span>Results</span>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- STEP 1: Email Verification -->
+        <div id="emailVerificationCard" class="glass-card">
+            <h2 style="margin-bottom: 1.5rem;">📧 Verify Your UIU Email</h2>
+
+            <div class="form-group">
+                <label for="emailInput">UIU Email Address <span style="color: var(--danger);">*</span></label>
+                <input 
+                    type="email" 
+                    id="emailInput" 
+                    placeholder="your-name@uiu.ac.bd or @bscse.uiu.ac.bd"
+                    autocomplete="email"
+                >
+                <div class="form-hint">📧 We'll send a verification code to this email</div>
+                <div class="form-error">Please enter a valid UIU email address</div>
+            </div>
+
+            <div class="form-group">
+                <label for="studentIdInput">Student ID <span style="color: var(--danger);">*</span></label>
+                <input 
+                    type="text" 
+                    id="studentIdInput" 
+                    placeholder="Student ID"
+                    maxlength="12"
+                    autocomplete="off"
+                >
+                <div class="form-hint">📝 9 or 10 digits (hyphens auto-added)</div>
+                <div class="form-error">Please enter a valid Student ID (9-10 digits)</div>
+            </div>
+
+            <button class="btn btn-primary" id="sendOtpBtn">
+                <span id="sendOtpText">Send Verification Code</span>
+                <div class="spinner hidden" id="sendOtpSpinner"></div>
+            </button>
+
+            <div class="disclaimer">
+                <strong>⚠️ Important:</strong> This is NOT an official UIU calculator. Results are based on student submissions and may not reflect actual scholarship decisions.
+            </div>
+        </div>
+
+        <!-- STEP 1b: OTP Verification -->
+        <div id="otpVerificationCard" class="glass-card hidden">
+            <h2 style="margin-bottom: 1.5rem;">🔐 Enter Verification Code</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                We sent a 6-digit code to <strong id="sentToEmail" style="color: var(--primary);"></strong>
+            </p>
+
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" id="otp1" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" id="otp2" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" id="otp3" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" id="otp4" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" id="otp5" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" id="otp6" autocomplete="off">
+            </div>
+
+            <div class="timer" id="otpTimer">Code expires in: <span id="timerDisplay">5:00</span></div>
+
+            <button class="btn btn-primary" id="verifyOtpBtn">
+                <span id="verifyOtpText">Verify Code</span>
+                <div class="spinner hidden" id="verifyOtpSpinner"></div>
+            </button>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <span class="resend-link" id="resendOtpBtn">Didn't receive the code? Resend</span>
+                <br>
+                <span class="resend-link" id="changeEmailBtn" style="font-size: 0.85rem; margin-top: 0.5rem; display: inline-block;">Change Email Address</span>
+            </div>
+        </div>
+
+        <!-- STEP 2: GPA Submission -->
+        <div id="gpaSubmissionCard" class="glass-card hidden">
+            <h2 style="margin-bottom: 1.5rem;">📊 Enter Your GPA Details</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                Verified: <strong id="verifiedEmail" style="color: var(--primary);"></strong>
+            </p>
+
+            <div class="form-group">
+                <label for="departmentSelect">Department/Program <span style="color: var(--danger);">*</span></label>
+                <select id="departmentSelect">
+                    <option value="">Select Department</option>
+                    <option value="CSE">CSE - Computer Science & Engineering</option>
+                    <option value="EEE">EEE - Electrical & Electronic Engineering</option>
+                    <option value="CE">CE - Civil Engineering</option>
+                    <option value="BBA">BBA - Business Administration</option>
+                    <option value="English">English</option>
+                    <option value="Economics">Economics</option>
+                    <option value="Law">Law</option>
+                    <option value="Pharmacy">Pharmacy</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Trimester</label>
+                <div class="active-trimester-display" id="activeTrimesterCard">
+                    <div class="trimester-value" id="activeTrimesterDisplay">
+                        Loading...
+                    </div>
+                    <div class="trimester-note">
+                        📅 Currently accepting submissions for this trimester
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="lastGpaInput">Last Trimester GPA <span style="color: var(--danger);">*</span></label>
+                <input 
+                    type="number" 
+                    id="lastGpaInput" 
+                    placeholder="3.85"
+                    step="0.01"
+                    min="0"
+                    max="4.0"
+                >
+                <div class="form-hint">📈 Your GPA from the most recent trimester (0.00 - 4.00)</div>
+                <div class="form-error">Please enter a valid GPA between 0.00 and 4.00</div>
+            </div>
+
+            <div class="form-group">
+                <label for="cgpaInput">Overall CGPA <span style="color: var(--danger);">*</span></label>
+                <input 
+                    type="number" 
+                    id="cgpaInput" 
+                    placeholder="3.72"
+                    step="0.01"
+                    min="0"
+                    max="4.0"
+                >
+                <div class="form-hint">📊 Your cumulative GPA (0.00 - 4.00)</div>
+                <div class="form-error">Please enter a valid CGPA between 0.00 and 4.00</div>
+            </div>
+
+            <button class="btn btn-primary" id="submitGpaBtn">
+                <span id="submitGpaText">Calculate My Scholarship</span>
+                <div class="spinner hidden" id="submitGpaSpinner"></div>
+            </button>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(139, 92, 246, 0.1); border-radius: 12px; font-size: 0.85rem; color: var(--text-secondary);">
+                <strong>ℹ️ How Rankings Work:</strong><br>
+                We rank students by <strong>Last Trimester GPA first</strong>. If students have the same Last GPA, we use <strong>Overall CGPA</strong> as a tie-breaker.
+            </div>
+        </div>
+
+        <!-- STEP 3: Results Display -->
+        <div id="resultsCard" class="hidden">
+            <!-- Hero Section -->
+            <div class="results-hero">
+                <div class="dept-badge">
+                    <span id="resultDept">CSE</span>
+                    <span>•</span>
+                    <span id="resultTrimester">Fall 2024</span>
+                </div>
+
+                <div class="submissions-count">
+                    <span class="number" id="totalSubmissions">247</span>
+                    student participations
+                </div>
+
+                <div class="hero-cards">
+                    <div class="scholarship-card" id="scholarshipCard">
+                        <div class="scholarship-info">
+                            <div class="scholarship-icon" id="scholarshipIcon">🎓</div>
+                            <div class="scholarship-text">
+                                <div class="scholarship-label">Scholarship Probability</div>
+                                <div class="scholarship-percentage" id="scholarshipPercent">100%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rank-card">
+                        <div class="rank-info">
+                            <div class="rank-label">Your Rank</div>
+                            <div class="rank-percentage" id="rankPercentage">Top 2.4%</div>
+                        </div>
+                        <div class="rank-position" id="rankPosition">#6 out of 247 students</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Progress Bar -->
+            <div class="glass-card">
+                <div class="progress-visual">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBarFill" style="width: 2.4%"></div>
+                        <div class="progress-marker" id="progressMarker" style="left: 2.4%">📍</div>
+                    </div>
+                    <div class="progress-labels">
+                        <div class="progress-label">
+                            <span class="tier">🟢 Top 2%</span>
+                            <span class="percent">100%</span>
+                        </div>
+                        <div class="progress-label">
+                            <span class="tier">🟡 2-6%</span>
+                            <span class="percent">50%</span>
+                        </div>
+                        <div class="progress-label">
+                            <span class="tier">🟠 6-10%</span>
+                            <span class="percent">25%</span>
+                        </div>
+                        <div class="progress-label">
+                            <span class="tier">⚪ 10%+</span>
+                            <span class="percent">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="glass-card">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="yourLastGPA">3.98</div>
+                        <div class="stat-label">Your Last GPA</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="yourCGPA">3.63</div>
+                        <div class="stat-label">Your CGPA</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="avgLastGPA">3.45</div>
+                        <div class="stat-label">Dept Avg GPA</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="highestGPA">4.00</div>
+                        <div class="stat-label">Highest GPA</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tier Breakdown -->
+            <div class="glass-card">
+                <div class="tier-breakdown">
+                    <h3>🎯 Scholarship Breakdown</h3>
+
+                    <div class="tier-item tier-100" id="tier100">
+                        <div class="tier-header">
+                            <div class="tier-name">
+                                <div class="tier-indicator" style="background: var(--success);"></div>
+                                <span>Top 2% - 100% Scholarship</span>
+                            </div>
+                            <div class="tier-students"><span id="tier100Count">5</span> students</div>
+                        </div>
+                        <div class="tier-bar">
+                            <div class="tier-bar-fill" id="tier100Bar" style="width: 2%"></div>
+                        </div>
+                        <div class="tier-details" id="tier100Details">
+                            Last GPA ≥ <span class="threshold">3.95</span>
+                        </div>
+                    </div>
+
+                    <div class="tier-item tier-50" id="tier50">
+                        <div class="tier-header">
+                            <div class="tier-name">
+                                <div class="tier-indicator" style="background: var(--warning);"></div>
+                                <span>Top 2-6% - 50% Scholarship</span>
+                            </div>
+                            <div class="tier-students"><span id="tier50Count">10</span> students</div>
+                        </div>
+                        <div class="tier-bar">
+                            <div class="tier-bar-fill" id="tier50Bar" style="width: 4%"></div>
+                        </div>
+                        <div class="tier-details" id="tier50Details">
+                            Last GPA ≥ <span class="threshold">3.80</span>
+                        </div>
+                    </div>
+
+                    <div class="tier-item tier-25" id="tier25">
+                        <div class="tier-header">
+                            <div class="tier-name">
+                                <div class="tier-indicator" style="background: #fb923c;"></div>
+                                <span>Top 6-10% - 25% Scholarship</span>
+                            </div>
+                            <div class="tier-students"><span id="tier25Count">10</span> students</div>
+                        </div>
+                        <div class="tier-bar">
+                            <div class="tier-bar-fill" id="tier25Bar" style="width: 4%"></div>
+                        </div>
+                        <div class="tier-details" id="tier25Details">
+                            Last GPA ≥ <span class="threshold">3.65</span>
+                        </div>
+                    </div>
+
+                    <div class="tier-item tier-0" id="tier0">
+                        <div class="tier-header">
+                            <div class="tier-name">
+                                <div class="tier-indicator" style="background: var(--text-secondary);"></div>
+                                <span>Below Top 10% - No Scholarship</span>
+                            </div>
+                            <div class="tier-students"><span id="tier0Count">222</span> students</div>
+                        </div>
+                        <div class="tier-bar">
+                            <div class="tier-bar-fill" id="tier0Bar" style="width: 90%"></div>
+                        </div>
+                        <div class="tier-details">
+                            Keep working hard! You can improve next trimester.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="updateSubmissionBtn">
+                    🔄 Update My Submission
+                </button>
+                <button class="btn btn-secondary" id="shareResultBtn">
+                    📤 Share Result
+                </button>
+            </div>
+
+            <div class="disclaimer">
+                <strong>⚠️ Disclaimer:</strong> This calculator is based on student-submitted data and does not guarantee actual scholarship results. Official decisions are made by UIU administration.
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                ← Back to Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuration -->
+    <script src="js/supabase-config.js"></script>
+    
+    <!-- Main Logic -->
+    <script src="js/scholarship-auth.js"></script>
+    <script src="js/scholarship-checker.js"></script>
+
+    <!-- Coming Soon Toggle Script -->
+    <script>
+        // Set to false when ready to launch
+        const COMING_SOON_MODE = true;
+        
+        if (!COMING_SOON_MODE) {
+            document.getElementById('comingSoonOverlay').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
