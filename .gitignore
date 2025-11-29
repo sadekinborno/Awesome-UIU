@@ -1,6 +1,9 @@
 # Admin Panel (Keep Local Only)
 src/admin.html
 
+# Coming Soon Features
+# src/scholarship-checker.html
+
 # Environment variables
 .env
 .env.local
