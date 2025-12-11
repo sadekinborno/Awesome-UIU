@@ -207,24 +207,26 @@ async function sendOTP(email, studentId) {
         const cleanStudentId = studentId.replace(/\D/g, '');
         const cleanEmail = email.toLowerCase();
         
-        // Store OTP in database (UPSERT: insert new or update existing)
-        const { error: upsertError } = await supabase
+        // Delete any existing OTP for this email first
+        await supabase
             .from('email_verifications')
-            .upsert({
+            .delete()
+            .eq('email', cleanEmail);
+        
+        // Insert new OTP
+        const { error: insertError } = await supabase
+            .from('email_verifications')
+            .insert({
                 email: cleanEmail,
                 student_id: cleanStudentId,
                 otp: otp,
                 expires_at: expiresAtMs,
                 attempts: 0,
-                verified: false,
-                created_at: new Date().toISOString()
-            }, {
-                onConflict: 'email',
-                ignoreDuplicates: false
+                verified: false
             });
         
-        if (upsertError) {
-            console.error('Upsert error details:', upsertError);
+        if (insertError) {
+            console.error('Insert error details:', insertError);
             throw new Error('Failed to create verification request. Please try again.');
         }
         
