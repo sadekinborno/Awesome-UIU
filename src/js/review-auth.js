@@ -243,10 +243,17 @@ async function sendOTP(email, studentId) {
             console.error('Email sending failed:', emailError);
             // Don't fail completely if email service is down - OTP is still in DB
             console.warn('⚠️ Email service unavailable. OTP stored in database.');
+            
+            // Show OTP in alert as fallback
+            alert(`⚠️ Email service is temporarily unavailable.\n\nYour OTP code is: ${otp}\n\nPlease use this code to verify your email.`);
+            
+            await incrementRateLimit(clientIP, 'review_otp');
+            
             return { 
                 success: true, 
-                message: 'OTP generated! (Email service temporarily unavailable - check database)',
-                fallback: true
+                message: `OTP: ${otp} (Email service unavailable)`,
+                fallback: true,
+                otp: otp
             };
         }
         
