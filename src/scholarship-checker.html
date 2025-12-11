@@ -543,6 +543,47 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            transform: translateX(-5px);
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
         /* Animations */
         @keyframes slideDown {
             from {
@@ -868,6 +909,14 @@
         </div>
     </div>
 
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Home
+    </a>
+
     <div class="container" style="display: none;">
         <!-- Header -->
         <div class="header">
@@ -973,8 +1022,9 @@
             <div class="form-group">
                 <label for="departmentSelect">Department/Program <span style="color: var(--danger);">*</span></label>
                 <select id="departmentSelect">
-                    <option value="">Select Department</option>
-                    <option value="CSE">CSE - Computer Science & Engineering</option>
+                    <option value="">Select Program</option>
+                    <option value="BSCSE">BSc in CSE - Computer Science & Engineering</option>
+                    <option value="BSDS">BSc in DS - Data Science</option>
                     <option value="EEE">EEE - Electrical & Electronic Engineering</option>
                     <option value="CE">CE - Civil Engineering</option>
                     <option value="BBA">BBA - Business Administration</option>
@@ -1028,6 +1078,10 @@
             <button class="btn btn-primary" id="submitGpaBtn">
                 <span id="submitGpaText">Calculate My Scholarship</span>
                 <div class="spinner hidden" id="submitGpaSpinner"></div>
+            </button>
+
+            <button class="btn btn-secondary" id="logoutFromGpaBtn" style="margin-top: 1rem; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
+                🚪 Logout
             </button>
 
             <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(139, 92, 246, 0.1); border-radius: 12px; font-size: 0.85rem; color: var(--text-secondary);">
@@ -1201,6 +1255,9 @@
                 <button class="btn btn-secondary" id="shareResultBtn">
                     📤 Share Result
                 </button>
+                <button class="btn btn-secondary" id="logoutBtn" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
+                    🚪 Logout
+                </button>
             </div>
 
             <div class="disclaimer">
@@ -1208,12 +1265,6 @@
             </div>
         </div>
 
-        <!-- Back to Home -->
-        <div style="text-align: center; margin-top: 2rem;">
-            <a href="index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">
-                ← Back to Home
-            </a>
-        </div>
     </div>
 
     <!-- Supabase JS SDK -->
@@ -1221,6 +1272,7 @@
     
     <!-- Configuration -->
     <script src="js/supabase-config.js"></script>
+    <script src="js/review-auth.js"></script>
     
     <!-- Main Logic -->
     <script src="js/scholarship-auth.js"></script>
@@ -1229,7 +1281,7 @@
     <!-- Coming Soon Toggle Script -->
     <script>
         // Set to false when ready to launch
-        const COMING_SOON_MODE = true;
+        const COMING_SOON_MODE = false;
         
         if (!COMING_SOON_MODE) {
             document.getElementById('comingSoonOverlay').style.display = 'none';

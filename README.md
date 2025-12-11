@@ -362,7 +362,7 @@ If this project helped you, give it a ⭐️! It motivates us to keep improving!
 - 📅 **Academic Calendar** - Track important dates
 - 📊 **GPA to Percentage Converter** - Convert between grading systems
 - 📚 **Lecture Notes** - Comprehensive study materials
-- 💰 **Scholarship Calculator** - Check eligibility
+- 💰 **Scholarship Probability Checker** - Check your scholarship eligibility *(See [EMAIL_SETUP_GUIDE.md](EMAIL_SETUP_GUIDE.md) for deployment)*
 - 📖 **Study Guides** - Curated study resources
 - 🏆 **Achievement Tracker** - Track your academic milestones
 

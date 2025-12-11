@@ -15,41 +15,24 @@ let currentStudentId = '';
 // Initialize Page
 // ============================================
 
-async function loadActiveTrimester() {
-    try {
-        const { data, error } = await window.supabaseClient
-            .from('app_settings')
-            .select('value')
-            .eq('key', 'active_trimester')
-            .single();
-        
-        if (error) throw error;
-        
-        const activeTrimester = data.value;
-        
-        // Update display
-        document.getElementById('activeTrimesterDisplay').textContent = activeTrimester;
-        
-        // Store in hidden input for form submission
-        document.getElementById('activeTrimesterValue').value = activeTrimester;
-        
-    } catch (error) {
-        console.error('Error loading active trimester:', error);
-        document.getElementById('activeTrimesterDisplay').textContent = 'Error loading trimester';
-        auth.showAlert('Unable to load active trimester. Please refresh the page.', 'error');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Load active trimester from database
-    loadActiveTrimester();
+document.addEventListener('DOMContentLoaded', async () => {
+    // Load active trimester from database FIRST
+    await loadActiveTrimester();
     
-    // Check if user is already logged in
-    if (auth.isLoggedIn()) {
-        currentUser = auth.getUserData();
+    // Check if user is already logged in via review auth or scholarship auth
+    const reviewLoggedIn = typeof reviewAuth !== 'undefined' && reviewAuth.isLoggedIn();
+    const scholarshipLoggedIn = auth.isLoggedIn();
+    
+    if (reviewLoggedIn || scholarshipLoggedIn) {
+        // Prioritize review auth if both exist (most recent login)
+        if (reviewLoggedIn) {
+            currentUser = reviewAuth.getUserData();
+        } else {
+            currentUser = auth.getUserData();
+        }
         
-        // Check if user has existing submission
-        checkExistingSubmission();
+        // Check if user has existing submission (now that trimester is loaded)
+        await checkExistingSubmission();
     } else {
         showStep(1);
     }
@@ -76,10 +59,12 @@ function setupEventListeners() {
     
     // Step 2: Submit GPA
     document.getElementById('submitGpaBtn').addEventListener('click', handleSubmitGPA);
+    document.getElementById('logoutFromGpaBtn')?.addEventListener('click', handleLogout);
     
     // Step 3: Results actions
     document.getElementById('updateSubmissionBtn')?.addEventListener('click', () => showStep(2));
     document.getElementById('shareResultBtn')?.addEventListener('click', handleShareResult);
+    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
     
     // Student ID auto-formatting
     document.getElementById('studentIdInput').addEventListener('input', formatStudentId);
@@ -272,11 +257,7 @@ async function handleSendOTP() {
             
             auth.showAlert('Verification code sent! Check your email.', 'success');
             
-            // For testing: show OTP in console
-            if (result.otp) {
-                console.log('🔐 TEST OTP:', result.otp);
-                auth.showAlert(`TEST MODE: Your OTP is ${result.otp}`, 'info');
-            }
+            // OTP is sent via email - no need to show in UI anymore
         }
     } catch (error) {
         auth.showAlert(error.message || 'Failed to send verification code', 'error');
@@ -407,20 +388,36 @@ function startOTPTimer(seconds) {
 // ============================================
 
 async function checkExistingSubmission() {
-    // Check if user has submitted for any trimester
+    // Get active trimester from the display element
+    const activeTrimester = document.getElementById('activeTrimesterDisplay')?.textContent?.trim();
+    
+    if (!activeTrimester || activeTrimester === 'Loading...' || activeTrimester === 'Error loading trimester') {
+        console.error('Active trimester not loaded yet');
+        auth.showAlert('Failed to load active trimester. Please refresh the page.', 'error');
+        return;
+    }
+    
+    // Check if user has submitted for the ACTIVE trimester only
     const { data, error } = await window.supabaseClient
         .from('scholarship_submissions')
         .select('*')
         .eq('user_id', currentUser.id)
+        .eq('trimester', activeTrimester)
         .order('submitted_at', { ascending: false })
         .limit(1);
     
+    if (error) {
+        console.error('Error checking submission:', error);
+    }
+    
     if (data && data.length > 0) {
-        // User has existing submission, show results
+        // User has existing submission for active trimester, show results
+        console.log('✅ Found existing submission for', activeTrimester);
         await displayResults(data[0]);
         showStep(3);
     } else {
-        // No submission, show GPA form
+        // No submission for active trimester, show GPA form
+        console.log('📝 No submission found for', activeTrimester, '- showing GPA form');
         showStep(2);
     }
 }
@@ -473,23 +470,51 @@ async function handleSubmitGPA() {
     
     try {
         // Submit to database
-        const { data: submission, error } = await window.supabaseClient
+        // First check if submission exists for this user and trimester
+        const { data: existing } = await window.supabaseClient
             .from('scholarship_submissions')
-            .upsert({
-                user_id: currentUser.id,
-                student_id: currentUser.student_id,
-                email: currentUser.email,
-                department: department,
-                trimester: trimester,
-                last_trimester_gpa: lastGpa,
-                overall_cgpa: cgpa,
-                submitted_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            }, {
-                onConflict: 'user_id,trimester,department'
-            })
-            .select()
+            .select('id')
+            .eq('user_id', currentUser.id)
+            .eq('trimester', trimester)
             .single();
+        
+        let submission, error;
+        
+        if (existing) {
+            // Update existing submission
+            const result = await window.supabaseClient
+                .from('scholarship_submissions')
+                .update({
+                    department: department,
+                    last_trimester_gpa: lastGpa,
+                    overall_cgpa: cgpa,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', existing.id)
+                .select()
+                .single();
+            submission = result.data;
+            error = result.error;
+        } else {
+            // Insert new submission
+            const result = await window.supabaseClient
+                .from('scholarship_submissions')
+                .insert({
+                    user_id: currentUser.id,
+                    student_id: currentUser.student_id,
+                    email: currentUser.email,
+                    department: department,
+                    trimester: trimester,
+                    last_trimester_gpa: lastGpa,
+                    overall_cgpa: cgpa,
+                    submitted_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                })
+                .select()
+                .single();
+            submission = result.data;
+            error = result.error;
+        }
         
         if (error) throw error;
         
@@ -685,5 +710,15 @@ function handleShareResult() {
     } else {
         navigator.clipboard.writeText(shareText);
         auth.showAlert('Result copied to clipboard!', 'success');
+    }
+}
+
+// ============================================
+// Handle Logout
+// ============================================
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout? You can re-verify with your UIU email anytime.')) {
+        auth.logout();
     }
 }

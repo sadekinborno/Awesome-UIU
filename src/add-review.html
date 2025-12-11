@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Review - Awesome UIU</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --dark-bg: #0f172a;
+            --darker-bg: #020617;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--darker-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .review-form-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-bottom: 2rem;
+        }
+
+        .back-button:hover {
+            background: var(--card-hover);
+            border-color: #667eea;
+            color: var(--text-primary);
+            transform: translateX(-3px);
+        }
+
+        .form-header {
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-header h1 i {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .review-form {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-section {
+            margin-bottom: 3rem;
+        }
+
+        .form-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.975rem;
+        }
+
+        .required {
+            color: #f87171;
+        }
+
+        .form-group select,
+        .form-group textarea,
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.875rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group textarea:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: var(--card-bg);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.75rem;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            font-size: 2.5rem;
+            color: var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #ffd700;
+            filter: drop-shadow(0 2px 6px rgba(255, 215, 0, 0.4));
+        }
+
+        .rating-categories {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .category-rating {
+            padding: 1.5rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .category-rating:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .category-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .category-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .category-description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .slider-container {
+            position: relative;
+        }
+
+        .rating-slider {
+            width: 100%;
+            height: 10px;
+            background: var(--border-color);
+            border-radius: 1rem;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .rating-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .rating-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .submit-section {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 3rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .submit-btn,
+        .cancel-btn {
+            padding: 1.125rem 2.5rem;
+            border: none;
+            border-radius: 2rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .cancel-btn {
+            background: var(--card-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .cancel-btn:hover {
+            background: var(--dark-bg);
+            border-color: #667eea;
+        }
+
+        .alert {
+            padding: 1.25rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            display: none;
+            font-weight: 500;
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .teacher-preview {
+            padding: 1.5rem;
+            background: rgba(102, 126, 234, 0.15);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .teacher-preview-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-bottom: 0.5rem;
+        }
+
+        .teacher-preview-dept {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .glass-btn {
+            padding: 0.875rem 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .glass-btn:hover {
+            background: var(--card-hover);
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="review-form-container">
+            <!-- Back Button and User Menu -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <a href="teacher-reviews.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Teachers
+                </a>
+                <button class="back-button" id="logoutBtn" style="background: transparent; border: 1px solid var(--border-color); cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout (<span id="userEmail"></span>)
+                </button>
+            </div>
+
+            <!-- Header -->
+            <div class="form-header">
+                <h1><i class="fas fa-star"></i> Write a Review</h1>
+                <p>Share your experience with this teacher</p>
+            </div>
+
+            <!-- Alert Messages -->
+            <div id="alertBox" class="alert"></div>
+
+            <!-- Review Form -->
+            <form class="review-form" id="reviewForm">
+                <!-- Teacher Selection -->
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Teacher Information</h3>
+                    
+                    <div id="teacherPreview" class="teacher-preview" style="display: none;">
+                        <div class="teacher-preview-name" id="previewName"></div>
+                        <div class="teacher-preview-dept" id="previewDept"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Department <span class="required">*</span></label>
+                        <select id="departmentSelect" required>
+                            <option value="">Select Department</option>
+                            <option value="BSCSE">BSc in CSE</option>
+                            <option value="BSDS">BSc in DS</option>
+                            <option value="EEE">EEE</option>
+                            <option value="CE">Civil Engineering</option>
+                            <option value="BBA">BBA</option>
+                            <option value="English">English</option>
+                            <option value="Economics">Economics</option>
+                            <option value="Law">Law</option>
+                            <option value="Pharmacy">Pharmacy</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Teacher <span class="required">*</span></label>
+                        <select id="teacherSelect" required disabled>
+                            <option value="">Select teacher first from department</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Course (Optional)</label>
+                        <select id="courseSelect" disabled>
+                            <option value="">Select teacher first</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Overall Rating -->
+                <div class="form-section">
+                    <h3><i class="fas fa-star"></i> Overall Rating <span class="required">*</span></h3>
+                    <div class="star-rating">
+                        <input type="radio" name="overall" value="5" id="overall5">
+                        <label for="overall5"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="overall" value="4" id="overall4">
+                        <label for="overall4"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="overall" value="3" id="overall3">
+                        <label for="overall3"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="overall" value="2" id="overall2">
+                        <label for="overall2"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="overall" value="1" id="overall1">
+                        <label for="overall1"><i class="fas fa-star"></i></label>
+                    </div>
+                </div>
+
+                <!-- Category Ratings -->
+                <div class="form-section">
+                    <h3><i class="fas fa-sliders-h"></i> Detailed Ratings <span class="required">*</span></h3>
+                    <div class="rating-categories">
+                        <div class="category-rating">
+                            <div class="category-header">
+                                <span class="category-name">Teaching Quality</span>
+                                <span class="category-value" id="teachingValue">3</span>
+                            </div>
+                            <div class="category-description">How well does the teacher explain concepts?</div>
+                            <div class="slider-container">
+                                <input type="range" class="rating-slider" id="teachingSlider" min="1" max="5" value="3" step="1">
+                                <div class="slider-labels">
+                                    <span>Poor</span>
+                                    <span>Excellent</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="category-rating">
+                            <div class="category-header">
+                                <span class="category-name">Grading Fairness</span>
+                                <span class="category-value" id="gradingValue">3</span>
+                            </div>
+                            <div class="category-description">Are grades fair and consistent?</div>
+                            <div class="slider-container">
+                                <input type="range" class="rating-slider" id="gradingSlider" min="1" max="5" value="3" step="1">
+                                <div class="slider-labels">
+                                    <span>Unfair</span>
+                                    <span>Very Fair</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="category-rating">
+                            <div class="category-header">
+                                <span class="category-name">Approachability</span>
+                                <span class="category-value" id="approachabilityValue">3</span>
+                            </div>
+                            <div class="category-description">How accessible and helpful outside class?</div>
+                            <div class="slider-container">
+                                <input type="range" class="rating-slider" id="approachabilitySlider" min="1" max="5" value="3" step="1">
+                                <div class="slider-labels">
+                                    <span>Distant</span>
+                                    <span>Very Accessible</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="category-rating">
+                            <div class="category-header">
+                                <span class="category-name">Punctuality</span>
+                                <span class="category-value" id="punctualityValue">3</span>
+                            </div>
+                            <div class="category-description">Does the teacher start/end on time and meet deadlines?</div>
+                            <div class="slider-container">
+                                <input type="range" class="rating-slider" id="punctualitySlider" min="1" max="5" value="3" step="1">
+                                <div class="slider-labels">
+                                    <span>Always Late</span>
+                                    <span>Always On Time</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Written Review -->
+                <div class="form-section">
+                    <h3><i class="fas fa-comment"></i> Your Review (Optional)</h3>
+                    <div class="form-group">
+                        <label>Share your experience</label>
+                        <textarea id="reviewText" maxlength="2000" placeholder="What did you like? What could be improved? Any tips for future students?"></textarea>
+                        <div class="char-count">
+                            <span id="charCount">0</span> / 2000 characters
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Section -->
+                <div class="submit-section">
+                    <button type="button" class="cancel-btn" onclick="history.back()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/review-auth.js"></script>
+    <script>
+        // Check authentication before loading page
+        if (!reviewAuth.requireAuth()) {
+            // Will redirect to login if not authenticated
+        }
+        
+        // Display user email and setup logout
+        document.addEventListener('DOMContentLoaded', () => {const userData = reviewAuth.getUserData();
+            if (userData) {
+                document.getElementById('userEmail').textContent = userData.email.split('@')[0];
+            }
+            
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    reviewAuth.logout();
+                }
+            });
+        });
+    </script>
+    <script src="js/add-review.js"></script>
+</body>
+</html>

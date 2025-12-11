@@ -221,18 +221,13 @@ async function sendOTP(email, studentId) {
             throw new Error('Failed to send verification code. Please try again.');
         }
         
-        // Send email using Supabase Auth (Magic Link as fallback)
-        // Note: In production, you'd use a custom email service here
-        console.log('OTP for testing:', otp); // Remove in production
-        
-        // For now, we'll use Supabase's built-in email
-        // In a real implementation, you'd use SendGrid or similar
+        // Send email via Supabase Edge Function
         await sendOTPEmail(email, otp);
         
         // Increment rate limit
         await incrementRateLimit(clientIP, 'otp_request');
         
-        return { success: true, otp: otp }; // Remove otp from response in production
+        return { success: true };
     } catch (error) {
         console.error('Send OTP error:', error);
         throw error;
@@ -240,31 +235,27 @@ async function sendOTP(email, studentId) {
 }
 
 async function sendOTPEmail(email, otp) {
-    // TODO: Implement actual email sending
-    // For now, this is a placeholder
-    // In production, use Supabase Edge Functions or external email service
-    
-    console.log(`
-    ═══════════════════════════════════════
-    📧 EMAIL SENT TO: ${email}
-    ═══════════════════════════════════════
-    
-    Subject: Your UIU Scholarship Checker Verification Code
-    
-    Your verification code is: ${otp}
-    
-    This code will expire in 5 minutes.
-    
-    If you didn't request this code, please ignore this email.
-    
-    - The Awesome UIU Team
-    ═══════════════════════════════════════
-    `);
-    
-    // Simulate email sending delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return { success: true };
+    try {
+        // Call Supabase Edge Function to send email via Resend
+        const { data, error } = await window.supabaseClient.functions.invoke('send-otp-email', {
+            body: {
+                email: email,
+                otp: otp
+            }
+        });
+        
+        if (error) {
+            console.error('Email sending error:', error);
+            throw new Error('Email service is unavailable. Please try again later.');
+        }
+        
+        console.log('✅ Email sent successfully to:', email);
+        return { success: true };
+        
+    } catch (error) {
+        console.error('Failed to send email:', error);
+        throw new Error('Failed to send verification email. Please check if the edge function is deployed and RESEND_API_KEY is set.');
+    }
 }
 
 // ============================================
@@ -420,7 +411,10 @@ async function resendOTP(email, studentId) {
 
 function logout() {
     clearSession();
-    window.location.reload();
+    
+    // Use replace instead of reload to avoid navigation issues
+    // This will reset the page to the email verification step
+    window.location.href = window.location.href.split('?')[0].split('#')[0];
 }
 
 // ============================================

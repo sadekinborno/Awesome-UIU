@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Profile - Awesome UIU</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --dark-bg: #0f172a;
+            --darker-bg: #020617;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--darker-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-bottom: 2rem;
+        }
+
+        .back-button:hover {
+            background: var(--card-hover);
+            border-color: #667eea;
+            color: var(--text-primary);
+            transform: translateX(-3px);
+        }
+
+        .profile-header {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .profile-dept {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .stat-box {
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background: var(--card-hover);
+            border-color: #667eea;
+            transform: translateY(-3px);
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .rating-overview {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+
+        .overall-rating {
+            text-align: center;
+            padding: 2rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .rating-number {
+            font-size: 4.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+        }
+
+        .rating-stars-large {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .star-large {
+            color: #ffd700;
+            font-size: 1.75rem;
+            filter: drop-shadow(0 2px 6px rgba(255, 215, 0, 0.4));
+        }
+
+        .star-large.empty {
+            color: var(--border-color);
+        }
+
+        .category-ratings {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .category-rating {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .category-label {
+            width: 150px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 10px;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 1rem;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .category-value {
+            width: 50px;
+            text-align: right;
+            font-weight: 700;
+            color: #a5b4fc;
+        }
+
+        .courses-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .course-item {
+            padding: 1.25rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .course-item:hover {
+            background: var(--card-hover);
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+        }
+
+        .course-code {
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+
+        .course-name {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .reviews-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .add-review-btn {
+            padding: 0.875rem 2rem;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 2rem;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            font-size: 1rem;
+        }
+
+        .add-review-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .review-card {
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .review-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .review-author {
+            flex: 1;
+        }
+
+        .reviewer-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .review-date {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .review-rating {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .review-stars {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .review-course {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(102, 126, 234, 0.15);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            color: #a5b4fc;
+            margin-bottom: 1.25rem;
+            font-weight: 600;
+        }
+
+        .review-content {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .review-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 1rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .review-category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+        }
+
+        .review-category-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .review-category-score {
+            font-weight: 700;
+            color: #a5b4fc;
+        }
+
+        .review-votes {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        .vote-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 2rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.925rem;
+            font-weight: 500;
+        }
+
+        .vote-btn:hover {
+            background: var(--card-hover);
+            border-color: #667eea;
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .vote-btn.voted {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #a5b4fc;
+        }
+
+        .no-reviews {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+
+        .no-reviews i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .no-reviews h3 {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .glass-btn {
+            padding: 0.875rem 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .glass-btn:hover {
+            background: var(--card-hover);
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Loading State -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Profile Content -->
+        <div id="profileContent" style="display: none;">
+            <!-- Back Button -->
+            <a href="teacher-reviews.html" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Back to Teachers
+            </a>
+
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-top">
+                    <div class="profile-avatar" id="profileAvatar">?</div>
+                    <div class="profile-info">
+                        <h1 class="profile-name" id="teacherName">Loading...</h1>
+                        <div class="profile-dept" id="teacherDept">Loading...</div>
+                        <div class="profile-stats">
+                            <div class="stat-box">
+                                <div class="stat-value" id="totalReviews">0</div>
+                                <div class="stat-label">Reviews</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value" id="totalCourses">0</div>
+                                <div class="stat-label">Courses</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value" id="avgRating">0.0</div>
+                                <div class="stat-label">Avg Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rating-overview">
+                    <div class="overall-rating">
+                        <div class="rating-number" id="overallRating">0.0</div>
+                        <div class="rating-stars-large" id="overallStars"></div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Based on <span id="reviewCount">0</span> reviews
+                        </div>
+                    </div>
+                    <div class="category-ratings" id="categoryRatings">
+                        <!-- Category ratings will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Section -->
+            <div class="courses-section">
+                <h2 class="section-title"><i class="fas fa-book"></i> Courses Teaching</h2>
+                <div class="course-list" id="courseList">
+                    <!-- Courses will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="reviews-section">
+                <div class="reviews-header">
+                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-star"></i> Student Reviews</h2>
+                    <button class="add-review-btn" id="addReviewBtn">
+                        <i class="fas fa-plus"></i> Write a Review
+                    </button>
+                </div>
+                <div id="reviewsList">
+                    <!-- Reviews will be inserted here -->
+                </div>
+                <div id="noReviews" class="no-reviews" style="display: none;">
+                    <i class="fas fa-comments"></i>
+                    <h3>No reviews yet</h3>
+                    <p>Be the first to review this teacher!</p>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div style="text-align: center; margin-top: 2rem;">
+                <button onclick="window.location.href='teacher-reviews.html'" class="glass-btn">
+                    <i class="fas fa-arrow-left"></i> Back to All Teachers
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/review-auth.js"></script>
+    <script>
+        // Check authentication before loading page
+        if (!reviewAuth.requireAuth()) {
+            // Will redirect to login if not authenticated
+        }
+    </script>
+    <script src="js/teacher-profile.js"></script>
+</body>
+</html>

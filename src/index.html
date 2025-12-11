@@ -43,15 +43,21 @@
                         </svg>
                     </a>
                     <a href="#about" class="btn btn-outline">Learn More</a>
+                    <a href="review-login.html?redirect=index.html" class="btn btn-outline" id="loginBtn" style="display: none;">
+                        Login
+                    </a>
+                    <button class="btn btn-outline" id="userMenuBtn" style="display: none;">
+                        👤 <span id="userEmail"></span>
+                    </button>
                 </div>
                 <div class="hero-stats">
                     <div class="stat-item">
-                        <div class="stat-number">10+</div>
-                        <div class="stat-label">Tools Available</div>
+                        <div class="stat-number" id="globalVisitCount">0</div>
+                        <div class="stat-label">👥 Total Visits</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">500+</div>
-                        <div class="stat-label">Resources</div>
+                        <div class="stat-number" id="scholarshipSubmissions">0</div>
+                        <div class="stat-label">👥 Students Registered</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-number">24/7</div>
@@ -116,7 +122,7 @@
                 </a>
 
                 <!-- Scholarship Probability Checker -->
-                <a href="scholarship-checker.html" class="tool-card tool-card-featured tool-card-coming-soon">
+                <div class="tool-card tool-card-featured tool-card-coming-soon" style="position: relative;">
                     <div class="coming-soon-badge">Coming Soon</div>
                     <div class="tool-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
                         💰
@@ -124,31 +130,27 @@
                     <div class="tool-content">
                         <h3 class="tool-title">Scholarship Probability Checker</h3>
                         <p class="tool-description">Find out your chances of getting a scholarship based on student submissions. See where you rank!</p>
+                        <p style="margin-top: 0.75rem; margin-bottom: 0.75rem; padding: 0.75rem; background: rgba(251, 191, 36, 0.1); border-radius: 8px; font-size: 0.875rem; color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            📅 Available after final exams end
+                        </p>
                         <div class="tool-features">
                             <span class="feature-tag">Live Rankings</span>
                             <span class="feature-tag">Tier Estimates</span>
                             <span class="feature-tag">Department Stats</span>
                         </div>
                     </div>
-                    <div class="tool-arrow">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                    </div>
-                </a>
+                </div>
 
-                <!-- GPA to Percentage -->
-                <div class="tool-card tool-card-coming-soon">
-                    <div class="coming-soon-badge">Coming Soon</div>
-                    <div class="tool-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                        🔄
+                <!-- Teacher Reviews -->
+                <a href="teacher-reviews.html" class="tool-card" style="text-decoration: none; color: inherit;">
+                    <div class="tool-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        ⭐
                     </div>
                     <div class="tool-content">
-                        <h3 class="tool-title">GPA Converter</h3>
-                        <p class="tool-description">Convert between GPA scales and percentage formats instantly.</p>
+                        <h3 class="tool-title">Teacher Reviews</h3>
+                        <p class="tool-description">Read and write reviews for UIU teachers based on your course experience.</p>
                     </div>
-                </div>
+                </a>
 
                 <!-- Credit Planner -->
                 <div class="tool-card tool-card-coming-soon">
@@ -323,6 +325,119 @@
         </div>
     </footer>
 
+    <!-- Logout Modal -->
+    <div id="logoutModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 2rem; border-radius: 20px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid rgba(148, 163, 184, 0.2); animation: modalSlideIn 0.3s ease;">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1rem;">
+                    👋
+                </div>
+                <h2 style="color: #f8fafc; font-size: 1.5rem; margin-bottom: 0.5rem;">Logout</h2>
+                <p style="color: #94a3b8; font-size: 0.95rem;">Are you sure you want to logout?</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button id="cancelLogout" style="flex: 1; padding: 0.875rem; background: transparent; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 12px; color: #f8fafc; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    Cancel
+                </button>
+                <button id="confirmLogout" style="flex: 1; padding: 0.875rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/review-auth.js"></script>
+    
+    <style>
+        /* Glowing Border Animation for Login Button */
+        @keyframes glow-border {
+            0%, 100% { 
+                box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+                border-color: rgba(102, 126, 234, 0.3);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.8), 0 0 30px rgba(118, 75, 162, 0.6);
+                border-color: rgba(102, 126, 234, 1);
+            }
+        }
+
+        #loginBtn.animate-glow {
+            animation: glow-border 3s ease-in-out infinite;
+            animation-delay: 2s;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        /* Stop animation on hover */
+        #loginBtn.animate-glow:hover {
+            animation: none;
+        }
+
+        /* Modal Animation */
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    
+    <script>
+        // Check if user is logged in and show appropriate button
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.getElementById('loginBtn');
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userEmailSpan = document.getElementById('userEmail');
+            
+            if (reviewAuth.isLoggedIn()) {
+                const userData = reviewAuth.getUserData();
+                if (userData) {
+                    loginBtn.style.display = 'none';
+                    userMenuBtn.style.display = 'inline-flex';
+                    userEmailSpan.textContent = userData.email.split('@')[0];
+                    
+                    // Add logout functionality
+                    userMenuBtn.addEventListener('click', () => {
+                        document.getElementById('logoutModal').style.display = 'flex';
+                    });
+                }
+            } else {
+                loginBtn.style.display = 'inline-flex';
+                userMenuBtn.style.display = 'none';
+                
+                // Add glowing border animation to login button
+                loginBtn.classList.add('animate-glow');
+                
+                // Stop animation after 60 seconds
+                setTimeout(() => {
+                    loginBtn.classList.remove('animate-glow');
+                }, 60000);
+                
+                // Stop animation when user clicks
+                loginBtn.addEventListener('click', () => {
+                    loginBtn.classList.remove('animate-glow');
+                });
+            }
+
+            // Logout modal handlers
+            document.getElementById('cancelLogout')?.addEventListener('click', () => {
+                document.getElementById('logoutModal').style.display = 'none';
+            });
+
+            document.getElementById('confirmLogout')?.addEventListener('click', () => {
+                reviewAuth.clearSession();
+                location.reload();
+            });
+
+            // Close modal on background click
+            document.getElementById('logoutModal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'logoutModal') {
+                    document.getElementById('logoutModal').style.display = 'none';
+                }
+            });
+        });
+    </script>
+    <script src="js/visit-tracker.js"></script>
     <script src="js/landing.js"></script>
 </body>
 </html>
