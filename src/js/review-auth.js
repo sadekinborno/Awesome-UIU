@@ -204,36 +204,48 @@ async function sendOTP(email, studentId) {
         
         const otp = generateOTP();
         const expiresAtMs = Date.now() + 5 * 60 * 1000; // 5 minutes from now in milliseconds
+        const cleanStudentId = studentId.replace(/\D/g, '');
+        const cleanEmail = email.toLowerCase();
         
-        // Store OTP in database
-        const { error: insertError } = await supabase
+        // Store OTP in database (UPSERT: insert new or update existing)
+        const { error: upsertError } = await supabase
             .from('email_verifications')
-            .insert({
-                email: email.toLowerCase(),
-                student_id: studentId.replace(/\D/g, ''),
+            .upsert({
+                email: cleanEmail,
+                student_id: cleanStudentId,
                 otp: otp,
                 expires_at: expiresAtMs,
                 attempts: 0,
-                verified: false
+                verified: false,
+                created_at: new Date().toISOString()
+            }, {
+                onConflict: 'email',
+                ignoreDuplicates: false
             });
         
-        if (insertError) {
-            console.error('Insert error details:', insertError);
-            throw insertError;
+        if (upsertError) {
+            console.error('Upsert error details:', upsertError);
+            throw new Error('Failed to create verification request. Please try again.');
         }
         
         // Send OTP email via Edge Function
-        const { error: emailError } = await supabase.functions.invoke('send-otp-email', {
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-otp-email', {
             body: {
-                email: email.toLowerCase(),
+                email: cleanEmail,
                 otp: otp,
-                studentId: studentId
+                studentId: cleanStudentId
             }
         });
         
         if (emailError) {
             console.error('Email sending failed:', emailError);
-            throw new Error('Failed to send OTP email. Please try again.');
+            // Don't fail completely if email service is down - OTP is still in DB
+            console.warn('⚠️ Email service unavailable. OTP stored in database.');
+            return { 
+                success: true, 
+                message: 'OTP generated! (Email service temporarily unavailable - check database)',
+                fallback: true
+            };
         }
         
         await incrementRateLimit(clientIP, 'review_otp');
