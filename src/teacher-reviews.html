@@ -452,6 +452,13 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
+
+        .visible-count {
+            margin-top: 0.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
@@ -532,6 +539,8 @@
             </div>
         </div>
 
+        <div class="visible-count" id="visibleTeachersCount"></div>
+
         <!-- Teachers Grid -->
         <div id="loadingSpinner" class="loading-spinner">
             <div class="spinner"></div>
@@ -539,17 +548,16 @@
 
         <div id="teachersGrid" class="teachers-grid" style="display: none;"></div>
 
+        <div id="loadMoreContainer" style="text-align: center; margin-top: 1.5rem; display: none;">
+            <button id="loadMoreBtn" class="glass-btn">
+                <i class="fas fa-plus"></i> Load More Teachers
+            </button>
+        </div>
+
         <div id="noResults" class="no-results" style="display: none;">
             <i class="fas fa-search"></i>
             <h3>No teachers found</h3>
             <p>Try adjusting your filters or search query</p>
-        </div>
-
-        <!-- Back Button -->
-        <div style="text-align: center; margin-top: 2rem;">
-            <button onclick="window.location.href='index.html'" class="glass-btn">
-                <i class="fas fa-home"></i> Back to Home
-            </button>
         </div>
     </div>
 
