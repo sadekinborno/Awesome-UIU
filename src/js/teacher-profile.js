@@ -28,7 +28,7 @@ function setupEventListeners() {
 async function loadTeacherProfile() {
     try {
         // Get teacher data
-        const { data: teacher, error: teacherError } = await supabase
+        const { data: teacher, error: teacherError } = await window.supabaseClient
             .from('teachers')
             .select('*')
             .eq('id', teacherId)
@@ -37,7 +37,7 @@ async function loadTeacherProfile() {
         if (teacherError) throw teacherError;
 
         // Get courses for this teacher
-        const { data: courseLinks } = await supabase
+        const { data: courseLinks } = await window.supabaseClient
             .from('course_teachers')
             .select('course_code')
             .eq('teacher_id', teacherId);
@@ -46,7 +46,7 @@ async function loadTeacherProfile() {
         
         let courses = [];
         if (courseCodes.length > 0) {
-            const { data: courseData } = await supabase
+            const { data: courseData } = await window.supabaseClient
                 .from('courses')
                 .select('code, name')
                 .in('code', courseCodes);
@@ -58,7 +58,7 @@ async function loadTeacherProfile() {
         teacherData = teacher;
 
         // Get all reviews for this teacher
-        const { data: reviews, error: reviewsError } = await supabase
+        const { data: reviews, error: reviewsError } = await window.supabaseClient
             .from('teacher_reviews')
             .select('*')
             .eq('teacher_id', teacherId)
@@ -77,7 +77,7 @@ async function loadTeacherProfile() {
                     };
                 }
                 
-                const { data: course } = await supabase
+                const { data: course } = await window.supabaseClient
                     .from('courses')
                     .select('code, name')
                     .eq('code', review.course_code)
@@ -290,7 +290,7 @@ async function handleVote(button) {
         // Update vote count in database
         const field = voteType ? 'helpful_count' : 'not_helpful_count';
         
-        const { data: review } = await supabase
+        const { data: review } = await window.supabaseClient
             .from('teacher_reviews')
             .select(field)
             .eq('id', reviewId)
@@ -298,7 +298,7 @@ async function handleVote(button) {
 
         const newCount = (review[field] || 0) + (button.classList.contains('voted') ? 1 : -1);
 
-        await supabase
+        await window.supabaseClient
             .from('teacher_reviews')
             .update({ [field]: newCount })
             .eq('id', reviewId);

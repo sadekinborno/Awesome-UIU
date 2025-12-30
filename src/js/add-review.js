@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Preload teacher if coming from profile
 async function preloadTeacher(teacherId) {
     try {
-        const { data: teacher, error } = await supabase
+        const { data: teacher, error } = await window.supabaseClient
             .from('teachers')
             .select('id, name, department')
             .eq('id', teacherId)
@@ -102,7 +102,7 @@ function setupEventListeners() {
 // Load teachers for selected department
 async function loadTeachersForDepartment(department) {
     try {
-        const { data: teachers, error } = await supabase
+        const { data: teachers, error } = await window.supabaseClient
             .from('teachers')
             .select('id, name')
             .eq('department', department)
@@ -131,7 +131,7 @@ async function loadTeachersForDepartment(department) {
 async function loadCoursesForTeacher(teacherId) {
     try {
         // First, get course codes for this teacher
-        const { data: courseTeachers, error: ctError } = await supabase
+        const { data: courseTeachers, error: ctError } = await window.supabaseClient
             .from('course_teachers')
             .select('course_code')
             .eq('teacher_id', teacherId);
@@ -150,7 +150,7 @@ async function loadCoursesForTeacher(teacherId) {
         const courseCodes = courseTeachers.map(ct => ct.course_code);
 
         // Fetch course details
-        const { data: courses, error: coursesError } = await supabase
+        const { data: courses, error: coursesError } = await window.supabaseClient
             .from('courses')
             .select('code, name')
             .in('code', courseCodes)
@@ -235,7 +235,7 @@ async function handleSubmit(e) {
         }
         
         // Insert review
-        const { data, error } = await supabase
+        const { data, error } = await window.supabaseClient
             .from('teacher_reviews')
             .insert([{
                 teacher_id: teacherId,

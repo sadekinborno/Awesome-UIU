@@ -46,7 +46,7 @@ serve(async (req: Request) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'The Awesome UIU <onboarding@resend.dev>',
+  from: 'The Awesome UIU <noreply@awesomeuiu.tech>',
         to: [email],
         subject: 'Your Verification Code - The Awesome UIU',
         html: `

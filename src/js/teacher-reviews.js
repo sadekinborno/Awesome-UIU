@@ -37,7 +37,7 @@ async function loadTeachers() {
         console.log('Loading teachers...');
         
         // Get all teachers with their basic stats
-        const { data: teachers, error } = await supabase
+        const { data: teachers, error } = await window.supabaseClient
             .from('teachers')
             .select('*')
             .order('name');
@@ -52,7 +52,7 @@ async function loadTeachers() {
         // Get courses for each teacher separately to avoid foreign key issues
         const teachersWithCourses = await Promise.all(
             teachers.map(async (teacher) => {
-                const { data: courseLinks } = await supabase
+                const { data: courseLinks } = await window.supabaseClient
                     .from('course_teachers')
                     .select('course_code')
                     .eq('teacher_id', teacher.id);
@@ -61,7 +61,7 @@ async function loadTeachers() {
                 
                 let courses = [];
                 if (courseCodes.length > 0) {
-                    const { data: courseData } = await supabase
+                    const { data: courseData } = await window.supabaseClient
                         .from('courses')
                         .select('code, name')
                         .in('code', courseCodes);
@@ -102,12 +102,12 @@ async function loadTeachers() {
 async function updateStats() {
     try {
         // Get total courses count
-        const { count: coursesCount } = await supabase
+        const { count: coursesCount } = await window.supabaseClient
             .from('courses')
             .select('*', { count: 'exact', head: true });
 
         // Get total reviews count
-        const { count: reviewsCount } = await supabase
+        const { count: reviewsCount } = await window.supabaseClient
             .from('teacher_reviews')
             .select('*', { count: 'exact', head: true });
 

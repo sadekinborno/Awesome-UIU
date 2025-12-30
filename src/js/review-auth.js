@@ -128,7 +128,7 @@ async function checkRateLimit(ip, actionType) {
     try {
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
         
-        const { data, error } = await supabase
+        const { data, error } = await window.supabaseClient
             .from('rate_limits')
             .select('*')
             .eq('ip_address', ip)
@@ -157,7 +157,7 @@ async function checkRateLimit(ip, actionType) {
 }
 
 async function incrementRateLimit(ip, actionType) {
-    const { data: existing } = await supabase
+    const { data: existing } = await window.supabaseClient
         .from('rate_limits')
         .select('*')
         .eq('ip_address', ip)
@@ -166,12 +166,12 @@ async function incrementRateLimit(ip, actionType) {
         .single();
     
     if (existing) {
-        await supabase
+        await window.supabaseClient
             .from('rate_limits')
             .update({ attempts: existing.attempts + 1 })
             .eq('id', existing.id);
     } else {
-        await supabase
+        await window.supabaseClient
             .from('rate_limits')
             .insert({
                 ip_address: ip,
@@ -208,13 +208,13 @@ async function sendOTP(email, studentId) {
         const cleanEmail = email.toLowerCase();
         
         // Delete any existing OTP for this email first
-        await supabase
+        await window.supabaseClient
             .from('email_verifications')
             .delete()
             .eq('email', cleanEmail);
         
         // Insert new OTP
-        const { error: insertError } = await supabase
+        const { error: insertError } = await window.supabaseClient
             .from('email_verifications')
             .insert({
                 email: cleanEmail,
@@ -231,7 +231,7 @@ async function sendOTP(email, studentId) {
         }
         
         // Send OTP email via Edge Function
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-otp-email', {
+        const { data: emailData, error: emailError } = await window.supabaseClient.functions.invoke('send-otp-email', {
             body: {
                 email: cleanEmail,
                 otp: otp,
@@ -276,7 +276,7 @@ async function verifyOTP(email, studentId, otp) {
         const normalizedStudentId = studentId.replace(/\D/g, '');
         
         // Get verification record
-        const { data: verification, error: fetchError } = await supabase
+        const { data: verification, error: fetchError } = await window.supabaseClient
             .from('email_verifications')
             .select('*')
             .eq('email', normalizedEmail)
@@ -303,7 +303,7 @@ async function verifyOTP(email, studentId, otp) {
         // Verify OTP
         if (verification.otp !== otp) {
             // Increment attempts
-            await supabase
+            await window.supabaseClient
                 .from('email_verifications')
                 .update({ attempts: verification.attempts + 1 })
                 .eq('id', verification.id);
@@ -312,7 +312,7 @@ async function verifyOTP(email, studentId, otp) {
         }
         
         // Mark as verified
-        await supabase
+        await window.supabaseClient
             .from('email_verifications')
             .update({ 
                 verified: true,
@@ -321,7 +321,7 @@ async function verifyOTP(email, studentId, otp) {
             .eq('id', verification.id);
         
         // Create or update user
-        const { data: existingUser } = await supabase
+        const { data: existingUser } = await window.supabaseClient
             .from('users')
             .select('*')
             .eq('email', normalizedEmail)
@@ -331,7 +331,7 @@ async function verifyOTP(email, studentId, otp) {
         
         if (existingUser) {
             // Update existing user
-            const { data: updated, error: updateError } = await supabase
+            const { data: updated, error: updateError } = await window.supabaseClient
                 .from('users')
                 .update({ 
                     email_verified: true,
@@ -345,7 +345,7 @@ async function verifyOTP(email, studentId, otp) {
             userData = updated;
         } else {
             // Create new user
-            const { data: newUser, error: insertError } = await supabase
+            const { data: newUser, error: insertError } = await window.supabaseClient
                 .from('users')
                 .insert({
                     email: normalizedEmail,
