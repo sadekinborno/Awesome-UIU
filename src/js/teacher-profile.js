@@ -241,19 +241,19 @@ function createReviewCard(review) {
         <div class="review-categories">
             <div class="review-category-item">
                 <span class="review-category-label">Teaching Quality</span>
-                <span class="review-category-score">${review.teaching_quality}/10</span>
+                <span class="review-category-score">${review.teaching_quality}/5</span>
             </div>
             <div class="review-category-item">
                 <span class="review-category-label">Grading Fairness</span>
-                <span class="review-category-score">${review.grading_fairness}/10</span>
+                <span class="review-category-score">${review.fair_grading}/5</span>
             </div>
             <div class="review-category-item">
                 <span class="review-category-label">Approachability</span>
-                <span class="review-category-score">${review.approachability}/10</span>
+                <span class="review-category-score">${review.approachability}/5</span>
             </div>
             <div class="review-category-item">
                 <span class="review-category-label">Punctuality</span>
-                <span class="review-category-score">${review.punctuality}/10</span>
+                <span class="review-category-score">${review.punctuality}/5</span>
             </div>
         </div>
         

@@ -39,18 +39,16 @@
             visitElement.textContent = newCount.toLocaleString();
         }
 
-        // Load unique registered students count
-        const { data: registeredStudents, error: countError } = await window.supabaseClient
-            .from('scholarship_submissions')
-            .select('user_id');
+        // Load total verified users count for "Students Registered" stat
+        const { data: users, error: usersError } = await window.supabaseClient
+            .from('users')
+            .select('id, email_verified');
 
-        if (!countError && registeredStudents) {
-            // Count unique students
-            const uniqueStudents = new Set(registeredStudents.map(s => s.user_id)).size;
-            
+        if (!usersError && users) {
+            const verifiedCount = users.filter(u => u.email_verified).length;
             const studentsElement = document.getElementById('scholarshipSubmissions');
             if (studentsElement) {
-                studentsElement.textContent = uniqueStudents.toLocaleString();
+                studentsElement.textContent = verifiedCount.toLocaleString();
             }
         }
 
