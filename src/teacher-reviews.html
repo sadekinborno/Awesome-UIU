@@ -558,12 +558,12 @@
             }
 
             .search-card {
-                padding: 1.1rem 1.1rem 1.25rem;
-                margin-bottom: 0.65rem;
+                padding: 1.1rem 1.1rem 1.15rem;
+                margin-bottom: 0.55rem;
             }
 
             .filter-section {
-                padding: 1.1rem 1.1rem 1rem;
+                padding: 1.05rem 1.1rem 0.95rem;
                 border-radius: 1rem;
             }
 
@@ -584,20 +584,25 @@
 
             .teachers-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
+                gap: 1.1rem;
             }
 
             .teacher-card {
                 border-radius: 1rem;
+                padding: 1.2rem 1rem;
             }
 
             .teacher-info {
+                flex-direction: column;
                 align-items: center;
+                text-align: center;
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
             }
 
             .teacher-avatar {
-                width: 56px;
-                height: 56px;
+                width: 58px;
+                height: 58px;
                 font-size: 1.4rem;
             }
         }
@@ -678,7 +683,7 @@
 
         @media (max-width: 600px) {
             .teachers-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: 1fr;
                 gap: 0.9rem;
             }
 
@@ -688,30 +693,31 @@
             }
 
             .teacher-info {
-                gap: 0.75rem;
-                margin-bottom: 0.75rem;
+                gap: 0.7rem;
+                margin-bottom: 0.7rem;
             }
 
             .teacher-avatar {
-                width: 50px;
-                height: 50px;
+                width: 52px;
+                height: 52px;
                 font-size: 1.3rem;
                 box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
             }
 
             .teacher-name {
                 font-size: 1rem;
-                margin-bottom: 0.15rem;
+                margin-bottom: 0.12rem;
             }
 
             .teacher-dept {
                 font-size: 0.8rem;
-                margin-bottom: 0.25rem;
+                margin-bottom: 0.22rem;
             }
 
             .rating-display {
+                justify-content: center;
                 gap: 0.4rem;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.45rem;
                 flex-wrap: wrap;
             }
 
