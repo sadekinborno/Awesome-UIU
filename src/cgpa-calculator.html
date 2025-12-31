@@ -6,12 +6,15 @@
     <title>🎓 CGPA Calculator - The Awesome UIU</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/cgpa-calculator-dark.css">
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- CGPA Calculator shares goal-planner style dark UI -->
 </head>
-<body>
+<body class="cgpa-calculator-page">
+    <div class="gradient-overlay"></div>
     <div class="app-container">
-        <header>
+        <header class="cgpa-header">
             <div class="container">
                 <div class="header-content">
                     <a href="index.html" class="back-link">
@@ -19,10 +22,19 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        Back to The Awesome UIU
+                        Back to Hub
                     </a>
-                    <h1>📊 CGPA Calculator</h1>
-                    <p>Calculate your academic performance with precision</p>
+                    <p class="cgpa-tool-title">CGPA Calculator</p>
+                    <div class="cgpa-hero">
+                        <div class="cgpa-hero-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 19V9l4-4 4 8 4-6 4 10" />
+                            </svg>
+                        </div>
+                        <h1 class="cgpa-hero-title">
+                            Calculate your <span class="gradient-text">true CGPA</span>
+                        </h1>
+                    </div>
                 </div>
             </div>
         </header>

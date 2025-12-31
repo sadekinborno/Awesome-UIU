@@ -4,8 +4,10 @@ class CGPACalculatorApp {
         this.courseCount = 0;
         this.initializeElements();
         this.attachEventListeners();
-        this.loadSavedData();
-        this.addInitialCourses();
+        const hasSavedCourses = this.loadSavedData();
+        if (!hasSavedCourses) {
+            this.addInitialCourses();
+        }
     }
 
     initializeElements() {
@@ -439,51 +441,59 @@ class CGPACalculatorApp {
     }
 
     loadSavedData() {
-        if (isStorageAvailable()) {
-            const savedData = loadFromStorage();
-            if (savedData) {
-                this.totalCreditsInput.value = savedData.totalCredits || '';
-                this.currentCgpaInput.value = savedData.currentCGPA || '';
-                
-                if (savedData.courses && savedData.courses.length > 0) {
-                    // Clear initial courses
-                    this.coursesContainer.innerHTML = '';
-                    this.courseCount = 0;
-                    
-                    // Add saved courses
-                    savedData.courses.forEach(course => {
-                        if (course.type === 'retake') {
-                            this.addRetakeSlot();
-                            const lastItem = this.coursesContainer.lastElementChild;
-                            if (course.credits) {
-                                lastItem.querySelector('.course-credit').value = course.credits;
-                            }
-                            if (course.oldGrade) {
-                                lastItem.querySelector('.old-grade').value = course.oldGrade;
-                            }
-                            if (course.newGrade) {
-                                lastItem.querySelector('.new-grade').value = course.newGrade;
-                            }
-                        } else {
-                            this.addCourseSlot();
-                            const lastItem = this.coursesContainer.lastElementChild;
-                            if (course.credits) {
-                                lastItem.querySelector('.course-credit').value = course.credits;
-                            }
-                            if (course.grade) {
-                                lastItem.querySelector('.course-grade').value = course.grade;
-                            }
-                        }
-                    });
-                    
-                    // Ensure at least 5 regular courses
-                    const regularCount = this.coursesContainer.querySelectorAll('.course-item[data-type="regular"]').length;
-                    for (let i = regularCount; i < 5; i++) {
-                        this.addCourseSlot();
+        if (!isStorageAvailable()) {
+            return false;
+        }
+
+        const savedData = loadFromStorage();
+        if (!savedData) {
+            return false;
+        }
+
+        this.totalCreditsInput.value = savedData.totalCredits || '';
+        this.currentCgpaInput.value = savedData.currentCGPA || '';
+
+        const hasSavedCourses = !!(savedData.courses && savedData.courses.length > 0);
+
+        if (hasSavedCourses) {
+            // Clear any initial markup
+            this.coursesContainer.innerHTML = '';
+            this.courseCount = 0;
+
+            // Add saved courses
+            savedData.courses.forEach(course => {
+                if (course.type === 'retake') {
+                    this.addRetakeSlot();
+                    const lastItem = this.coursesContainer.lastElementChild;
+                    if (course.credits) {
+                        lastItem.querySelector('.course-credit').value = course.credits;
+                    }
+                    if (course.oldGrade) {
+                        lastItem.querySelector('.old-grade').value = course.oldGrade;
+                    }
+                    if (course.newGrade) {
+                        lastItem.querySelector('.new-grade').value = course.newGrade;
+                    }
+                } else {
+                    this.addCourseSlot();
+                    const lastItem = this.coursesContainer.lastElementChild;
+                    if (course.credits) {
+                        lastItem.querySelector('.course-credit').value = course.credits;
+                    }
+                    if (course.grade) {
+                        lastItem.querySelector('.course-grade').value = course.grade;
                     }
                 }
+            });
+
+            // Ensure at least 5 regular courses
+            const regularCount = this.coursesContainer.querySelectorAll('.course-item[data-type="regular"]').length;
+            for (let i = regularCount; i < 5; i++) {
+                this.addCourseSlot();
             }
         }
+
+        return hasSavedCourses;
     }
 
     showAlert(message, type = 'info') {

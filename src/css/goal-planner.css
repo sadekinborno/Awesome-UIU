@@ -156,6 +156,82 @@ body {
     background-clip: text;
 }
 
+/* Sub-header (inline, like Teacher Reviews) */
+.sub-navbar {
+    margin-bottom: var(--spacing-lg);
+}
+
+.sub-nav-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sub-back-link {
+    position: absolute;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.sub-back-link:hover {
+    color: var(--primary-purple);
+    background: var(--card-bg);
+    transform: translateX(-3px);
+}
+
+.sub-back-link svg {
+    transition: transform var(--transition-fast);
+}
+
+.sub-back-link:hover svg {
+    transform: translateX(-3px);
+}
+
+.sub-nav-title {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, var(--primary-purple), var(--primary-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (max-width: 480px) {
+    .sub-nav-content {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-xs);
+    }
+
+    .sub-back-link {
+        position: static;
+        align-self: flex-start;
+        margin-bottom: var(--spacing-xs);
+        padding: 0.35rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .sub-nav-title {
+        text-align: center;
+        font-size: 1.15rem;
+        margin-top: var(--spacing-xs);
+    }
+}
+
 /* ============================================
    Container
    ============================================ */
