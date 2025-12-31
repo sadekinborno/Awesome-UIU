@@ -1,6 +1,9 @@
 // Teacher Profile Page Logic
 let teacherId = null;
 let teacherData = null;
+let allReviews = [];
+let currentReviewPage = 1;
+const REVIEWS_PAGE_SIZE = 5;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,6 +25,25 @@ function setupEventListeners() {
     document.getElementById('addReviewBtn').addEventListener('click', () => {
         window.location.href = `add-review.html?teacher=${teacherId}`;
     });
+
+    const prevBtn = document.getElementById('prevReviewsPage');
+    const nextBtn = document.getElementById('nextReviewsPage');
+    if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentReviewPage > 1) {
+                currentReviewPage--;
+                renderReviewsPage();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(allReviews.length / REVIEWS_PAGE_SIZE) || 1;
+            if (currentReviewPage < totalPages) {
+                currentReviewPage++;
+                renderReviewsPage();
+            }
+        });
+    }
 }
 
 // Load teacher profile data
@@ -93,7 +115,10 @@ async function loadTeacherProfile() {
         // Display profile
         displayProfile(teacher, reviewsWithCourses);
         displayCourses(teacher.course_teachers);
-        displayReviews(reviewsWithCourses);
+
+        allReviews = reviewsWithCourses || [];
+        currentReviewPage = 1;
+        renderReviewsPage();
 
     } catch (error) {
         console.error('Error loading profile:', error);
@@ -188,14 +213,17 @@ function displayCourses(courseTeachers) {
     });
 }
 
-// Display reviews
-function displayReviews(reviews) {
+// Render current reviews page with pagination
+function renderReviewsPage() {
     const container = document.getElementById('reviewsList');
     const noReviews = document.getElementById('noReviews');
+    const pagination = document.getElementById('reviewsPagination');
+    const pageInfo = document.getElementById('reviewsPageInfo');
 
-    if (!reviews || reviews.length === 0) {
+    if (!allReviews || allReviews.length === 0) {
         container.style.display = 'none';
         noReviews.style.display = 'block';
+        if (pagination) pagination.style.display = 'none';
         return;
     }
 
@@ -203,10 +231,31 @@ function displayReviews(reviews) {
     container.style.display = 'block';
     container.innerHTML = '';
 
-    reviews.forEach(review => {
+    const totalPages = Math.ceil(allReviews.length / REVIEWS_PAGE_SIZE) || 1;
+    if (currentReviewPage > totalPages) currentReviewPage = totalPages;
+
+    const start = (currentReviewPage - 1) * REVIEWS_PAGE_SIZE;
+    const end = start + REVIEWS_PAGE_SIZE;
+    const pageReviews = allReviews.slice(start, end);
+
+    pageReviews.forEach(review => {
         const reviewCard = createReviewCard(review);
         container.appendChild(reviewCard);
     });
+
+    if (pagination && pageInfo) {
+        if (totalPages <= 1) {
+            pagination.style.display = 'none';
+        } else {
+            pagination.style.display = 'flex';
+            pageInfo.textContent = `Page ${currentReviewPage} of ${totalPages}`;
+
+            const prevBtn = document.getElementById('prevReviewsPage');
+            const nextBtn = document.getElementById('nextReviewsPage');
+            if (prevBtn) prevBtn.disabled = currentReviewPage === 1;
+            if (nextBtn) nextBtn.disabled = currentReviewPage === totalPages;
+        }
+    }
 }
 
 // Create review card element
@@ -222,50 +271,58 @@ function createReviewCard(review) {
     });
 
     card.innerHTML = `
-        <div class="review-header">
-            <div class="review-author">
-                <div class="reviewer-name">Anonymous Student</div>
-                <div class="review-date">${date}</div>
+        <div class="review-main">
+            <div class="review-header">
+                <div class="review-author">
+                    <div class="reviewer-name">Anonymous Student</div>
+                    <div class="review-date">${date}</div>
+                </div>
+                <div class="review-rating">
+                    <div class="review-stars">${stars}</div>
+                </div>
             </div>
-            <div class="review-rating">
-                <div class="review-stars">${stars}</div>
-            </div>
+            <div class="review-content">${review.review_text}</div>
         </div>
-        
-        ${review.courses ? `
-            <div class="review-course">${review.courses.code} - ${review.courses.name}</div>
-        ` : ''}
-        
-        <div class="review-content">${review.review_text}</div>
-        
-        <div class="review-categories">
-            <div class="review-category-item">
-                <span class="review-category-label">Teaching Quality</span>
-                <span class="review-category-score">${review.teaching_quality}/5</span>
+
+        <button type="button" class="review-toggle">
+            <span>View details</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <div class="review-extra">
+            ${review.courses ? `
+                <div class="review-course">${review.courses.code} - ${review.courses.name}</div>
+            ` : ''}
+
+            <div class="review-categories">
+                <div class="review-category-item">
+                    <span class="review-category-label">Teaching Quality</span>
+                    <span class="review-category-score">${review.teaching_quality}/5</span>
+                </div>
+                <div class="review-category-item">
+                    <span class="review-category-label">Grading Fairness</span>
+                    <span class="review-category-score">${review.fair_grading}/5</span>
+                </div>
+                <div class="review-category-item">
+                    <span class="review-category-label">Approachability</span>
+                    <span class="review-category-score">${review.approachability}/5</span>
+                </div>
+                <div class="review-category-item">
+                    <span class="review-category-label">Punctuality</span>
+                    <span class="review-category-score">${review.punctuality}/5</span>
+                </div>
             </div>
-            <div class="review-category-item">
-                <span class="review-category-label">Grading Fairness</span>
-                <span class="review-category-score">${review.fair_grading}/5</span>
+            
+            <div class="review-votes">
+                <button class="vote-btn" data-review-id="${review.id}" data-vote="helpful">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>Helpful (${review.helpful_count || 0})</span>
+                </button>
+                <button class="vote-btn" data-review-id="${review.id}" data-vote="not-helpful">
+                    <i class="fas fa-thumbs-down"></i>
+                    <span>Not Helpful (${review.not_helpful_count || 0})</span>
+                </button>
             </div>
-            <div class="review-category-item">
-                <span class="review-category-label">Approachability</span>
-                <span class="review-category-score">${review.approachability}/5</span>
-            </div>
-            <div class="review-category-item">
-                <span class="review-category-label">Punctuality</span>
-                <span class="review-category-score">${review.punctuality}/5</span>
-            </div>
-        </div>
-        
-        <div class="review-votes">
-            <button class="vote-btn" data-review-id="${review.id}" data-vote="helpful">
-                <i class="fas fa-thumbs-up"></i>
-                <span>Helpful (${review.helpful_count || 0})</span>
-            </button>
-            <button class="vote-btn" data-review-id="${review.id}" data-vote="not-helpful">
-                <i class="fas fa-thumbs-down"></i>
-                <span>Not Helpful (${review.not_helpful_count || 0})</span>
-            </button>
         </div>
     `;
 
@@ -273,6 +330,19 @@ function createReviewCard(review) {
     card.querySelectorAll('.vote-btn').forEach(btn => {
         btn.addEventListener('click', () => handleVote(btn));
     });
+
+    // Toggle extra details
+    const toggleBtn = card.querySelector('.review-toggle');
+    const extra = card.querySelector('.review-extra');
+    if (toggleBtn && extra) {
+        toggleBtn.addEventListener('click', () => {
+            const isExpanded = card.classList.toggle('expanded');
+            const labelSpan = toggleBtn.querySelector('span');
+            if (labelSpan) {
+                labelSpan.textContent = isExpanded ? 'Hide details' : 'View details';
+            }
+        });
+    }
 
     return card;
 }

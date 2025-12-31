@@ -130,41 +130,42 @@
         }
 
         .profile-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1.25rem;
             margin-top: 2rem;
         }
 
-        .stat-box {
-            background: var(--dark-bg);
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem 2rem;
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
+            border-radius: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .stat-box:hover {
-            background: var(--card-hover);
-            border-color: #667eea;
-            transform: translateY(-3px);
+        .stat-item {
+            text-align: center;
+            padding: 0 0.5rem;
         }
 
         .stat-value {
-            font-size: 2.25rem;
+            font-size: 2.5rem;
             font-weight: 800;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
         .stat-label {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
+            font-size: 0.85rem;
+            color: var(--text-muted);
             font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.45px;
         }
 
         .rating-overview {
@@ -340,7 +341,7 @@
             background: var(--dark-bg);
             border: 1px solid var(--border-color);
             border-radius: 1.25rem;
-            padding: 2rem;
+            padding: 1.5rem 1.5rem 1.25rem;
             margin-bottom: 1.5rem;
             transition: all 0.3s ease;
         }
@@ -355,6 +356,12 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1.25rem;
+        }
+
+        .review-main {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
         .review-author {
@@ -401,6 +408,40 @@
             color: var(--text-secondary);
             line-height: 1.8;
             margin-bottom: 1.5rem;
+        }
+
+        .review-extra {
+            margin-top: 0.75rem;
+            padding-top: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .review-card.expanded .review-extra {
+            display: block;
+        }
+
+        .review-toggle {
+            margin-top: 0.25rem;
+            background: transparent;
+            border: none;
+            color: #a5b4fc;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .review-toggle i {
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+        }
+
+        .review-card.expanded .review-toggle i {
+            transform: rotate(180deg);
         }
 
         .review-categories {
@@ -523,6 +564,44 @@
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
 
+        .reviews-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        .pagination-btn {
+            padding: 0.55rem 1.2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--card-hover);
+            border-color: #667eea;
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reviews-page-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
         /* Responsive tweaks */
         @media (max-width: 992px) {
             .container {
@@ -566,6 +645,20 @@
 
             .profile-dept {
                 font-size: 1.05rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.75rem;
+                padding: 1.1rem 0.9rem;
+            }
+
+            .stat-item {
+                padding: 0.2rem 0.3rem;
+            }
+
+            .stat-value {
+                font-size: 1.6rem;
             }
 
             .rating-overview {
@@ -632,10 +725,6 @@
                 font-size: 2.1rem;
             }
 
-            .stat-value {
-                font-size: 1.9rem;
-            }
-
             .rating-number {
                 font-size: 3.2rem;
             }
@@ -654,7 +743,7 @@
             }
 
             .review-card {
-                padding: 1.5rem 1.25rem;
+                padding: 1.25rem 1.15rem 1rem;
             }
 
             .reviews-header {
@@ -671,6 +760,16 @@
 
             .glass-btn {
                 width: 100%;
+            }
+
+            .reviews-pagination {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .pagination-btn {
+                flex: 1 1 120px;
+                justify-content: center;
             }
         }
     </style>
@@ -702,16 +801,16 @@
                     <div class="profile-info">
                         <h1 class="profile-name" id="teacherName">Loading...</h1>
                         <div class="profile-dept" id="teacherDept">Loading...</div>
-                        <div class="profile-stats">
-                            <div class="stat-box">
+                        <div class="stats-bar profile-stats">
+                            <div class="stat-item">
                                 <div class="stat-value" id="totalReviews">0</div>
                                 <div class="stat-label">Reviews</div>
                             </div>
-                            <div class="stat-box">
+                            <div class="stat-item">
                                 <div class="stat-value" id="totalCourses">0</div>
                                 <div class="stat-label">Courses</div>
                             </div>
-                            <div class="stat-box">
+                            <div class="stat-item">
                                 <div class="stat-value" id="avgRating">0.0</div>
                                 <div class="stat-label">Avg Rating</div>
                             </div>
@@ -751,6 +850,11 @@
                 </div>
                 <div id="reviewsList">
                     <!-- Reviews will be inserted here -->
+                </div>
+                <div class="reviews-pagination" id="reviewsPagination" style="display: none;">
+                    <button type="button" class="pagination-btn" id="prevReviewsPage">Previous</button>
+                    <span class="reviews-page-info" id="reviewsPageInfo"></span>
+                    <button type="button" class="pagination-btn" id="nextReviewsPage">Next</button>
                 </div>
                 <div id="noReviews" class="no-reviews" style="display: none;">
                     <i class="fas fa-comments"></i>
