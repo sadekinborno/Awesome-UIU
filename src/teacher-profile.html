@@ -40,28 +40,45 @@
             padding: 2rem;
         }
 
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            margin-bottom: 2rem;
+        /* App-like navbar consistent with other tools */
+        .sub-navbar {
+            margin-bottom: 1.75rem;
         }
 
-        .back-button:hover {
-            background: var(--card-hover);
-            border-color: #667eea;
-            color: var(--text-primary);
+        .sub-nav-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sub-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.35rem 0.65rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .sub-back-link:hover {
+            color: #a5b4fc;
+            background: var(--card-bg);
             transform: translateX(-3px);
+        }
+
+        .sub-nav-title {
+            flex: 1;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .profile-header {
@@ -505,10 +522,172 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
+
+        /* Responsive tweaks */
+        @media (max-width: 992px) {
+            .container {
+                padding: 1.75rem;
+            }
+
+            .profile-header {
+                padding: 2rem;
+            }
+
+            .profile-name {
+                font-size: 2.1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .sub-navbar {
+                margin-bottom: 1.5rem;
+            }
+
+            .profile-top {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .profile-avatar {
+                width: 110px;
+                height: 110px;
+                font-size: 2.5rem;
+            }
+
+            .profile-name {
+                font-size: 2rem;
+            }
+
+            .profile-dept {
+                font-size: 1.05rem;
+            }
+
+            .rating-overview {
+                grid-template-columns: 1fr;
+                gap: 1.75rem;
+            }
+
+            .overall-rating {
+                padding: 1.75rem 1.5rem;
+            }
+
+            .course-list {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .review-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .review-rating {
+                align-items: flex-start;
+            }
+
+            .review-votes {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                line-height: 1.5;
+            }
+
+            .container {
+                padding: 1.25rem 1rem;
+            }
+
+            .sub-nav-title {
+                font-size: 1.15rem;
+            }
+
+            .profile-header {
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .profile-name {
+                font-size: 1.7rem;
+            }
+
+            .profile-dept {
+                font-size: 0.95rem;
+            }
+
+            .profile-top {
+                gap: 1.1rem;
+            }
+
+            .profile-avatar {
+                width: 90px;
+                height: 90px;
+                font-size: 2.1rem;
+            }
+
+            .stat-value {
+                font-size: 1.9rem;
+            }
+
+            .rating-number {
+                font-size: 3.2rem;
+            }
+
+            .courses-section,
+            .reviews-section {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .course-list {
+                grid-template-columns: 1fr;
+            }
+
+            .review-card {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .reviews-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .add-review-btn {
+                width: 100%;
+                justify-content: center;
+                display: inline-flex;
+            }
+
+            .glass-btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Nav / Back -->
+        <nav class="sub-navbar">
+            <div class="sub-nav-content">
+                <a href="teacher-reviews.html" class="sub-back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Teachers</span>
+                </a>
+                <h1 class="sub-nav-title">Teacher Profile</h1>
+            </div>
+        </nav>
+
         <!-- Loading State -->
         <div id="loadingSpinner" class="loading-spinner">
             <div class="spinner"></div>
@@ -516,12 +695,6 @@
 
         <!-- Profile Content -->
         <div id="profileContent" style="display: none;">
-            <!-- Back Button -->
-            <a href="teacher-reviews.html" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-                Back to Teachers
-            </a>
-
             <!-- Profile Header -->
             <div class="profile-header">
                 <div class="profile-top">
@@ -573,7 +746,7 @@
                 <div class="reviews-header">
                     <h2 class="section-title" style="margin: 0;"><i class="fas fa-star"></i> Student Reviews</h2>
                     <button class="add-review-btn" id="addReviewBtn">
-                        <i class="fas fa-plus"></i> Write a Review
+                        <i class="fas fa-plus"></i> Add a Review
                     </button>
                 </div>
                 <div id="reviewsList">

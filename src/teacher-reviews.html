@@ -40,71 +40,127 @@
             padding: 2rem;
         }
 
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            margin-bottom: 2rem;
+        /* App-style navbar similar to CGPA tools */
+        .sub-navbar {
+            margin-bottom: 1.5rem;
         }
 
-        .back-button:hover {
-            background: var(--card-hover);
-            border-color: #667eea;
-            color: var(--text-primary);
+        .sub-nav-content {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sub-back-link {
+            position: absolute;
+            left: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .sub-back-link:hover {
+            color: #a5b4fc;
+            background: var(--card-bg);
             transform: translateX(-3px);
         }
 
-        .reviews-header {
-            padding: 2rem 0;
-            margin-bottom: 2.5rem;
-        }
-
-        .reviews-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
+        .sub-nav-title {
+            text-align: center;
+            font-size: 1.3rem;
             font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .reviews-header h1 i {
+            margin: 0;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .reviews-header p {
+        /* Hero section, similar to goal planner */
+        .reviews-hero {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
+        }
+
+        .hero-highlight {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 0.98rem;
             color: var(--text-muted);
-            font-size: 1rem;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+
+        .search-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 1.25rem 1.5rem 1.4rem;
+            margin-bottom: 0.6rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .filter-section {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 1.25rem;
-            padding: 2rem;
-            margin-bottom: 3rem;
+            padding: 1.4rem 1.5rem 1.2rem;
+            margin-bottom: 0.2rem;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .filter-toggle i {
+            font-size: 0.9rem;
+        }
+
+        .filter-toggle:hover,
+        .filter-toggle.is-open {
+            background: var(--card-hover);
+            border-color: #667eea;
+            color: var(--text-primary);
         }
 
         .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 1.25rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0;
         }
 
         .filter-group {
@@ -137,6 +193,17 @@
             border-color: #667eea;
             background: var(--card-bg);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .filter-advanced {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.2s ease;
+        }
+
+        .filter-advanced.is-collapsed {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .sort-options {
@@ -396,24 +463,20 @@
         }
 
         .stats-bar {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem 2rem;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 1.25rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.5rem;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .stat-item {
             text-align: center;
-            padding: 0 1.5rem;
-        }
-
-        .stat-item:not(:last-child) {
-            border-right: 1px solid var(--border-color);
+            padding: 0 0.5rem;
         }
 
         .stat-value {
@@ -427,11 +490,11 @@
         }
 
         .stat-label {
-            font-size: 0.925rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.45px;
         }
 
         .glass-btn {
@@ -454,32 +517,245 @@
         }
 
         .visible-count {
-            margin-top: 0.5rem;
+            margin-top: 0.2rem;
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 900px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .teacher-card {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.25rem;
+            }
+
+            .sub-nav-title {
+                font-size: 1.15rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.75rem;
+                padding: 1.1rem 0.9rem;
+            }
+
+            .stat-item {
+                padding: 0.2rem 0.3rem;
+            }
+
+            .stat-value {
+                font-size: 1.6rem;
+            }
+
+            .search-card {
+                padding: 1.1rem 1.1rem 1.25rem;
+                margin-bottom: 0.65rem;
+            }
+
+            .filter-section {
+                padding: 1.1rem 1.1rem 1rem;
+                border-radius: 1rem;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 0.9rem;
+            }
+
+            .filter-group label {
+                font-size: 0.85rem;
+            }
+
+            .filter-group input,
+            .filter-group select {
+                font-size: 0.9rem;
+                padding: 0.7rem 0.85rem;
+            }
+
+            .teachers-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .teacher-card {
+                border-radius: 1rem;
+            }
+
+            .teacher-info {
+                align-items: center;
+            }
+
+            .teacher-avatar {
+                width: 56px;
+                height: 56px;
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                line-height: 1.5;
+            }
+
+            .container {
+                padding: 0.9rem;
+            }
+
+            .hero-title {
+                font-size: 1.75rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .search-card {
+                padding: 1rem 0.9rem 1.15rem;
+            }
+
+            .filter-section {
+                padding: 1rem 0.9rem 0.9rem;
+            }
+
+            .sort-options {
+                flex-direction: column;
+            }
+
+            .sort-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .teacher-card {
+                padding: 1.25rem;
+            }
+
+            .teacher-name {
+                font-size: 1.2rem;
+            }
+
+            .rating-display {
+                flex-wrap: wrap;
+            }
+
+            .rating-categories {
+                grid-template-columns: 1fr;
+                gap: 0.6rem;
+            }
+
+            .category-badge {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .course-tags {
+                gap: 0.35rem;
+            }
+
+            .course-tag {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
+        }
+
+        /* Compact teacher grid and cards for small/medium screens */
+        @media (max-width: 900px) and (min-width: 601px) {
+            .teachers-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1.25rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .teachers-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.9rem;
+            }
+
+            .teacher-card {
+                padding: 1rem;
+                border-radius: 0.9rem;
+            }
+
+            .teacher-info {
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .teacher-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+                box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
+            }
+
+            .teacher-name {
+                font-size: 1rem;
+                margin-bottom: 0.15rem;
+            }
+
+            .teacher-dept {
+                font-size: 0.8rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .rating-display {
+                gap: 0.4rem;
+                margin-bottom: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .stars .star {
+                font-size: 0.9rem;
+            }
+
+            .rating-score {
+                font-size: 1.05rem;
+            }
+
+            .review-count {
+                font-size: 0.8rem;
+            }
+
+            .teacher-card .rating-categories,
+            .teacher-card .teacher-courses {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Back Button and User Menu -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <a href="index.html" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-                Back to Home
-            </a>
-            <button class="back-button" id="logoutBtn" style="background: transparent; border: 1px solid var(--border-color); cursor: pointer;">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout (<span id="userEmail"></span>)
-            </button>
-        </div>
+        <!-- Nav / Back -->
+        <nav class="sub-navbar">
+            <div class="sub-nav-content">
+                <a href="index.html" class="sub-back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Home</span>
+                </a>
+                <h1 class="sub-nav-title">Teacher Reviews</h1>
+            </div>
+        </nav>
 
-        <!-- Header -->
-        <div class="reviews-header">
-            <h1><i class="fas fa-chalkboard-teacher"></i> Teacher Reviews</h1>
-            <p>Find and review your UIU teachers</p>
-        </div>
+        <!-- Hero -->
+        <section class="reviews-hero">
+            <h2 class="hero-title">
+                Find Your <span class="hero-highlight">Best UIU Teachers</span>
+            </h2>
+            <p class="hero-subtitle">
+                Browse ratings, reviews, and courses.
+            </p>
+        </section>
 
         <!-- Stats Bar -->
         <div class="stats-bar" id="statsBar">
@@ -497,13 +773,23 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="filter-section">
+        <!-- Search -->
+        <div class="search-card">
+            <div class="filter-group">
+                <label for="searchInput">Search Teacher</label>
+                <input type="text" id="searchInput" placeholder="Enter teacher name...">
+            </div>
+        </div>
+
+        <!-- Filters Toggle -->
+        <button type="button" class="filter-toggle" id="filterToggleBtn" style="margin-bottom: 0.3rem;">
+            <i class="fas fa-sliders-h"></i>
+            <span>Filters</span>
+        </button>
+
+        <!-- Advanced Filters -->
+        <div class="filter-section filter-advanced" id="filterAdvanced">
             <div class="filter-grid">
-                <div class="filter-group">
-                    <label>Search Teacher</label>
-                    <input type="text" id="searchInput" placeholder="Enter teacher name...">
-                </div>
                 <div class="filter-group">
                     <label>Department</label>
                     <select id="departmentFilter">
@@ -528,13 +814,13 @@
                         <option value="2">2+ Stars</option>
                     </select>
                 </div>
-            </div>
-            <div class="filter-group">
-                <label>Sort By</label>
-                <div class="sort-options">
-                    <button class="sort-btn active" data-sort="rating">Highest Rated</button>
-                    <button class="sort-btn" data-sort="reviews">Most Reviews</button>
-                    <button class="sort-btn" data-sort="name">Name (A-Z)</button>
+                <div class="filter-group">
+                    <label>Sort By</label>
+                    <div class="sort-options">
+                        <button class="sort-btn active" data-sort="rating">Highest Rated</button>
+                        <button class="sort-btn" data-sort="reviews">Most Reviews</button>
+                        <button class="sort-btn" data-sort="name">Name (A-Z)</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -570,18 +856,31 @@
             // Will redirect to login if not authenticated
         }
         
-        // Display user email and setup logout
         document.addEventListener('DOMContentLoaded', () => {
-            const userData = reviewAuth.getUserData();
-            if (userData) {
-                document.getElementById('userEmail').textContent = userData.email.split('@')[0];
+            const toggleBtn = document.getElementById('filterToggleBtn');
+            const advanced = document.getElementById('filterAdvanced');
+
+            if (toggleBtn && advanced) {
+                const setCollapsedState = () => {
+                    if (window.innerWidth <= 768) {
+                        if (!advanced.classList.contains('is-collapsed')) {
+                            advanced.classList.add('is-collapsed');
+                        }
+                        toggleBtn.classList.remove('is-open');
+                    } else {
+                        advanced.classList.remove('is-collapsed');
+                        toggleBtn.classList.remove('is-open');
+                    }
+                };
+
+                setCollapsedState();
+                window.addEventListener('resize', setCollapsedState);
+
+                toggleBtn.addEventListener('click', () => {
+                    advanced.classList.toggle('is-collapsed');
+                    toggleBtn.classList.toggle('is-open');
+                });
             }
-            
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                if (confirm('Are you sure you want to logout?')) {
-                    reviewAuth.logout();
-                }
-            });
         });
     </script>
     <script src="js/teacher-reviews.js"></script>
