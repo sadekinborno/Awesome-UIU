@@ -44,6 +44,19 @@ function validateStudentId(id) {
     return pattern.test(id) || /^\d{9,10}$/.test(digitsOnly);
 }
 
+function getLast3Digits(value) {
+    const digitsOnly = String(value ?? '').replace(/\D/g, '');
+    if (digitsOnly.length < 3) return null;
+    return digitsOnly.slice(-3);
+}
+
+function validateEmailStudentIdLast3Match(email, studentId) {
+    const localPart = String(email ?? '').split('@')[0] ?? '';
+    const emailLast3 = getLast3Digits(localPart);
+    const idLast3 = getLast3Digits(studentId);
+    return emailLast3 !== null && idLast3 !== null && emailLast3 === idLast3;
+}
+
 function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -186,6 +199,10 @@ async function sendOTP(email, studentId) {
         if (!validateStudentId(studentId)) {
             throw new Error('Please enter a valid Student ID (9-10 digits)');
         }
+
+        if (!validateEmailStudentIdLast3Match(email.toLowerCase(), studentId)) {
+            throw new Error('Either email or student ID is incorrect.');
+        }
         
         // Check rate limit
         const clientIP = getClientIP();
@@ -265,6 +282,10 @@ async function sendOTPEmail(email, otp) {
 async function verifyOTP(email, studentId, otp) {
     try {
         console.log('Verifying OTP:', { email, studentId, otp });
+
+        if (!validateEmailStudentIdLast3Match(String(email ?? '').toLowerCase(), studentId)) {
+            throw new Error('Either email or student ID is incorrect.');
+        }
         
         // Find the OTP record
         const { data: otpData, error: otpError } = await window.supabaseClient
