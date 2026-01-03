@@ -59,18 +59,15 @@ function saveSession(userData) {
     const sessionData = {
         userId: userData.id,
         email: userData.email,
-        studentId: userData.student_id,
         verifiedAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
     };
     localStorage.setItem(REVIEW_SESSION_KEY, JSON.stringify(sessionData));
     localStorage.setItem(REVIEW_USER_KEY, JSON.stringify(userData));
-    
     // Also save in scholarship auth format for cross-compatibility
     const scholarshipSessionData = {
         userId: userData.id,
         email: userData.email,
-        studentId: userData.student_id,
         verifiedAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
     };
@@ -186,56 +183,43 @@ async function incrementRateLimit(ip, actionType) {
 // Send OTP
 // ============================================
 
-async function sendOTP(email, studentId) {
+async function sendOTP(email) {
     try {
         if (!validateEmail(email)) {
             throw new Error('Please enter a valid UIU email address (@uiu.ac.bd)');
         }
-        
-        if (!validateStudentId(studentId)) {
-            throw new Error('Please enter a valid Student ID (9-10 digits)');
-        }
-        
         const clientIP = getClientIP();
         const rateCheck = await checkRateLimit(clientIP, 'review_otp');
         if (!rateCheck.allowed) {
             throw new Error(rateCheck.message);
         }
-        
         const otp = generateOTP();
         const expiresAtMs = Date.now() + 5 * 60 * 1000; // 5 minutes from now in milliseconds
-        const cleanStudentId = studentId.replace(/\D/g, '');
         const cleanEmail = email.toLowerCase();
-        
         // Delete any existing OTP for this email first
         await window.supabaseClient
             .from('email_verifications')
             .delete()
             .eq('email', cleanEmail);
-        
         // Insert new OTP
         const { error: insertError } = await window.supabaseClient
             .from('email_verifications')
             .insert({
                 email: cleanEmail,
-                student_id: cleanStudentId,
                 otp: otp,
                 expires_at: expiresAtMs,
                 attempts: 0,
                 verified: false
             });
-        
         if (insertError) {
             console.error('Insert error details:', insertError);
             throw new Error('Failed to create verification request. Please try again.');
         }
-        
         // Send OTP email via Edge Function
         const { data: emailData, error: emailError } = await window.supabaseClient.functions.invoke('send-otp-email', {
             body: {
                 email: cleanEmail,
-                otp: otp,
-                studentId: cleanStudentId
+                otp: otp
             }
         });
         
@@ -270,36 +254,29 @@ async function sendOTP(email, studentId) {
 // Verify OTP
 // ============================================
 
-async function verifyOTP(email, studentId, otp) {
+async function verifyOTP(email, otp) {
     try {
         const normalizedEmail = email.toLowerCase();
-        const normalizedStudentId = studentId.replace(/\D/g, '');
-        
         // Get verification record
         const { data: verification, error: fetchError } = await window.supabaseClient
             .from('email_verifications')
             .select('*')
             .eq('email', normalizedEmail)
-            .eq('student_id', normalizedStudentId)
             .eq('verified', false)
             .order('created_at', { ascending: false })
             .limit(1)
             .single();
-        
         if (fetchError || !verification) {
             throw new Error('No pending verification found. Please request a new OTP.');
         }
-        
         // Check if expired (expires_at is stored as bigint milliseconds)
         if (verification.expires_at < Date.now()) {
             throw new Error('OTP has expired. Please request a new one.');
         }
-        
         // Check attempts
         if (verification.attempts >= 5) {
             throw new Error('Too many failed attempts. Please request a new OTP.');
         }
-        
         // Verify OTP
         if (verification.otp !== otp) {
             // Increment attempts
@@ -307,10 +284,8 @@ async function verifyOTP(email, studentId, otp) {
                 .from('email_verifications')
                 .update({ attempts: verification.attempts + 1 })
                 .eq('id', verification.id);
-            
             throw new Error(`Invalid OTP. ${4 - verification.attempts} attempts remaining.`);
         }
-        
         // Mark as verified
         await window.supabaseClient
             .from('email_verifications')
@@ -319,16 +294,13 @@ async function verifyOTP(email, studentId, otp) {
                 attempts: verification.attempts + 1 
             })
             .eq('id', verification.id);
-        
         // Create or update user
         const { data: existingUser } = await window.supabaseClient
             .from('users')
             .select('*')
             .eq('email', normalizedEmail)
             .single();
-        
         let userData;
-        
         if (existingUser) {
             // Update existing user
             const { data: updated, error: updateError } = await window.supabaseClient
@@ -340,7 +312,6 @@ async function verifyOTP(email, studentId, otp) {
                 .eq('id', existingUser.id)
                 .select()
                 .single();
-            
             if (updateError) throw updateError;
             userData = updated;
         } else {
@@ -349,20 +320,16 @@ async function verifyOTP(email, studentId, otp) {
                 .from('users')
                 .insert({
                     email: normalizedEmail,
-                    student_id: normalizedStudentId,
                     email_verified: true,
                     verified_at: new Date().toISOString()
                 })
                 .select()
                 .single();
-            
             if (insertError) throw insertError;
             userData = newUser;
         }
-        
         // Save session
         saveSession(userData);
-        
         return { success: true, userData };
     } catch (error) {
         console.error('Verify OTP error:', error);

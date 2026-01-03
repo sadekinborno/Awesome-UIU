@@ -314,18 +314,6 @@
                         >
                         <p class="help-text">Use your UIU student email address</p>
                     </div>
-
-                    <div class="form-group">
-                        <label for="studentId">Student ID</label>
-                        <input 
-                            type="text" 
-                            id="studentId" 
-                            placeholder="XXX-XXX-XXX"
-                            required
-                        >
-                        <p class="help-text">9 or 10 digit Student ID</p>
-                    </div>
-
                     <button type="submit" class="btn" id="sendOtpBtn">
                         <i class="fas fa-paper-plane"></i>
                         Send OTP
@@ -373,7 +361,6 @@
     
     <script>
         let currentEmail = '';
-        let currentStudentId = '';
 
         // Check if already logged in
         if (reviewAuth.isLoggedIn()) {
@@ -387,25 +374,18 @@
             e.preventDefault();
             
             const email = document.getElementById('email').value.trim();
-            const studentId = document.getElementById('studentId').value.trim();
             const sendOtpBtn = document.getElementById('sendOtpBtn');
-            
             currentEmail = email;
-            currentStudentId = studentId;
-            
             sendOtpBtn.disabled = true;
             sendOtpBtn.innerHTML = '<div class="loading-spinner"></div> Sending...';
-            
             try {
-                await reviewAuth.sendOTP(email, studentId);
-                
+                await reviewAuth.sendOTP(email);
                 // Move to step 2
                 document.getElementById('step1').classList.remove('active');
                 document.getElementById('step2').classList.add('active');
                 document.getElementById('step1Indicator').classList.remove('active');
                 document.getElementById('step2Indicator').classList.add('active');
                 document.getElementById('otpSentTo').textContent = `OTP sent to ${email}`;
-                
                 showAlert('OTP sent successfully! Check your email.', 'success');
             } catch (error) {
                 showAlert(error.message || 'Failed to send OTP', 'error');
@@ -421,15 +401,11 @@
             
             const otp = document.getElementById('otp').value.trim();
             const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-            
             verifyOtpBtn.disabled = true;
             verifyOtpBtn.innerHTML = '<div class="loading-spinner"></div> Verifying...';
-            
             try {
-                await reviewAuth.verifyOTP(currentEmail, currentStudentId, otp);
-                
+                await reviewAuth.verifyOTP(currentEmail, otp);
                 showAlert('Login successful! Redirecting...', 'success');
-                
                 setTimeout(() => {
                     const urlParams = new URLSearchParams(window.location.search);
                     const redirect = urlParams.get('redirect') || 'index.html';
@@ -451,18 +427,7 @@
             document.getElementById('otp').value = '';
         });
 
-        // Auto-format Student ID with dashes
-        document.getElementById('studentId').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-            
-            if (value.length > 3 && value.length <= 6) {
-                value = value.slice(0, 3) + '-' + value.slice(3);
-            } else if (value.length > 6) {
-                value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
-            }
-            
-            e.target.value = value;
-        });
+        // Student ID input removed; no formatting needed
     </script>
 </body>
 </html>

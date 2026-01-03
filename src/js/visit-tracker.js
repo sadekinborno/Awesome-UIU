@@ -9,29 +9,13 @@
 
         const pageName = 'homepage';
 
-        // Increment visit count
-        const { data: currentData, error: fetchError } = await window.supabaseClient
-            .from('page_visits')
-            .select('visit_count')
-            .eq('page_name', pageName)
-            .single();
+        // Atomic increment via RPC (requires add-page-visits-table.sql)
+        const { data: rpcData, error: rpcError } = await window.supabaseClient
+            .rpc('increment_page_visit', { p_page_name: pageName });
 
-        if (fetchError && fetchError.code !== 'PGRST116') {
-            throw fetchError;
-        }
+        if (rpcError) throw rpcError;
 
-        const newCount = (currentData?.visit_count || 0) + 1;
-
-        // Update visit count
-        const { error: updateError } = await window.supabaseClient
-            .from('page_visits')
-            .update({ 
-                visit_count: newCount,
-                last_updated: new Date().toISOString()
-            })
-            .eq('page_name', pageName);
-
-        if (updateError) throw updateError;
+        const newCount = rpcData?.visit_count ?? 0;
 
         // Display immediately without animation
         const visitElement = document.getElementById('globalVisitCount');

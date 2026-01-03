@@ -1,0 +1,14 @@
+let's not ask for student id in login. I have a better idea. 
+suppose this is the mail - "name223763@bscse.uiu.ac.bd", now the id would be 0112230763. why?
+because in UIU the first 3 digit of student represents department which is basically the what is written after @ in mail (bscse - last three letters), 
+next three digit represent batch which is the first 3 digit of the number part in student id,
+the last 3 digit represents the main unique part of id which also matches the last 3 digit of email before @. Sometimes there can 4 digits for id part if the mail has 7 digits instead of 6 in the number part but it can either be 0 or 1 in between id and batch in student id. if someones mail is name2231223@bscse.uiu.ac.bd their id will 0112231223.
+Now for the department digits there are different ones. let me provide them to you: 
+cse - 011
+eee - 021
+ds - 015
+bba - 111
+eco - 121
+mscse - 012
+mba - 112
+
