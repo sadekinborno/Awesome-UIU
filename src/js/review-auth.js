@@ -43,6 +43,19 @@ function validateStudentId(id) {
     return pattern.test(id) || /^\d{9,10}$/.test(digitsOnly);
 }
 
+function getLast3Digits(value) {
+    const digitsOnly = String(value ?? '').replace(/\D/g, '');
+    if (digitsOnly.length < 3) return null;
+    return digitsOnly.slice(-3);
+}
+
+function validateEmailStudentIdLast3Match(email, studentId) {
+    const localPart = String(email ?? '').split('@')[0] ?? '';
+    const emailLast3 = getLast3Digits(localPart);
+    const idLast3 = getLast3Digits(studentId);
+    return emailLast3 !== null && idLast3 !== null && emailLast3 === idLast3;
+}
+
 function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -187,7 +200,11 @@ async function sendOTP(email) {
     try {
         if (!validateEmail(email)) {
             throw new Error('Please enter a valid UIU email address (@uiu.ac.bd)');
+<<<<<<< HEAD
         }
+        // Only email is required for OTP now
+        
+>>>>>>> c8fe70c8b83468480545315ccac7196a38582511
         const clientIP = getClientIP();
         const rateCheck = await checkRateLimit(clientIP, 'review_otp');
         if (!rateCheck.allowed) {
@@ -257,6 +274,9 @@ async function sendOTP(email) {
 async function verifyOTP(email, otp) {
     try {
         const normalizedEmail = email.toLowerCase();
+=======
+>>>>>>> c8fe70c8b83468480545315ccac7196a38582511
+            // Only email is required for OTP verification now
         // Get verification record
         const { data: verification, error: fetchError } = await window.supabaseClient
             .from('email_verifications')
