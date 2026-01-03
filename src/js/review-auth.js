@@ -200,11 +200,8 @@ async function sendOTP(email) {
     try {
         if (!validateEmail(email)) {
             throw new Error('Please enter a valid UIU email address (@uiu.ac.bd)');
-<<<<<<< HEAD
-        }
-        // Only email is required for OTP now
-        
->>>>>>> c8fe70c8b83468480545315ccac7196a38582511
+    }
+    // Only email is required for OTP now
         const clientIP = getClientIP();
         const rateCheck = await checkRateLimit(clientIP, 'review_otp');
         if (!rateCheck.allowed) {
@@ -274,9 +271,7 @@ async function sendOTP(email) {
 async function verifyOTP(email, otp) {
     try {
         const normalizedEmail = email.toLowerCase();
-=======
->>>>>>> c8fe70c8b83468480545315ccac7196a38582511
-            // Only email is required for OTP verification now
+    // Only email is required for OTP verification now
         // Get verification record
         const { data: verification, error: fetchError } = await window.supabaseClient
             .from('email_verifications')
