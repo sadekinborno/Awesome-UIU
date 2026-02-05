@@ -3,6 +3,37 @@
 -- Run this in Supabase SQL Editor
 -- ============================================
 
+-- Ensure RLS is enabled on required tables
+ALTER TABLE IF EXISTS users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS email_verifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS rate_limits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS scholarship_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS department_stats ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS flagged_submissions ENABLE ROW LEVEL SECURITY;
+
+-- Ensure anon role has the required table privileges for client-side flows.
+-- RLS still applies after these GRANTs.
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT SELECT, INSERT, UPDATE ON public.users TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.email_verifications TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.rate_limits TO anon;
+
+-- Drop ALL existing policies on critical OTP tables.
+-- This avoids situations where a leftover RESTRICTIVE policy keeps blocking inserts.
+DO $$
+DECLARE
+	pol RECORD;
+BEGIN
+	FOR pol IN (
+		SELECT policyname, tablename
+		FROM pg_policies
+		WHERE schemaname = 'public'
+			AND tablename IN ('users', 'email_verifications', 'rate_limits')
+	) LOOP
+		EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I;', pol.policyname, pol.tablename);
+	END LOOP;
+END $$;
+
 -- Drop existing policies
 DROP POLICY IF EXISTS "Public read access to department stats" ON department_stats;
 DROP POLICY IF EXISTS "Allow public read on department_stats" ON department_stats;
@@ -40,6 +71,17 @@ DROP POLICY IF EXISTS "Allow public update on users" ON users;
 DROP POLICY IF EXISTS "Allow admin read on users" ON users;
 DROP POLICY IF EXISTS "Allow admin update on users" ON users;
 DROP POLICY IF EXISTS "Allow admin delete on users" ON users;
+
+-- OTP flow and client-side throttling also require these tables.
+-- If they have RLS enabled but no anon policies, the site will fail with 403.
+DROP POLICY IF EXISTS "Public access to verifications" ON email_verifications;
+DROP POLICY IF EXISTS "Allow public access to verifications" ON email_verifications;
+DROP POLICY IF EXISTS "Allow public insert for OTP" ON email_verifications;
+DROP POLICY IF EXISTS "Allow public select for OTP" ON email_verifications;
+DROP POLICY IF EXISTS "Allow public update for OTP" ON email_verifications;
+DROP POLICY IF EXISTS "Allow public delete for OTP" ON email_verifications;
+DROP POLICY IF EXISTS "Public access to rate limits" ON rate_limits;
+DROP POLICY IF EXISTS "Allow public access to rate_limits" ON rate_limits;
 
 -- ============================================
 -- DEPARTMENT STATS POLICIES
@@ -107,17 +149,40 @@ USING (public.is_admin());
 -- Public (anon) access needed by OTP-based flows (review-auth.js / scholarship-auth.js)
 CREATE POLICY "Allow public read on users"
 ON users FOR SELECT
-TO anon
+TO anon, authenticated
 USING (true);
 
 CREATE POLICY "Allow public insert on users"
 ON users FOR INSERT
-TO anon
+TO anon, authenticated
 WITH CHECK (true);
 
 CREATE POLICY "Allow public update on users"
 ON users FOR UPDATE
-TO anon
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- ============================================
+-- EMAIL VERIFICATIONS POLICIES (OTP)
+-- ============================================
+
+-- NOTE: This keeps the OTP flow client-side. For stronger security, move OTP verification into an Edge Function
+-- and lock this table down.
+CREATE POLICY "Allow public access to verifications"
+ON email_verifications FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- ============================================
+-- RATE LIMITS POLICIES
+-- ============================================
+
+-- NOTE: This is best-effort client-side rate limiting.
+CREATE POLICY "Allow public access to rate_limits"
+ON rate_limits FOR ALL
+TO anon, authenticated
 USING (true)
 WITH CHECK (true);
 

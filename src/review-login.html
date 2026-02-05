@@ -149,6 +149,34 @@
             opacity: 0.5;
         }
 
+        .email-input-wrapper {
+            position: relative;
+        }
+
+        .email-suffix {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            opacity: 0.8;
+            font-size: 0.95rem;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .email-hide-suffix .email-suffix {
+            display: none;
+        }
+
+        .email-input-wrapper input {
+            padding-right: 1rem;
+        }
+
+        .email-show-suffix input {
+            padding-right: 7.5rem;
+        }
+
         .help-text {
             font-size: 0.85rem;
             color: var(--text-secondary);
@@ -306,13 +334,18 @@
                 <form id="emailForm">
                     <div class="form-group">
                         <label for="email">UIU Email Address</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            placeholder="example@student.uiu.ac.bd"
-                            required
-                        >
-                        <p class="help-text">Use your UIU student email address</p>
+                        <div class="email-input-wrapper" id="emailWrapper">
+                            <input 
+                                type="text"
+                                inputmode="email"
+                                autocomplete="email"
+                                id="email" 
+                                placeholder="example@bscse"
+                                required
+                            >
+                            <span class="email-suffix" id="emailSuffix">.uiu.ac.bd</span>
+                        </div>
+                        <p class="help-text">Type like <b>example@bscse</b> (we add <b>.uiu.ac.bd</b>), or paste your full UIU email.</p>
                     </div>
                     <button type="submit" class="btn" id="sendOtpBtn">
                         <i class="fas fa-paper-plane"></i>
@@ -362,6 +395,18 @@
     <script>
         let currentEmail = '';
 
+        function updateEmailSuffixVisibility() {
+            const wrapper = document.getElementById('emailWrapper');
+            const input = document.getElementById('email');
+            if (!wrapper || !input) return;
+
+            const value = String(input.value || '').trim().toLowerCase();
+            const alreadyHasUiuDomain = /uiu\.ac\.bd\s*$/i.test(value) || value.includes('.uiu.ac.bd');
+
+            wrapper.classList.toggle('email-show-suffix', !alreadyHasUiuDomain);
+            wrapper.classList.toggle('email-hide-suffix', alreadyHasUiuDomain);
+        }
+
         // Check if already logged in
         if (reviewAuth.isLoggedIn()) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -373,9 +418,12 @@
         document.getElementById('emailForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('email').value.trim();
+            const rawEmail = document.getElementById('email').value;
+            const email = reviewAuth.normalizeEmail(rawEmail);
             const sendOtpBtn = document.getElementById('sendOtpBtn');
             currentEmail = email;
+            document.getElementById('email').value = email;
+            updateEmailSuffixVisibility();
             sendOtpBtn.disabled = true;
             sendOtpBtn.innerHTML = '<div class="loading-spinner"></div> Sending...';
             try {
@@ -426,6 +474,9 @@
             document.getElementById('step1Indicator').classList.add('active');
             document.getElementById('otp').value = '';
         });
+
+        document.getElementById('email').addEventListener('input', updateEmailSuffixVisibility);
+        updateEmailSuffixVisibility();
 
         // Student ID input removed; no formatting needed
     </script>
