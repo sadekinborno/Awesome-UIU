@@ -29,6 +29,19 @@ ALTER COLUMN course_code DROP NOT NULL;
 ALTER TABLE teacher_reviews 
 ALTER COLUMN review_text DROP NOT NULL;
 
+-- Add is_anonymous column if missing
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'teacher_reviews' AND column_name = 'is_anonymous'
+    ) THEN
+        ALTER TABLE teacher_reviews 
+        ADD COLUMN is_anonymous BOOLEAN NOT NULL DEFAULT FALSE;
+        RAISE NOTICE 'Added is_anonymous column';
+    END IF;
+END $$;
+
 -- Verify all columns exist with correct properties
 SELECT 
     column_name, 

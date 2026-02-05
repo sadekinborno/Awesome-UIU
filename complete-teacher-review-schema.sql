@@ -77,6 +77,9 @@ CREATE TABLE IF NOT EXISTS teacher_reviews (
     
     -- Written review (optional)
     review_text TEXT,
+
+    -- Privacy
+    is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
     
     -- Vote counts
     helpful_count INTEGER DEFAULT 0,

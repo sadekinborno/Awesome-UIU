@@ -339,6 +339,64 @@
             margin-bottom: 2rem;
             display: none;
             font-weight: 500;
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(900px, calc(100% - 3rem));
+            z-index: 1100;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.75);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1.5rem;
+        }
+
+        .loading-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(30, 41, 59, 0.92);
+            border: 1px solid rgba(102, 126, 234, 0.35);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 4px solid rgba(203, 213, 225, 0.25);
+            border-top-color: rgba(102, 126, 234, 0.9);
+            margin: 0 auto 1rem;
+            animation: spin 0.9s linear infinite;
+        }
+
+        .loading-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .loading-subtitle {
+            margin-top: 0.35rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .alert.error {
@@ -400,6 +458,89 @@
             border-color: #667eea;
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Privacy toggle */
+        .privacy-card {
+            padding: 1.25rem 1.25rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+        }
+
+        .privacy-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .privacy-title {
+            font-weight: 750;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .privacy-subtitle {
+            margin-top: 0.3rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .switch {
+            position: relative;
+            width: 56px;
+            height: 34px;
+            flex: 0 0 auto;
+        }
+
+        .switch-input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+
+        .switch-label {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: rgba(148, 163, 184, 0.18);
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .switch-label::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            background: rgba(248, 250, 252, 0.92);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .switch-input:checked + .switch-label {
+            background: var(--primary-gradient);
+            border-color: rgba(102, 126, 234, 0.65);
+            box-shadow: 0 10px 22px rgba(102, 126, 234, 0.25);
+        }
+
+        .switch-input:checked + .switch-label::after {
+            transform: translateX(22px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .switch-input:focus-visible + .switch-label {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
         }
 
         /* Responsive tweaks */
@@ -515,6 +656,13 @@
     </style>
 </head>
 <body>
+    <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-card" role="status" aria-live="polite">
+            <div class="loading-spinner"></div>
+            <div class="loading-title" id="loadingTitle">Submitting your review…</div>
+            <div class="loading-subtitle">Please wait</div>
+        </div>
+    </div>
     <div class="container">
         <div class="review-form-container">
             <!-- Back Button and User Menu -->
@@ -588,7 +736,7 @@
                         <label for="overall5"><i class="fas fa-star"></i></label>
                         <input type="radio" name="overall" value="4" id="overall4">
                         <label for="overall4"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="overall" value="3" id="overall3">
+                        <input type="radio" name="overall" value="3" id="overall3" checked>
                         <label for="overall3"><i class="fas fa-star"></i></label>
                         <input type="radio" name="overall" value="2" id="overall2">
                         <label for="overall2"><i class="fas fa-star"></i></label>
@@ -671,6 +819,23 @@
                         <textarea id="reviewText" maxlength="2000" placeholder="What did you like? What could be improved? Any tips for future students?"></textarea>
                         <div class="char-count">
                             <span id="charCount">0</span> / 2000 characters
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy -->
+                <div class="form-section">
+                    <h3><i class="fas fa-user-shield"></i> Privacy</h3>
+                    <div class="privacy-card">
+                        <div class="privacy-row">
+                            <div>
+                                <div class="privacy-title">Post anonymously</div>
+                                <div class="privacy-subtitle">Hide your name/email on the review.</div>
+                            </div>
+                            <div class="switch">
+                                <input type="checkbox" id="anonymousToggle" class="switch-input">
+                                <label for="anonymousToggle" class="switch-label" aria-label="Post review anonymously"></label>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -270,11 +270,13 @@ function createReviewCard(review) {
         day: 'numeric'
     });
 
+    const reviewerName = getReviewerDisplayName(review);
+
     card.innerHTML = `
         <div class="review-main">
             <div class="review-header">
                 <div class="review-author">
-                    <div class="reviewer-name">Anonymous Student</div>
+                    <div class="reviewer-name">${reviewerName}</div>
                     <div class="review-date">${date}</div>
                 </div>
                 <div class="review-rating">
@@ -345,6 +347,20 @@ function createReviewCard(review) {
     }
 
     return card;
+}
+
+function getReviewerDisplayName(review) {
+    if (review?.is_anonymous) {
+        return 'Anonymous Student';
+    }
+
+    const email = String(review?.student_email || '').trim();
+    if (!email) {
+        return 'Verified Student';
+    }
+
+    const localPart = email.split('@')[0] || email;
+    return localPart;
 }
 
 // Handle voting on reviews

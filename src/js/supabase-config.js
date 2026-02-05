@@ -17,6 +17,9 @@ const supabasePublicClient = window.supabase.createClient(
 	SUPABASE_ANON_KEY,
 	{
 		auth: {
+			// Use a distinct storage key to avoid multiple GoTrueClient instances
+			// fighting over the same key in the same browser context.
+			storageKey: 'sb-public-auth-token',
 			persistSession: false,
 			autoRefreshToken: false,
 			detectSessionInUrl: false

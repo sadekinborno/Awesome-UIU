@@ -190,6 +190,7 @@ async function handleSubmit(e) {
     e.preventDefault();
 
     const submitBtn = document.getElementById('submitBtn');
+    setLoading(true, 'Submitting your review…');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
@@ -210,6 +211,7 @@ async function handleSubmit(e) {
         const approachability = parseInt(document.getElementById('approachabilitySlider').value);
         const punctuality = parseInt(document.getElementById('punctualitySlider').value);
         const reviewText = document.getElementById('reviewText').value.trim() || null; // Review text is optional
+        const isAnonymous = document.getElementById('anonymousToggle')?.checked || false;
 
         // Debug: Log all values with types
         console.log('Review values:', {
@@ -220,7 +222,8 @@ async function handleSubmit(e) {
             approachability: `${approachability} (${typeof approachability})`,
             punctuality: `${punctuality} (${typeof punctuality})`,
             courseCode,
-            reviewText
+            reviewText,
+            isAnonymous
         });
 
         // Validate - teacher is required
@@ -234,38 +237,174 @@ async function handleSubmit(e) {
             throw new Error('Please log in to submit a review');
         }
         
-        // Insert review
-        const { data, error } = await window.supabaseClient
-            .from('teacher_reviews')
-            .insert([{
-                teacher_id: teacherId,
-                student_id: userData.id,
-                student_email: userData.email,
-                course_code: courseCode,
-                overall_rating: overallRating,
-                teaching_quality: teachingQuality,
-                fair_grading: gradingFairness,
-                approachability: approachability,
-                punctuality: punctuality,
-                review_text: reviewText
-            }])
-            .select();
+        await insertTeacherReview({
+            teacherId,
+            userId: userData.id,
+            userEmail: userData.email,
+            courseCode,
+            overallRating,
+            teachingQuality,
+            gradingFairness,
+            approachability,
+            punctuality,
+            reviewText,
+            isAnonymous
+        });
 
-        if (error) throw error;
-
-        showAlert('Review submitted successfully!', 'success');
-        
-        // Redirect to teacher profile after 2 seconds
-        setTimeout(() => {
-            window.location.href = `teacher-profile.html?id=${teacherId}`;
-        }, 2000);
+        // Go back immediately once submission completes
+        window.location.href = `teacher-profile.html?id=${teacherId}`;
 
     } catch (error) {
         console.error('Error submitting review:', error);
-        showAlert(error.message || 'Failed to submit review', 'error');
+        showAlert(formatSubmitError(error), 'error');
+        setLoading(false);
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Review';
     }
+}
+
+function getDbClient() {
+    // Prefer a client that does NOT attach Supabase Auth sessions.
+    // This avoids weird RLS behavior when an admin session exists in the browser.
+    return window.supabasePublicClient || window.supabaseClient;
+}
+
+function setLoading(isLoading, message = 'Loading…') {
+    const overlay = document.getElementById('loadingOverlay');
+    const title = document.getElementById('loadingTitle');
+    if (!overlay) return;
+
+    if (title) title.textContent = message;
+    overlay.style.display = isLoading ? 'flex' : 'none';
+    overlay.setAttribute('aria-hidden', isLoading ? 'false' : 'true');
+}
+
+function compactObject(obj) {
+    const out = {};
+    Object.entries(obj).forEach(([key, value]) => {
+        if (value !== undefined) out[key] = value;
+    });
+    return out;
+}
+
+function isMissingColumnError(err) {
+    const code = String(err?.code ?? '');
+    const msg = String(err?.message ?? '').toLowerCase();
+    // PostgREST schema-cache missing column errors often show as PGRST204.
+    return code === 'PGRST204' || msg.includes('schema cache') || msg.includes("could not find the '") || msg.includes('column') && msg.includes('does not exist');
+}
+
+function getMissingColumnName(err) {
+    const msg = String(err?.message ?? '');
+
+    // Example: "Could not find the 'is_anonymous' column of 'teacher_reviews' in the schema cache"
+    const schemaCacheMatch = msg.match(/could not find the '([^']+)' column/i);
+    if (schemaCacheMatch?.[1]) return schemaCacheMatch[1];
+
+    // Example: "column \"is_anonymous\" does not exist"
+    const doesNotExistMatch = msg.match(/column\s+"([^"]+)"\s+does\s+not\s+exist/i);
+    if (doesNotExistMatch?.[1]) return doesNotExistMatch[1];
+
+    return null;
+}
+
+function formatSubmitError(err) {
+    const msg = String(err?.message ?? '').trim();
+    const details = String(err?.details ?? '').trim();
+    const code = String(err?.code ?? '').trim();
+
+    // Hint for common RLS failure
+    if (code === '42501' || msg.toLowerCase().includes('row-level security')) {
+        return 'Submission blocked by database security (RLS). Run teacher-review-rls-policies.sql in Supabase, then try again.';
+    }
+
+    if (!msg && !details) return 'Failed to submit review. Please try again.';
+    if (details && details !== msg) return `${msg}${code ? ` (code: ${code})` : ''} — ${details}`;
+    return `${msg}${code ? ` (code: ${code})` : ''}`;
+}
+
+async function insertTeacherReview({
+    teacherId,
+    userId,
+    userEmail,
+    courseCode,
+    overallRating,
+    teachingQuality,
+    gradingFairness,
+    approachability,
+    punctuality,
+    reviewText,
+    isAnonymous
+}) {
+    const db = getDbClient();
+
+    const base = {
+        teacher_id: teacherId,
+        course_code: courseCode,
+        overall_rating: overallRating,
+        teaching_quality: teachingQuality,
+        approachability,
+        punctuality,
+        review_text: reviewText,
+        is_anonymous: isAnonymous
+    };
+
+    // Try likely schemas in order (project schema has changed over time).
+    const attempts = [
+        // Current UI code expectation
+        compactObject({
+            ...base,
+            fair_grading: gradingFairness,
+            student_id: userId,
+            student_email: userEmail
+        }),
+        // Alternate column name from SQL schema
+        compactObject({
+            ...base,
+            grading_fairness: gradingFairness,
+            student_id: userId,
+            student_email: userEmail
+        }),
+        // If student columns don't exist in DB, retry without them
+        compactObject({
+            ...base,
+            fair_grading: gradingFairness
+        }),
+        compactObject({
+            ...base,
+            grading_fairness: gradingFairness
+        })
+    ];
+
+    let lastError = null;
+    for (const originalPayload of attempts) {
+        // Clone so we can delete missing keys between retries.
+        let payload = { ...originalPayload };
+        let retriesLeft = 4;
+
+        while (retriesLeft-- > 0) {
+            const { error } = await db
+                .from('teacher_reviews')
+                .insert([payload]);
+
+            if (!error) return;
+
+            lastError = error;
+            if (!isMissingColumnError(error)) {
+                throw error;
+            }
+
+            const missing = getMissingColumnName(error);
+            if (!missing || !(missing in payload)) {
+                // Can't safely mutate payload further.
+                break;
+            }
+
+            delete payload[missing];
+        }
+    }
+
+    throw lastError || new Error('Failed to submit review');
 }
 
 // Show alert message
@@ -274,9 +413,6 @@ function showAlert(message, type) {
     alertBox.className = `alert ${type}`;
     alertBox.textContent = message;
     alertBox.style.display = 'block';
-
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Auto-hide after 5 seconds
     setTimeout(() => {
