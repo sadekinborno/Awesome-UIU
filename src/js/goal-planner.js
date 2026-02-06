@@ -79,6 +79,32 @@ const elements = {
 };
 
 // ============================================
+// Tenor GIF Pools
+// ============================================
+const HARD_MODE_YES_GIFS = [
+    {
+        postId: '15830436',
+        aspectRatio: '0.99375',
+        href: 'https://tenor.com/view/gym-dance-workout-treadmill-gif-15830436',
+        title: 'Gym Dance GIF',
+        searchHref: 'https://tenor.com/search/gym-gifs',
+        searchTitle: 'Gym GIFs'
+    },
+    {
+        postId: '2441191202035217238',
+        aspectRatio: '1.13402',
+        href: 'https://tenor.com/view/tom-and-jerry-tom-strong-jerry-strong-tom-gym-gif-2441191202035217238',
+        title: 'Tom And Jerry Tom Strong GIF',
+        searchHref: 'https://tenor.com/search/tom+and+jerry-gifs',
+        searchTitle: 'Tom And Jerry GIFs'
+    }
+];
+
+function pickRandomItem(items) {
+    return items[Math.floor(Math.random() * items.length)];
+}
+
+// ============================================
 // Event Listeners
 // ============================================
 elements.calculateBtn.addEventListener('click', handleCalculate);
@@ -525,11 +551,13 @@ function showGigaChadChallenge() {
 // Show Hard Mode Yes Challenge (Gym Dance)
 // ============================================
 function showHardModeYes() {
-    const gymDanceGIF = `
+    const selectedGif = pickRandomItem(HARD_MODE_YES_GIFS);
+
+    const hardModeYesGIF = `
         <div class="gif-media-container">
-            <div class="tenor-gif-embed" data-postid="15830436" data-share-method="host" data-aspect-ratio="0.99375" data-width="100%">
-                <a href="https://tenor.com/view/gym-dance-workout-treadmill-gif-15830436">Gym Dance GIF</a> from 
-                <a href="https://tenor.com/search/gym-gifs">Gym GIFs</a>
+            <div class="tenor-gif-embed" data-postid="${selectedGif.postId}" data-share-method="host" data-aspect-ratio="${selectedGif.aspectRatio}" data-width="100%">
+                <a href="${selectedGif.href}">${selectedGif.title}</a> from 
+                <a href="${selectedGif.searchHref}">${selectedGif.searchTitle}</a>
             </div>
         </div>
         <h2 class="gif-title">
@@ -537,7 +565,7 @@ function showHardModeYes() {
         </h2>
     `;
     
-    elements.gifContainer.innerHTML = gymDanceGIF;
+    elements.gifContainer.innerHTML = hardModeYesGIF;
     elements.gifSection.classList.remove('hidden');
     
     // Reload Tenor embed script to initialize new GIF
