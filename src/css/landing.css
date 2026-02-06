@@ -401,6 +401,95 @@ body {
     color: #f5576c;
 }
 
+.trending-now-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(
+        120deg,
+        #f5576c 0%,
+        #fa709a 28%,
+        #fbbf24 60%,
+        #fee140 100%
+    );
+    background-size: 220% 220%;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.2px;
+    pointer-events: none;
+    overflow: hidden;
+    box-shadow:
+        0 10px 24px rgba(245, 87, 108, 0.22),
+        0 0 18px rgba(251, 191, 36, 0.18);
+    animation: fireGradient 2.2s ease-in-out infinite;
+}
+
+.trending-now-badge span {
+    position: relative;
+    z-index: 1;
+    color: inherit;
+}
+
+.trending-now-badge::before {
+    content: '';
+    position: absolute;
+    inset: -40% -60%;
+    background: radial-gradient(
+        circle at 30% 70%,
+        rgba(254, 225, 64, 0.55) 0%,
+        rgba(251, 191, 36, 0.35) 25%,
+        rgba(250, 112, 154, 0.18) 55%,
+        rgba(245, 87, 108, 0) 72%
+    );
+    filter: blur(8px);
+    z-index: 0;
+    opacity: 0.75;
+    animation: fireFlicker 1.15s ease-in-out infinite;
+    pointer-events: none;
+}
+
+
+.trending-now-badge {
+    isolation: isolate;
+}
+
+@keyframes fireGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes fireFlicker {
+    0%, 100% {
+        transform: translate3d(-2%, 0, 0) scale(1);
+        opacity: 0.65;
+    }
+    50% {
+        transform: translate3d(2%, -1%, 0) scale(1.02);
+        opacity: 0.9;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .trending-now-badge,
+    .trending-now-badge::before {
+        animation: none;
+    }
+}
+
 .tool-icon {
     width: 64px;
     height: 64px;
@@ -410,6 +499,12 @@ body {
     justify-content: center;
     font-size: 32px;
     margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.tool-icon i {
+    font-size: 30px;
+    line-height: 1;
 }
 
 .tool-content {
@@ -508,6 +603,15 @@ body {
 .resource-icon {
     font-size: 48px;
     margin-bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+}
+
+.resource-icon i {
+    font-size: 44px;
+    line-height: 1;
 }
 
 .resource-title {
@@ -1041,6 +1145,11 @@ body {
     }
     
     .coming-soon-badge {
+        padding: 4px 10px;
+        font-size: 10px;
+    }
+
+    .trending-now-badge {
         padding: 4px 10px;
         font-size: 10px;
     }
