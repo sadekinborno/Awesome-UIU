@@ -2,24 +2,32 @@
 # Environment & Secrets
 # ============================================
 .env
-.env.local
-.env.production
-.env.development
-.env.test
+.env.*
 *.env
 
 # ============================================
-# Admin & Internal Tools
+# Admin (keep local; do not commit)
 # ============================================
-admin/
+# Admin UI pages/assets
+/src/admin*.html
+/src/js/admin*.js
+/src/css/admin*.css
+
+# Admin SQL/policies
+/admin*.sql
+/*admin-rls-policies.sql
 
 # ============================================
-# Dependencies & Packages
+# Dependencies & Package Managers
 # ============================================
 node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+.npm/
+.pnpm-store/
+
+# Lockfiles are typically committed; do NOT ignore them.
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
 
 # ============================================
 # Build Outputs & Cache
@@ -27,10 +35,14 @@ pnpm-lock.yaml
 dist/
 build/
 .cache/
-.netlify/
-.vercel/
-out/
 .next/
+out/
+
+# ============================================
+# Local Supabase (CLI) Artifacts
+# ============================================
+supabase/.temp/
+supabase/.branches/
 
 # ============================================
 # IDE & Editor
@@ -47,19 +59,13 @@ out/
 # ============================================
 # Operating System
 # ============================================
-# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
-
-# Linux
-*~
 
 # ============================================
 # Logs & Debug
@@ -72,72 +78,15 @@ lerna-debug.log*
 .pnpm-debug.log*
 
 # ============================================
-# Testing
+# Coverage
 # ============================================
 coverage/
 .nyc_output/
-*.test.js
-*.spec.js
 
 # ============================================
-# Temporary Files
+# Personal Notes (optional)
 # ============================================
-*.tmp
-*.temp
-*.bak
-*.backup
-*-old.*
-*-backup.*
-*.orig
-
-# ============================================
-# SQL Files - Database Schemas & Migrations
-# ============================================
-# Exclude all SQL files by default
-*.sql
-
-# But keep essential schema files
-!database-schema.sql
-!complete-teacher-review-schema.sql
-
-# Keep migration files
-!migrate-*.sql
-!fix-*.sql
-!update-*.sql
-
-# Exclude database dumps and test data
-*-dump.sql
-*-backup.sql
-test-data.sql
-sample-data.sql
-
-# ============================================
-# Markdown Documentation Files
-# ============================================
-# Exclude personal notes
 notes.md
-TODO.md
 NOTES.md
-*-notes.md
-*-draft.md
+TODO.md
 scratch.md
-
-# Keep main documentation
-!README.md
-!README_*.md
-!DATABASE_COLUMNS.md
-!SETUP_COMPLETE.md
-!LAUNCH_CHECKLIST.md
-!FUTURE_PLANS.md
-!*_GUIDE.md
-!CHANGELOG.md
-
-# ============================================
-# PowerShell Scripts
-# ============================================
-# Exclude test scripts
-test-*.ps1
-
-# Keep setup/deployment scripts if any
-!setup.ps1
-!deploy.ps1

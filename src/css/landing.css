@@ -401,6 +401,16 @@ body {
     color: #f5576c;
 }
 
+.tool-badges {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    pointer-events: none;
+}
+
 .trending-now-badge {
     position: absolute;
     top: 16px;
@@ -428,6 +438,14 @@ body {
         0 10px 24px rgba(245, 87, 108, 0.22),
         0 0 18px rgba(251, 191, 36, 0.18);
     animation: fireGradient 2.2s ease-in-out infinite;
+}
+
+.tool-badges .trending-now-badge {
+    position: relative;
+    top: auto;
+    right: auto;
+    z-index: 1;
+    overflow: hidden;
 }
 
 .trending-now-badge span {
@@ -521,6 +539,43 @@ body {
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 16px;
+}
+
+.tool-count-badge {
+    position: absolute;
+    top: 52px;
+    right: 16px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    z-index: 2;
+}
+
+.tool-badges .tool-count-badge {
+    position: static;
+    top: auto;
+    right: auto;
+}
+
+.tool-count-number {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.tool-count-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    line-height: 1;
 }
 
 .tool-features {

@@ -3,10 +3,12 @@
 (async function () {
 	const visitElement = document.getElementById('globalVisitCount');
 	const studentsElement = document.getElementById('scholarshipSubmissions');
+	const teacherReviewsCountElement = document.getElementById('teacherReviewsCount');
 
 	const setPlaceholder = (value) => {
 		if (visitElement) visitElement.textContent = value;
 		if (studentsElement) studentsElement.textContent = value;
+		if (teacherReviewsCountElement) teacherReviewsCountElement.textContent = value;
 	};
 
 	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -114,6 +116,20 @@
 
 		if (countError) throw countError;
 		if (studentsElement) studentsElement.textContent = (count ?? 0).toLocaleString();
+
+		// Count total teacher reviews (public-facing signal on the homepage)
+		if (teacherReviewsCountElement) {
+			const { count: reviewsCount, error: reviewsCountError } = await client
+				.from('teacher_reviews')
+				.select('id', { count: 'exact', head: true });
+
+			if (reviewsCountError) {
+				console.warn('[stats] Could not load teacher review count:', reviewsCountError);
+				teacherReviewsCountElement.textContent = '—';
+			} else {
+				teacherReviewsCountElement.textContent = (reviewsCount ?? 0).toLocaleString();
+			}
+		}
 	} catch (error) {
 		console.error('Error tracking visit:', error);
 		setPlaceholder('---');

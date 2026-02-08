@@ -5,8 +5,8 @@ const CONFIG = {
     GITHUB_API_BASE: 'https://api.github.com/repos/nurulalamador/UIUQuestionBank/contents',
     
     // Question Bank Website (Nurul Alam Ador's UIU Question Bank)
-    WEBSITE_URL: 'http://nurulalamador.github.io/UIUQuestionBank/courses.html',
-    BASE_URL: 'http://nurulalamador.github.io/UIUQuestionBank',
+    WEBSITE_URL: 'https://nurulalamador.github.io/UIUQuestionBank/courses.html',
+    BASE_URL: 'https://nurulalamador.github.io/UIUQuestionBank',
     
     // Featured courses - manually curated popular courses
     FEATURED_COURSES: [
@@ -15,43 +15,96 @@ const CONFIG = {
             name: 'Object Oriented Programming',
             department: 'CSE',
             files: 15,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE1115',
+            popular: true
+        },
+        {
+            code: 'CSE 2215',
+            name: 'Data Structures & Algorithms I',
+            department: 'CSE',
+            files: 12,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE2215',
             popular: true
         },
         {
             code: 'CSE 2217',
-            name: 'Data Structures',
+            name: 'Data Structures & Algorithms II',
             department: 'CSE',
-            files: 12,
-            popular: true
-        },
-        {
-            code: 'MAT 1205',
-            name: 'Differential Calculus & Coordinate Geometry',
-            department: 'MAT',
             files: 18,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE2217',
             popular: true
         },
         {
-            code: 'PHY 1101',
-            name: 'Physics I',
-            department: 'PHY',
+            code: 'PHY 2105',
+            name: 'Physics',
+            department: 'CSE',
             files: 10,
-            popular: false
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=PHY2105',
+            popular: true
         },
         {
             code: 'EEE 2113',
-            name: 'Circuit Analysis',
+            name: 'Electrical Circuits',
             department: 'EEE',
             files: 14,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=EEE2113',
+        },
+        {
+            code: 'CSE 3711',
+            name: 'Computer Networks',
+            department: 'CSE',
+            files: 8,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE3711',
             popular: true
         },
         {
-            code: 'BBA 2101',
-            name: 'Principles of Management',
-            department: 'BBA',
-            files: 8,
-            popular: false
-        }
+            code: 'MATH 1151',
+            name: 'Fundamental Calculus',
+            department: 'CSE',
+            files: 18,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=MATH1151',
+            popular: true
+        },
+        {
+            code: 'CSE 2233',
+            name: 'Theory of Computation',
+            department: 'CSE',
+            files: 18,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE2233',
+            popular: true
+        },
+        {
+            code: 'CSE 3421',
+            name: 'Software Engineering',
+            department: 'CSE',
+            files: 18,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE3421',
+            popular: true
+        },
+        {
+            code: 'CSE 4509',
+            name: 'Operating Systems',
+            department: 'CSE',
+            files: 18,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE4509',
+            popular: true
+        },
+        {
+            code: 'CSE 3313',
+            name: 'Computer Architecture',
+            department: 'CSE',
+            files: 18,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE3313',
+            popular: true
+        },
+        {
+            code: 'CSE 3521',
+            name: 'Database Management Systems',
+            department: 'CSE',
+            files: 18,
+            url: 'https://nurulalamador.github.io/UIUQuestionBank/course.html?id=CSE3521',
+            popular: true
+        },
     ],
     
     // Department folder mappings
@@ -126,7 +179,7 @@ function loadFeaturedCourses() {
 
 function createCourseCard(course) {
     const card = document.createElement('a');
-    card.href = '#';
+    card.href = course.url || '#';
     card.className = 'course-card';
     card.dataset.course = course.code;
     
@@ -156,8 +209,8 @@ function createCourseCard(course) {
     
     card.addEventListener('click', (e) => {
         e.preventDefault();
-        // Open the main question bank website
-        window.open(CONFIG.WEBSITE_URL, '_blank');
+        // Prefer course-specific URL when available
+        window.open(course.url || CONFIG.WEBSITE_URL, '_blank');
     });
     
     return card;

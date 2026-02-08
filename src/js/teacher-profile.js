@@ -22,9 +22,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Setup event listeners
 function setupEventListeners() {
-    document.getElementById('addReviewBtn').addEventListener('click', () => {
-        window.location.href = `add-review.html?teacher=${teacherId}`;
-    });
+    [
+        document.getElementById('addReviewBtn'),
+        document.getElementById('addReviewBtnInReviews')
+    ]
+        .filter(Boolean)
+        .forEach((btn) => {
+            btn.addEventListener('click', () => {
+                window.location.href = `add-review.html?teacher=${teacherId}`;
+            });
+        });
 
     const prevBtn = document.getElementById('prevReviewsPage');
     const nextBtn = document.getElementById('nextReviewsPage');
