@@ -237,7 +237,43 @@ body {
     display: flex;
     gap: 16px;
     justify-content: center;
-    margin-bottom: 80px;
+    margin-bottom: 50px;
+}
+
+/* Mystery Countdown (homepage) */
+.mystery-countdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 34px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.mystery-countdown-title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.mystery-countdown-time {
+    font-variant-numeric: tabular-nums;
+    font-size: 22px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (max-width: 640px) {
+    .mystery-countdown {
+        margin-bottom: 28px;
+    }
 }
 
 .btn {
@@ -324,6 +360,12 @@ body {
     font-weight: 800;
     margin-bottom: 16px;
     letter-spacing: -0.02em;
+}
+
+.section-title > i {
+    font-size: 0.85em;
+    margin-right: 12px;
+    vertical-align: -0.06em;
 }
 
 .section-description {
@@ -712,6 +754,8 @@ body {
 .about-section {
     padding: 100px 0;
     background: var(--dark-bg);
+    position: relative;
+    overflow: hidden;
 }
 
 .about-content {
@@ -719,6 +763,15 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 60px;
     align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.about-section .section-title {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .about-description {
@@ -738,11 +791,38 @@ body {
     display: flex;
     gap: 16px;
     align-items: flex-start;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .feature-icon {
-    font-size: 32px;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.18), rgba(118, 75, 162, 0.18));
+    border: 1px solid rgba(102, 126, 234, 0.25);
+    font-size: 18px;
     flex-shrink: 0;
+}
+
+.feature-icon i {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .feature-item h4 {
@@ -762,11 +842,19 @@ body {
     border-radius: 24px;
     padding: 48px;
     text-align: center;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
 }
 
 .visual-icon {
     font-size: 64px;
     margin-bottom: 24px;
+}
+
+.visual-icon i {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .visual-card h3 {
@@ -797,6 +885,12 @@ body {
 .footer-brand h3 {
     font-size: 24px;
     margin-bottom: 8px;
+}
+
+.footer-brand h3 i {
+    margin-right: 10px;
+    font-size: 0.9em;
+    vertical-align: -0.06em;
 }
 
 .footer-brand p {
@@ -893,6 +987,10 @@ body {
         width: 100%;
         gap: 12px;
         margin-bottom: 40px;
+    }
+
+    .btn-learn-more {
+        display: none;
     }
     
     .btn {

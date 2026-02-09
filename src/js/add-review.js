@@ -1,6 +1,7 @@
 // Add Review Page Logic
 let selectedTeacherId = null;
 let selectedCourseCode = null;
+let existingReviewId = null;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,6 +15,114 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     setupEventListeners();
 });
+
+function getLoggedInUser() {
+    try {
+        return window.reviewAuth?.getUserData?.() || null;
+    } catch {
+        return null;
+    }
+}
+
+function toLowerTrim(value) {
+    return String(value ?? '').trim().toLowerCase();
+}
+
+function isMissingColumnError(error) {
+    const msg = String(error?.message || '').toLowerCase();
+    return msg.includes('could not find the') && msg.includes('column');
+}
+
+function setSubmitMode(isEdit) {
+    const btn = document.getElementById('submitBtn');
+    if (!btn) return;
+    btn.innerHTML = isEdit
+        ? '<i class="fas fa-save"></i> Update Review'
+        : '<i class="fas fa-paper-plane"></i> Submit Review';
+}
+
+async function findExistingReviewForTeacher(teacherId) {
+    const user = getLoggedInUser();
+    if (!teacherId || !user) return null;
+	if (!user.id) return null;
+
+    const db = getDbClient();
+
+    try {
+        const { data, error } = await db
+            .from('teacher_reviews')
+            .select('*')
+            .eq('teacher_id', teacherId)
+            .eq('student_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+        if (error) throw error;
+        if (Array.isArray(data) && data.length) return data[0];
+        return null;
+    } catch (e) {
+        console.warn('findExistingReviewForTeacher failed:', e);
+        return null;
+    }
+}
+
+function setRadioValue(name, value) {
+    const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
+    if (el) el.checked = true;
+}
+
+function setSliderValue(prefix, value) {
+    const slider = document.getElementById(`${prefix}Slider`);
+    const valueDisplay = document.getElementById(`${prefix}Value`);
+    if (!slider) return;
+    slider.value = String(value);
+    if (valueDisplay) valueDisplay.textContent = String(value);
+}
+
+async function prefillFormFromReview(review) {
+    if (!review) return;
+
+    existingReviewId = review.id || null;
+    setSubmitMode(Boolean(existingReviewId));
+
+    // Course (optional)
+    if (review.course_code) {
+        const select = document.getElementById('courseSelect');
+        if (select) {
+            // If course list doesn't include the saved course, add it.
+            const hasOption = Array.from(select.options).some(o => o.value === review.course_code);
+            if (!hasOption) {
+                const option = document.createElement('option');
+                option.value = review.course_code;
+                option.textContent = review.course_code;
+                select.appendChild(option);
+            }
+            select.value = review.course_code;
+            selectedCourseCode = review.course_code;
+        }
+    }
+
+    // Overall (stars)
+    if (review.overall_rating) {
+        setRadioValue('overall', review.overall_rating);
+    }
+
+    // Category sliders (schema may vary: fair_grading vs grading_fairness)
+    if (review.teaching_quality != null) setSliderValue('teaching', review.teaching_quality);
+    const fairness = review.fair_grading != null ? review.fair_grading : review.grading_fairness;
+    if (fairness != null) setSliderValue('grading', fairness);
+    if (review.approachability != null) setSliderValue('approachability', review.approachability);
+    if (review.punctuality != null) setSliderValue('punctuality', review.punctuality);
+
+    // Text + anonymous
+    const reviewText = document.getElementById('reviewText');
+    if (reviewText) {
+        reviewText.value = review.review_text || '';
+        const cc = document.getElementById('charCount');
+        if (cc) cc.textContent = String(reviewText.value.length);
+    }
+    const anon = document.getElementById('anonymousToggle');
+    if (anon) anon.checked = Boolean(review.is_anonymous);
+}
 
 // Preload teacher if coming from profile
 async function preloadTeacher(teacherId) {
@@ -36,6 +145,15 @@ async function preloadTeacher(teacherId) {
         
         // Load courses for this teacher
         await loadCoursesForTeacher(teacherId);
+
+        // If user already reviewed this teacher, preload for editing.
+        const existing = await findExistingReviewForTeacher(teacherId);
+        if (existing) {
+            await prefillFormFromReview(existing);
+        } else {
+            existingReviewId = null;
+            setSubmitMode(false);
+        }
         
         // Show preview
         showTeacherPreview(teacher.name, teacher.department);
@@ -69,10 +187,20 @@ function setupEventListeners() {
             const teacherName = e.target.options[e.target.selectedIndex].text;
             const department = document.getElementById('departmentSelect').value;
             showTeacherPreview(teacherName, department);
+
+			// Prefill if an existing review exists for this teacher.
+			existingReviewId = null;
+			setSubmitMode(false);
+			const existing = await findExistingReviewForTeacher(selectedTeacherId);
+			if (existing) {
+				await prefillFormFromReview(existing);
+			}
         } else {
             document.getElementById('courseSelect').disabled = true;
             document.getElementById('courseSelect').innerHTML = '<option value="">Select teacher first</option>';
             hideTeacherPreview();
+			existingReviewId = null;
+			setSubmitMode(false);
         }
     });
 
@@ -237,9 +365,10 @@ async function handleSubmit(e) {
             throw new Error('Please log in to submit a review');
         }
         
-        await insertTeacherReview({
+        await saveTeacherReview({
             teacherId,
             userId: userData.id,
+            studentId: userData.student_id,
             userEmail: userData.email,
             courseCode,
             overallRating,
@@ -326,6 +455,7 @@ function formatSubmitError(err) {
 async function insertTeacherReview({
     teacherId,
     userId,
+    studentId,
     userEmail,
     courseCode,
     overallRating,
@@ -405,6 +535,83 @@ async function insertTeacherReview({
     }
 
     throw lastError || new Error('Failed to submit review');
+}
+
+async function updateTeacherReviewById(reviewId, {
+    teacherId,
+    userId,
+    studentId,
+    userEmail,
+    courseCode,
+    overallRating,
+    teachingQuality,
+    gradingFairness,
+    approachability,
+    punctuality,
+    reviewText,
+    isAnonymous
+}) {
+    const db = getDbClient();
+    const nowIso = new Date().toISOString();
+
+    const base = {
+        teacher_id: teacherId,
+        course_code: courseCode,
+        overall_rating: overallRating,
+        teaching_quality: teachingQuality,
+        approachability,
+        punctuality,
+        review_text: reviewText,
+        is_anonymous: isAnonymous,
+        updated_at: nowIso
+    };
+
+    const attempts = [
+        compactObject({ ...base, fair_grading: gradingFairness, student_id: userId, student_email: userEmail }),
+        compactObject({ ...base, grading_fairness: gradingFairness, student_id: userId, student_email: userEmail }),
+        compactObject({ ...base, fair_grading: gradingFairness }),
+        compactObject({ ...base, grading_fairness: gradingFairness })
+    ];
+
+    let lastError = null;
+    for (const originalPayload of attempts) {
+        let payload = { ...originalPayload };
+        let retriesLeft = 4;
+        while (retriesLeft-- > 0) {
+            const { error } = await db
+                .from('teacher_reviews')
+                .update(payload)
+                .eq('id', reviewId);
+
+            if (!error) return;
+            lastError = error;
+            if (!isMissingColumnError(error)) throw error;
+            const missing = getMissingColumnName(error);
+            if (!missing || !(missing in payload)) break;
+            delete payload[missing];
+        }
+    }
+
+    throw lastError || new Error('Failed to update review');
+}
+
+async function saveTeacherReview(params) {
+    // If we already know the review id, update directly.
+    if (existingReviewId) {
+        await updateTeacherReviewById(existingReviewId, params);
+        return;
+    }
+
+    // Otherwise, double-check if an existing review exists (e.g., multi-tab scenario).
+    const existing = await findExistingReviewForTeacher(params.teacherId);
+    if (existing?.id) {
+        existingReviewId = existing.id;
+        setSubmitMode(true);
+        await updateTeacherReviewById(existingReviewId, params);
+        return;
+    }
+
+    await insertTeacherReview(params);
 }
 
 // Show alert message

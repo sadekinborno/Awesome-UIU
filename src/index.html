@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎓 The Awesome UIU - Student Resources & Tools</title>
+    <title>The Awesome UIU - Student Resources & Tools</title>
     <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/responsive.css">
         <link rel="icon" href="assets/icons/uiu-logo.png" type="image/png">
@@ -25,7 +25,7 @@
         <div class="container">
             <div class="hero-content">
                 <div class="hero-badge">
-                    <span class="badge-icon">🎓</span>
+                    <span class="badge-icon"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span>
                     <span>The Awesome UIU</span>
                 </div>
                 <h1 class="hero-title">
@@ -43,7 +43,7 @@
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
                     </a>
-                    <a href="#about" class="btn btn-outline">Learn More</a>
+                    <a href="#about" class="btn btn-outline btn-learn-more">Learn More</a>
                     <a href="review-login.html?redirect=index.html" class="btn btn-outline" id="loginBtn" style="display: none;">
                         Login
                     </a>
@@ -51,6 +51,12 @@
                         👤 <span id="userEmail"></span>
                     </button>
                 </div>
+
+                <div class="mystery-countdown" id="mysteryCountdown" aria-label="Mystery Countdown" style="display: none;">
+                    <span class="mystery-countdown-title">Mystery Countdown</span>
+                    <span class="mystery-countdown-time" aria-label="Time left" id="mysteryCountdownText">—</span>
+                </div>
+
                 <div class="hero-stats">
                     <div class="stat-item">
                         <div class="stat-number" id="globalVisitCount">0</div>
@@ -73,7 +79,7 @@
     <section id="tools" class="tools-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">🛠️ Student Tools</h2>
+                <h2 class="section-title"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Student Tools</h2>
                 <p class="section-description">Powerful calculators and utilities to make your academic life easier</p>
             </div>
 
@@ -183,7 +189,7 @@
     <section id="resources" class="resources-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">📚 Study Resources</h2>
+                <h2 class="section-title"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Study Resources</h2>
                 <p class="section-description">Access curated study materials, notes, and question banks</p>
             </div>
 
@@ -284,21 +290,21 @@
                     </p>
                     <div class="about-features">
                         <div class="feature-item">
-                            <span class="feature-icon">✨</span>
+                            <span class="feature-icon"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></span>
                             <div>
                                 <h4>Student-First Design</h4>
                                 <p>Built by students, for students</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">🔒</span>
+                            <span class="feature-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
                             <div>
                                 <h4>Privacy Focused</h4>
                                 <p>Your data stays on your device</p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <span class="feature-icon">🚀</span>
+                            <span class="feature-icon"><i class="fa-solid fa-rocket" aria-hidden="true"></i></span>
                             <div>
                                 <h4>Always Improving</h4>
                                 <p>New features added regularly</p>
@@ -308,7 +314,7 @@
                 </div>
                 <div class="about-visual">
                     <div class="visual-card">
-                        <div class="visual-icon">🎯</div>
+                        <div class="visual-icon"><i class="fa-solid fa-bullseye" aria-hidden="true"></i></div>
                         <h3>Our Mission</h3>
                         <p>To make UIU students' academic lives awesome with the best digital tools and resources.</p>
                     </div>
@@ -322,13 +328,14 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <h3>🎓 The Awesome UIU</h3>
+                    <h3><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> The Awesome UIU</h3>
                     <p>Making university life awesome, one tool at a time</p>
                 </div>
                 <div class="footer-links">
                     <a href="#tools">Tools</a>
                     <a href="#resources">Resources</a>
                     <a href="#about">About</a>
+                    <a href="https://github.com/sadekinborno/Awesome-UIU" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -341,8 +348,8 @@
     <div id="logoutModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center;">
         <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 2rem; border-radius: 20px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid rgba(148, 163, 184, 0.2); animation: modalSlideIn 0.3s ease;">
             <div style="text-align: center; margin-bottom: 1.5rem;">
-                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1rem;">
-                    👋
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1rem; color: #ffffff;">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
                 </div>
                 <h2 style="color: #f8fafc; font-size: 1.5rem; margin-bottom: 0.5rem;">Logout</h2>
                 <p style="color: #94a3b8; font-size: 0.95rem;">Are you sure you want to logout?</p>

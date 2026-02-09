@@ -4,6 +4,7 @@
 .env
 .env.*
 *.env
+!.env.example
 
 # ============================================
 # Admin (keep local; do not commit)
@@ -47,7 +48,8 @@ supabase/.branches/
 # ============================================
 # IDE & Editor
 # ============================================
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo

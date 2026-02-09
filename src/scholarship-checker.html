@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎓 Scholarship Probability Checker - The Awesome UIU</title>
+    <title>Scholarship Probability Checker - The Awesome UIU</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="icon" href="assets/icons/uiu-logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         /* Enhanced Modern Dark Theme */
@@ -40,6 +41,10 @@
             padding: 2rem 1rem;
             position: relative;
             overflow-x: hidden;
+        }
+
+        .icon-inline {
+            margin-right: 0.5rem;
         }
 
         /* Animated background */
@@ -900,7 +905,7 @@
                 This feature will help you estimate your chances of getting a scholarship at UIU based on your GPA.
             </p>
             <div style="background: rgba(99, 102, 241, 0.1); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--glass-border); margin-bottom: 2rem;">
-                <p style="color: var(--text-primary); font-weight: 600; margin-bottom: 0.5rem;">📅 Expected Launch</p>
+                <p style="color: var(--text-primary); font-weight: 600; margin-bottom: 0.5rem;"><i class="fa-solid fa-calendar-days icon-inline" aria-hidden="true"></i>Expected Launch</p>
                 <p style="color: var(--text-secondary); font-size: 0.95rem;">End of Fall</p>
             </div>
             <a href="index.html" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; transition: transform 0.3s ease;">
@@ -920,7 +925,7 @@
     <div class="container" style="display: none;">
         <!-- Header -->
         <div class="header">
-            <h1>🎓 Scholarship Probability Checker</h1>
+            <h1><i class="fa-solid fa-graduation-cap icon-inline" aria-hidden="true"></i>Scholarship Probability Checker</h1>
             <p>Find out your chances of getting a scholarship at UIU</p>
         </div>
 
@@ -1014,7 +1019,7 @@
 
         <!-- STEP 2: GPA Submission -->
         <div id="gpaSubmissionCard" class="glass-card hidden">
-            <h2 style="margin-bottom: 1.5rem;">📊 Enter Your GPA Details</h2>
+            <h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-chart-simple icon-inline" aria-hidden="true"></i>Enter Your GPA Details</h2>
             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
                 Verified: <strong id="verifiedEmail" style="color: var(--primary);"></strong>
             </p>
@@ -1042,7 +1047,7 @@
                         Loading...
                     </div>
                     <div class="trimester-note">
-                        📅 Currently accepting submissions for this trimester
+                        <i class="fa-solid fa-calendar-days icon-inline" aria-hidden="true"></i>Currently accepting submissions for this trimester
                     </div>
                 </div>
             </div>
@@ -1057,7 +1062,7 @@
                     min="0"
                     max="4.0"
                 >
-                <div class="form-hint">📈 Your GPA from the most recent trimester (0.00 - 4.00)</div>
+                <div class="form-hint"><i class="fa-solid fa-chart-line icon-inline" aria-hidden="true"></i>Your GPA from the most recent trimester (0.00 - 4.00)</div>
                 <div class="form-error">Please enter a valid GPA between 0.00 and 4.00</div>
             </div>
 
@@ -1071,7 +1076,7 @@
                     min="0"
                     max="4.0"
                 >
-                <div class="form-hint">📊 Your cumulative GPA (0.00 - 4.00)</div>
+                <div class="form-hint"><i class="fa-solid fa-chart-simple icon-inline" aria-hidden="true"></i>Your cumulative GPA (0.00 - 4.00)</div>
                 <div class="form-error">Please enter a valid CGPA between 0.00 and 4.00</div>
             </div>
 
@@ -1081,11 +1086,11 @@
             </button>
 
             <button class="btn btn-secondary" id="logoutFromGpaBtn" style="margin-top: 1rem; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
-                🚪 Logout
+                <i class="fa-solid fa-right-from-bracket icon-inline" aria-hidden="true"></i>Logout
             </button>
 
             <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(139, 92, 246, 0.1); border-radius: 12px; font-size: 0.85rem; color: var(--text-secondary);">
-                <strong>ℹ️ How Rankings Work:</strong><br>
+                <strong><i class="fa-solid fa-circle-info icon-inline" aria-hidden="true"></i>How Rankings Work:</strong><br>
                 We rank students by <strong>Last Trimester GPA first</strong>. If students have the same Last GPA, we use <strong>Overall CGPA</strong> as a tie-breaker.
             </div>
         </div>
@@ -1108,7 +1113,7 @@
                 <div class="hero-cards">
                     <div class="scholarship-card" id="scholarshipCard">
                         <div class="scholarship-info">
-                            <div class="scholarship-icon" id="scholarshipIcon">🎓</div>
+                            <div class="scholarship-icon" id="scholarshipIcon" aria-hidden="true"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></div>
                             <div class="scholarship-text">
                                 <div class="scholarship-label">Scholarship Probability</div>
                                 <div class="scholarship-percentage" id="scholarshipPercent">100%</div>
@@ -1179,7 +1184,7 @@
             <!-- Tier Breakdown -->
             <div class="glass-card">
                 <div class="tier-breakdown">
-                    <h3>🎯 Scholarship Breakdown</h3>
+                    <h3><i class="fa-solid fa-bullseye icon-inline" aria-hidden="true"></i>Scholarship Breakdown</h3>
 
                     <div class="tier-item tier-100" id="tier100">
                         <div class="tier-header">
@@ -1256,7 +1261,7 @@
                     📤 Share Result
                 </button>
                 <button class="btn btn-secondary" id="logoutBtn" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
-                    🚪 Logout
+                    <i class="fa-solid fa-right-from-bracket icon-inline" aria-hidden="true"></i>Logout
                 </button>
             </div>
 

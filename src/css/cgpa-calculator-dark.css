@@ -158,6 +158,13 @@ body.cgpa-calculator-page .header-title-section h2 {
     color: #e5e7eb;
 }
 
+body.cgpa-calculator-page .card-header h2 i,
+body.cgpa-calculator-page .header-title-section h2 i {
+    margin-right: 10px;
+    font-size: 0.9em;
+    vertical-align: -0.08em;
+}
+
 body.cgpa-calculator-page .card-header p,
 body.cgpa-calculator-page .header-title-section p {
     color: #9ca3af;

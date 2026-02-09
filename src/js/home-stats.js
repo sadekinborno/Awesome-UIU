@@ -4,6 +4,10 @@
 	const visitElement = document.getElementById('globalVisitCount');
 	const studentsElement = document.getElementById('scholarshipSubmissions');
 	const teacherReviewsCountElement = document.getElementById('teacherReviewsCount');
+	const mysteryCountdownEl = document.getElementById('mysteryCountdown');
+	const mysteryCountdownTextEl = document.getElementById('mysteryCountdownText');
+
+	let countdownIntervalId = null;
 
 	const setPlaceholder = (value) => {
 		if (visitElement) visitElement.textContent = value;
@@ -91,12 +95,80 @@
 		return window.supabasePublicClient;
 	};
 
+	const parseSupabaseTimestamp = (value) => {
+		if (!value) return null;
+		if (value instanceof Date) return value;
+		const str = String(value).trim();
+		if (!str) return null;
+		const hasTz = /[zZ]$|[+-]\d\d:\d\d$/.test(str);
+		const d = new Date(hasTz ? str : `${str}Z`);
+		return Number.isNaN(d.getTime()) ? null : d;
+	};
+
+	const setCountdownVisible = (visible) => {
+		if (!mysteryCountdownEl) return;
+		mysteryCountdownEl.style.display = visible ? 'flex' : 'none';
+	};
+
+	const setCountdownParts = ({ days, hours, minutes, seconds }) => {
+		if (!mysteryCountdownTextEl) return;
+		mysteryCountdownTextEl.textContent = `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+	};
+
+	const startCountdown = ({ startMs, durationDays }) => {
+		if (!mysteryCountdownEl) return;
+		if (countdownIntervalId) {
+			window.clearInterval(countdownIntervalId);
+			countdownIntervalId = null;
+		}
+
+		const endMs = startMs + durationDays * 24 * 60 * 60 * 1000;
+		const tick = () => {
+			const remainingMs = Math.max(0, endMs - Date.now());
+			const totalSeconds = Math.floor(remainingMs / 1000);
+			const days = Math.floor(totalSeconds / 86400);
+			const hours = Math.floor((totalSeconds % 86400) / 3600);
+			const minutes = Math.floor((totalSeconds % 3600) / 60);
+			const seconds = totalSeconds % 60;
+			setCountdownParts({ days, hours, minutes, seconds });
+			if (remainingMs <= 0 && countdownIntervalId) {
+				window.clearInterval(countdownIntervalId);
+				countdownIntervalId = null;
+			}
+		};
+
+		setCountdownVisible(true);
+		tick();
+		countdownIntervalId = window.setInterval(tick, 1000);
+	};
+
 	try {
 		// Avoid leaving the default "0" which looks like a real value.
 		setPlaceholder('...');
 
 		const client = await ensureSupabaseClient();
 		const pageName = 'homepage';
+
+		// Global Mystery Countdown (15 days, same for everyone)
+		try {
+			const { data: countdownRow, error: countdownError } = await client
+				.from('app_settings')
+				.select('value')
+				.eq('key', 'mystery_countdown_start')
+				.single();
+
+			if (countdownError) throw countdownError;
+			const startDate = parseSupabaseTimestamp(countdownRow?.value);
+			if (startDate) {
+				startCountdown({ startMs: startDate.getTime(), durationDays: 15 });
+			} else {
+				setCountdownVisible(false);
+			}
+		} catch (e) {
+			// Keep the homepage clean if the setting isn't available.
+			console.warn('[stats] Mystery countdown unavailable:', e);
+			setCountdownVisible(false);
+		}
 
 		// Atomic increment via RPC (requires add-page-visits-table.sql)
 		const { data: rpcData, error: rpcError } = await client.rpc('increment_page_visit', {
@@ -133,5 +205,6 @@
 	} catch (error) {
 		console.error('Error tracking visit:', error);
 		setPlaceholder('---');
+		setCountdownVisible(false);
 	}
 })();

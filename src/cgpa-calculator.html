@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎓 CGPA Calculator - The Awesome UIU</title>
+    <title>CGPA Calculator - The Awesome UIU</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/cgpa-calculator-dark.css">
     <link rel="icon" href="assets/icons/uiu-logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <!-- CGPA Calculator shares goal-planner style dark UI -->
 </head>
 <body class="cgpa-calculator-page">
@@ -43,7 +44,7 @@
             <!-- Academic Status Card -->
             <div class="card academic-status">
                 <div class="card-header">
-                    <h2>📈 Current Academic Status</h2>
+                    <h2><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Current Academic Status</h2>
                     <p>Enter your completed credits and current CGPA</p>
                 </div>
                 <div class="input-grid">
@@ -69,7 +70,7 @@
             <div class="card courses-card">
                 <div class="card-header">
                     <div class="header-title-section">
-                        <h2>📚 Current Semester Courses</h2>
+                        <h2><i class="fa-solid fa-book-open" aria-hidden="true"></i> Current Semester Courses</h2>
                         <p>Add your courses and expected grades</p>
                     </div>
                     <button id="reset-btn" class="btn btn-danger">
@@ -117,7 +118,7 @@
             <!-- Results Section -->
             <div id="result-section" class="card results-card" style="display: none;">
                 <div class="card-header">
-                    <h2>🎯 Your Results</h2>
+                    <h2><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Your Results</h2>
                     <p>Calculated based on your input data</p>
                 </div>
                 <div id="result-display"></div>

@@ -312,8 +312,8 @@ Verification succeeds → Can submit GPA
 | [EMAIL_SETUP_GUIDE.md](EMAIL_SETUP_GUIDE.md) | Complete setup instructions | Setting up email for first time |
 | [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) | Pre/post launch tasks | Before and after going live |
 | [README_EMAIL_SETUP.md](README_EMAIL_SETUP.md) | Quick overview | Need quick reference |
-| [test-email.ps1](test-email.ps1) | Email testing | Verify email delivery |
-| [.env.example](.env.example) | Configuration template | Setting up environment |
+| [test-email.ps1](../test-email.ps1) | Email testing | Verify email delivery |
+| [.env.example](../.env.example) | Configuration template | Setting up environment |
 
 ---
 

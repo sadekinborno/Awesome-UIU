@@ -5,6 +5,28 @@ let allReviews = [];
 let currentReviewPage = 1;
 const REVIEWS_PAGE_SIZE = 5;
 
+let pendingDeleteReviewId = null;
+
+function toLowerTrim(value) {
+    return String(value ?? '').trim().toLowerCase();
+}
+
+function getLoggedInUser() {
+    try {
+        return window.reviewAuth?.getUserData?.() || null;
+    } catch {
+        return null;
+    }
+}
+
+function isReviewByUser(review, user) {
+    if (!review || !user) return false;
+
+    // Deterministic identity: teacher_reviews.student_id is the author key.
+    const reviewStudentId = String(review.student_id ?? '').trim();
+    return Boolean(reviewStudentId && user.id && reviewStudentId === String(user.id));
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
     // Get teacher ID from URL
@@ -51,6 +73,34 @@ function setupEventListeners() {
             }
         });
     }
+
+    const confirmBackdrop = document.getElementById('confirmDialogBackdrop');
+    const confirmCancel = document.getElementById('confirmDialogCancel');
+    const confirmDelete = document.getElementById('confirmDialogDelete');
+
+    if (confirmCancel) {
+        confirmCancel.addEventListener('click', () => closeConfirmDialog());
+    }
+
+    if (confirmBackdrop) {
+        confirmBackdrop.addEventListener('click', (e) => {
+            if (e.target === confirmBackdrop) closeConfirmDialog();
+        });
+    }
+
+    if (confirmDelete) {
+        confirmDelete.addEventListener('click', async () => {
+            if (!pendingDeleteReviewId) return;
+            const reviewId = pendingDeleteReviewId;
+            pendingDeleteReviewId = null;
+            closeConfirmDialog();
+            await deleteOwnReviewById(reviewId);
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeConfirmDialog();
+    });
 }
 
 // Load teacher profile data
@@ -119,12 +169,22 @@ async function loadTeacherProfile() {
             })
         );
 
+        const loggedInUser = getLoggedInUser();
+        const sortedReviews = (reviewsWithCourses || []).slice().sort((a, b) => {
+            const aMine = isReviewByUser(a, loggedInUser);
+            const bMine = isReviewByUser(b, loggedInUser);
+            if (aMine !== bMine) return aMine ? -1 : 1;
+            // keep newest first otherwise
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
+
         // Display profile
-        displayProfile(teacher, reviewsWithCourses);
+        displayProfile(teacher, sortedReviews);
         displayCourses(teacher.course_teachers);
 
-        allReviews = reviewsWithCourses || [];
+        allReviews = sortedReviews;
         currentReviewPage = 1;
+        updateReviewButtons();
         renderReviewsPage();
 
     } catch (error) {
@@ -132,6 +192,111 @@ async function loadTeacherProfile() {
         alert('Failed to load teacher profile. Redirecting...');
         window.location.href = 'teacher-reviews.html';
     }
+}
+
+function updateReviewButtons() {
+    const loggedInUser = getLoggedInUser();
+    const hasReview = (allReviews || []).some((r) => isReviewByUser(r, loggedInUser));
+
+    const label = hasReview ? 'Update Review' : 'Write a Review';
+    ['addReviewBtn', 'addReviewBtnInReviews']
+        .map((id) => document.getElementById(id))
+        .filter(Boolean)
+        .forEach((btn) => {
+            btn.textContent = ` ${label}`;
+        });
+}
+
+function openConfirmDialog({ title, message, reviewId }) {
+    const backdrop = document.getElementById('confirmDialogBackdrop');
+    const titleEl = document.getElementById('confirmDialogTitle');
+    const messageEl = document.getElementById('confirmDialogMessage');
+    const deleteBtn = document.getElementById('confirmDialogDelete');
+
+    pendingDeleteReviewId = reviewId || null;
+    if (titleEl) titleEl.textContent = title || 'Confirm action';
+    if (messageEl) messageEl.textContent = message || '';
+    if (deleteBtn) deleteBtn.disabled = !pendingDeleteReviewId;
+
+    if (backdrop) {
+        backdrop.style.display = 'flex';
+        const cancelBtn = document.getElementById('confirmDialogCancel');
+        if (cancelBtn) cancelBtn.focus();
+    }
+}
+
+function closeConfirmDialog() {
+    const backdrop = document.getElementById('confirmDialogBackdrop');
+    if (backdrop) backdrop.style.display = 'none';
+    pendingDeleteReviewId = null;
+}
+
+async function deleteOwnReviewById(reviewId) {
+    const loggedInUser = getLoggedInUser();
+    if (!loggedInUser?.id) return;
+
+    try {
+        const { error } = await window.supabaseClient
+            .from('teacher_reviews')
+            .delete()
+            .eq('id', reviewId)
+            .eq('teacher_id', teacherId)
+            .eq('student_id', String(loggedInUser.id));
+
+        if (error) throw error;
+
+        allReviews = (allReviews || []).filter((r) => String(r.id) !== String(reviewId));
+        currentReviewPage = 1;
+        updateReviewButtons();
+        updateReviewCounts();
+        updateRatingSummaryFromReviews();
+        renderReviewsPage();
+    } catch (error) {
+        console.error('Error deleting review:', error);
+        alert('Failed to delete your review. Please try again.');
+    }
+}
+
+function updateReviewCounts() {
+    const count = (allReviews || []).length;
+    const totalReviewsEl = document.getElementById('totalReviews');
+    const reviewCountEl = document.getElementById('reviewCount');
+    if (totalReviewsEl) totalReviewsEl.textContent = String(count);
+    if (reviewCountEl) reviewCountEl.textContent = String(count);
+}
+
+function updateRatingSummaryFromReviews() {
+    const reviews = allReviews || [];
+    const count = reviews.length;
+
+    const safeNumber = (value) => {
+        const numberValue = Number(value);
+        return Number.isFinite(numberValue) ? numberValue : 0;
+    };
+
+    const averageOf = (field) => {
+        if (!count) return 0;
+        const sum = reviews.reduce((acc, r) => acc + safeNumber(r?.[field]), 0);
+        return sum / count;
+    };
+
+    const overallAvg = averageOf('overall_rating');
+
+    const avgRatingEl = document.getElementById('avgRating');
+    const overallRatingEl = document.getElementById('overallRating');
+    const overallStarsEl = document.getElementById('overallStars');
+
+    if (avgRatingEl) avgRatingEl.textContent = overallAvg.toFixed(1);
+    if (overallRatingEl) overallRatingEl.textContent = overallAvg.toFixed(1);
+    if (overallStarsEl) overallStarsEl.innerHTML = createStarsLarge(overallAvg);
+
+    const computedTeacher = {
+        teaching_quality_avg: averageOf('teaching_quality'),
+        fair_grading_avg: averageOf('fair_grading'),
+        approachability_avg: averageOf('approachability'),
+        punctuality_avg: averageOf('punctuality')
+    };
+    displayCategoryRatings(computedTeacher);
 }
 
 // Display teacher profile header
@@ -279,6 +444,10 @@ function createReviewCard(review) {
 
     const reviewerName = getReviewerDisplayName(review);
 
+    const loggedInUser = getLoggedInUser();
+    const isMine = isReviewByUser(review, loggedInUser);
+    const reviewText = String(review.review_text ?? '').trim();
+
     card.innerHTML = `
         <div class="review-main">
             <div class="review-header">
@@ -288,9 +457,15 @@ function createReviewCard(review) {
                 </div>
                 <div class="review-rating">
                     <div class="review-stars">${stars}</div>
+                    ${isMine ? `
+                        <button type="button" class="review-delete-btn" aria-label="Delete your review" title="Delete your review" data-review-id="${review.id}">
+                            <i class="fas fa-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                    ` : ''}
                 </div>
             </div>
-            <div class="review-content">${review.review_text}</div>
+            ${reviewText ? `<div class="review-content">${reviewText}</div>` : ''}
         </div>
 
         <button type="button" class="review-toggle">
@@ -339,6 +514,18 @@ function createReviewCard(review) {
     card.querySelectorAll('.vote-btn').forEach(btn => {
         btn.addEventListener('click', () => handleVote(btn));
     });
+
+    const deleteBtn = card.querySelector('.review-delete-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            const reviewId = deleteBtn.getAttribute('data-review-id');
+            openConfirmDialog({
+                title: 'Delete review?',
+                message: 'This will permanently delete your review for this teacher. This cannot be undone.',
+                reviewId
+            });
+        });
+    }
 
     // Toggle extra details
     const toggleBtn = card.querySelector('.review-toggle');

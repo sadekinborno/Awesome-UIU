@@ -399,6 +399,97 @@
             gap: 0.25rem;
         }
 
+        .star {
+            color: #ffd700;
+            font-size: 1rem;
+            filter: drop-shadow(0 2px 6px rgba(255, 215, 0, 0.35));
+        }
+
+        .star.empty {
+            color: var(--border-color);
+            filter: none;
+        }
+
+        .review-delete-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.4rem 0.8rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .review-delete-btn:hover {
+            background: var(--card-hover);
+            border-color: #667eea;
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .review-delete-btn i {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .confirm-dialog-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            z-index: 9999;
+        }
+
+        .confirm-dialog {
+            width: min(520px, 100%);
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .confirm-dialog-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0 0 0.5rem;
+        }
+
+        .confirm-dialog-message {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .confirm-dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        .confirm-dialog-btn {
+            padding: 0.55rem 1.2rem;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .confirm-delete-btn {
+            padding: 0.55rem 1.2rem;
+            font-size: 0.9rem;
+            box-shadow: none;
+        }
+
         .review-course {
             display: inline-block;
             padding: 0.5rem 1rem;
@@ -884,6 +975,17 @@
                 <button onclick="window.location.href='teacher-reviews.html'" class="glass-btn">
                     <i class="fas fa-arrow-left"></i> Back to All Teachers
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-dialog-backdrop" id="confirmDialogBackdrop" role="dialog" aria-modal="true" aria-labelledby="confirmDialogTitle" style="display: none;">
+        <div class="confirm-dialog">
+            <h3 class="confirm-dialog-title" id="confirmDialogTitle">Confirm action</h3>
+            <p class="confirm-dialog-message" id="confirmDialogMessage"></p>
+            <div class="confirm-dialog-actions">
+                <button type="button" class="pagination-btn confirm-dialog-btn" id="confirmDialogCancel">Cancel</button>
+                <button type="button" class="add-review-btn confirm-delete-btn" id="confirmDialogDelete">Delete</button>
             </div>
         </div>
     </div>

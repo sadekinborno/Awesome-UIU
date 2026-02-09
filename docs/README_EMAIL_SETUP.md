@@ -158,7 +158,7 @@ Student can submit GPA data
 If you run into issues:
 
 1. **Check EMAIL_SETUP_GUIDE.md** → Troubleshooting section
-2. **Run test script**: `.\test-email.ps1`
+2. **Run test script (from repo root)**: `./test-email.ps1`
 3. **Check logs**: `supabase functions logs send-otp-email`
 4. **Verify secrets**: Make sure RESEND_API_KEY is set
 5. **Check Resend dashboard**: See if emails are sending
