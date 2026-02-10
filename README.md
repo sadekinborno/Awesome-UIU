@@ -63,6 +63,14 @@
 <tr>
 <td width="50%">
 
+### 🗓️ Academic Calendar
+- ✅ Month view + upcoming list
+- ✅ Shows single-day + multi-day events
+- ✅ Admin panel CRUD + bulk import
+
+</td>
+<td width="50%">
+
 ### 🎨 Modern Design
 - ✅ Dark-themed UI
 - ✅ Smooth animations
@@ -83,6 +91,11 @@
 </td>
 </tr>
 </table>
+
+### Academic Calendar setup (Supabase)
+- Run [db/migrations/add-academic-calendar.sql](db/migrations/add-academic-calendar.sql) in Supabase SQL Editor
+- Ensure admin auth foundation exists (run [db/migrations/admin-auth-setup.sql](db/migrations/admin-auth-setup.sql))
+- Add events in the Admin panel: `admin-v2.html` → **Academic Calendar**
 
 ---
 

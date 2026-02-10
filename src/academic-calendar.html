@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Academic Calendar - The Awesome UIU</title>
+	<link rel="stylesheet" href="css/responsive.css" />
+	<link rel="icon" href="assets/icons/uiu-logo.png" type="image/png" />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="stylesheet" href="css/academic-calendar.css" />
+</head>
+
+<body>
+	<div class="gradient-overlay" aria-hidden="true"></div>
+	<div class="ac">
+		<div class="ac-container">
+			<div class="ac-sub-navbar" aria-label="Academic calendar navigation">
+				<div class="ac-sub-nav-content">
+					<a href="index.html" class="ac-sub-back-link">
+						<i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+						<span>Back to Hub</span>
+					</a>
+					<h1 class="ac-sub-nav-title">Academic Calendar</h1>
+				</div>
+			</div>
+
+			<section class="ac-hero" aria-label="Academic calendar overview">
+				<h2 class="ac-hero-title">Track your <span class="ac-hero-highlight">key trimester dates</span></h2>
+				<p class="ac-hero-subtitle">Deadlines, exams, holidays, registration, and installments — in one place.</p>
+			</section>
+
+			<section class="ac-controls" aria-label="Calendar controls">
+				<label class="ac-field">
+					<span>Term</span>
+					<select id="termSelect"></select>
+				</label>
+
+				<div class="ac-month-nav" aria-label="Month navigation">
+					<button id="prevMonthBtn" class="ac-btn ac-btn-icon" type="button" aria-label="Previous month">
+						<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+					</button>
+					<div id="monthLabel" class="ac-month-label" aria-live="polite">—</div>
+					<button id="nextMonthBtn" class="ac-btn ac-btn-icon" type="button" aria-label="Next month">
+						<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+					</button>
+					<button id="todayBtn" class="ac-btn" type="button">Today</button>
+				</div>
+			</section>
+
+			<main class="ac-grid" aria-label="Academic calendar">
+				<section class="ac-card" aria-label="Month view">
+					<div class="ac-card-head">
+						<div>
+							<div class="ac-card-title">Month</div>
+							<div class="ac-card-sub ac-muted">Select a date to see events.</div>
+						</div>
+						<div class="ac-legend" aria-label="Legend">
+							<span class="ac-legend-item"><span class="dot dot-high" aria-hidden="true"></span> Deadline</span>
+							<span class="ac-legend-item"><span class="dot dot-mid" aria-hidden="true"></span> Exam</span>
+							<span class="ac-legend-item"><span class="dot dot-reg" aria-hidden="true"></span> Registration</span>
+							<span class="ac-legend-item"><span class="dot dot-low" aria-hidden="true"></span> Other</span>
+						</div>
+					</div>
+					<div class="ac-card-body">
+						<div class="weekday" aria-hidden="true">
+							<div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+						</div>
+						<div id="monthGrid" class="month-grid" role="grid" aria-label="Calendar grid"></div>
+						<div id="calendarStatus" class="ac-muted ac-status" aria-live="polite"></div>
+					</div>
+				</section>
+			</main>
+
+			<!-- Day details modal -->
+			<div id="dayModal" class="ac-modal" role="dialog" aria-modal="true" aria-label="Day details" hidden>
+				<div id="dayModalBackdrop" class="ac-modal-backdrop" aria-hidden="true"></div>
+				<div class="ac-modal-panel" role="document">
+					<div class="ac-modal-head">
+						<div>
+							<div class="ac-modal-title" id="selectedDateTitle">Selected day</div>
+							<div class="ac-modal-sub ac-muted" id="selectedDateSub">—</div>
+						</div>
+						<div class="ac-modal-actions">
+							<button id="dayModalCloseBtn" class="ac-btn ac-btn-icon" type="button" aria-label="Close">
+								<i class="fa-solid fa-xmark" aria-hidden="true"></i>
+							</button>
+						</div>
+					</div>
+					<div class="ac-modal-body">
+						<div id="dayEvents" class="events" aria-label="Events list"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Supabase JS SDK -->
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<script src="js/supabase-config.js"></script>
+	<script src="js/academic-calendar.js"></script>
+</body>
+</html>

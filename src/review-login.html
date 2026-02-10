@@ -395,6 +395,22 @@
     <script>
         let currentEmail = '';
 
+        // Referral capture: store ?ref=CODE so it can be claimed after first-time registration
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+            if (ref && String(ref).trim().length > 0) {
+                const cleaned = String(ref).trim().toUpperCase();
+                localStorage.setItem('pending_ref_code', cleaned);
+                // Let the user know the referral was applied (non-blocking)
+                if (typeof showAlert === 'function') {
+                    showAlert('Referral code applied. Complete login to confirm.', 'info');
+                }
+            }
+        } catch {
+            // ignore
+        }
+
         function updateEmailSuffixVisibility() {
             const wrapper = document.getElementById('emailWrapper');
             const input = document.getElementById('email');

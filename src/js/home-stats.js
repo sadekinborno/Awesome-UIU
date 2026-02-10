@@ -6,6 +6,16 @@
 	const teacherReviewsCountElement = document.getElementById('teacherReviewsCount');
 	const mysteryCountdownEl = document.getElementById('mysteryCountdown');
 	const mysteryCountdownTextEl = document.getElementById('mysteryCountdownText');
+	const globalAnnouncementModal = document.getElementById('globalAnnouncementModal');
+	const globalAnnouncementPublishedAt = document.getElementById('globalAnnouncementPublishedAt');
+	const globalAnnouncementGiftNotice = document.getElementById('globalAnnouncementGiftNotice');
+	const globalAnnouncementGiftNoticeText = document.getElementById('globalAnnouncementGiftNoticeText');
+	const globalAnnouncementWinners = document.getElementById('globalAnnouncementWinners');
+	const globalAnnouncementWinnersList = document.getElementById('globalAnnouncementWinnersList');
+	const globalAnnouncementNew = document.getElementById('globalAnnouncementNew');
+	const globalAnnouncementNewList = document.getElementById('globalAnnouncementNewList');
+	const globalAnnouncementUpcoming = document.getElementById('globalAnnouncementUpcoming');
+	const globalAnnouncementUpcomingList = document.getElementById('globalAnnouncementUpcomingList');
 
 	let countdownIntervalId = null;
 
@@ -131,6 +141,10 @@
 			const minutes = Math.floor((totalSeconds % 3600) / 60);
 			const seconds = totalSeconds % 60;
 			setCountdownParts({ days, hours, minutes, seconds });
+			if (remainingMs <= 0) {
+				// Countdown ended: hide the UI.
+				setCountdownVisible(false);
+			}
 			if (remainingMs <= 0 && countdownIntervalId) {
 				window.clearInterval(countdownIntervalId);
 				countdownIntervalId = null;
@@ -142,6 +156,84 @@
 		countdownIntervalId = window.setInterval(tick, 1000);
 	};
 
+	const shouldShowAnnouncementNow = ({ publishedAt }) => {
+		if (!publishedAt) return false;
+		try {
+			const keySeenAt = 'home_announcement_last_seen_at';
+			const keySeenPublished = 'home_announcement_last_seen_published_at';
+			const lastSeenAt = parseInt(localStorage.getItem(keySeenAt) || '0', 10) || 0;
+			const lastSeenPublished = localStorage.getItem(keySeenPublished) || '';
+
+			// Show immediately if this is a new publish.
+			if (String(lastSeenPublished) !== String(publishedAt)) return true;
+
+			// Otherwise, only show "first time in a while".
+			const COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+			return Date.now() - lastSeenAt > COOLDOWN_MS;
+		} catch {
+			return false;
+		}
+	};
+
+	const markAnnouncementSeen = ({ publishedAt }) => {
+		try {
+			localStorage.setItem('home_announcement_last_seen_at', String(Date.now()));
+			if (publishedAt) {
+				localStorage.setItem('home_announcement_last_seen_published_at', String(publishedAt));
+			}
+		} catch {
+			// ignore
+		}
+	};
+
+	const renderAnnouncement = (announcement) => {
+		if (!globalAnnouncementModal) return;
+		const escapeHtml = (value) =>
+			String(value ?? '')
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;');
+
+		const giftNotice = announcement?.gift_notice || null;
+		const winners = Array.isArray(announcement?.winners) ? announcement.winners : [];
+		const newFeatures = Array.isArray(announcement?.new_features) ? announcement.new_features : [];
+		const upcomingFeatures = Array.isArray(announcement?.upcoming_features) ? announcement.upcoming_features : [];
+		const publishedAt = announcement?.published_at || null;
+
+		if (globalAnnouncementPublishedAt) {
+			globalAnnouncementPublishedAt.textContent = publishedAt ? `Published: ${publishedAt}` : '';
+		}
+
+		if (globalAnnouncementGiftNotice) {
+			const text = giftNotice ? String(giftNotice) : '';
+			globalAnnouncementGiftNotice.style.display = text ? 'block' : 'none';
+			if (globalAnnouncementGiftNoticeText) {
+				globalAnnouncementGiftNoticeText.textContent = text;
+			} else {
+				globalAnnouncementGiftNotice.textContent = text;
+			}
+		}
+
+		if (globalAnnouncementWinners && globalAnnouncementWinnersList) {
+			globalAnnouncementWinners.style.display = winners.length ? 'block' : 'none';
+			globalAnnouncementWinnersList.innerHTML = winners.map((x) => `<li>${escapeHtml(String(x))}</li>`).join('');
+		}
+
+		if (globalAnnouncementNew && globalAnnouncementNewList) {
+			globalAnnouncementNew.style.display = newFeatures.length ? 'block' : 'none';
+			globalAnnouncementNewList.innerHTML = newFeatures.map((x) => `<li>${escapeHtml(String(x))}</li>`).join('');
+		}
+		if (globalAnnouncementUpcoming && globalAnnouncementUpcomingList) {
+			globalAnnouncementUpcoming.style.display = upcomingFeatures.length ? 'block' : 'none';
+			globalAnnouncementUpcomingList.innerHTML = upcomingFeatures.map((x) => `<li>${escapeHtml(String(x))}</li>`).join('');
+		}
+
+		globalAnnouncementModal.style.display = 'flex';
+		markAnnouncementSeen({ publishedAt });
+	};
+
 	try {
 		// Avoid leaving the default "0" which looks like a real value.
 		setPlaceholder('...');
@@ -151,18 +243,45 @@
 
 		// Global Mystery Countdown (15 days, same for everyone)
 		try {
-			const { data: countdownRow, error: countdownError } = await client
+			const { data: settingsRows, error: settingsError } = await client
 				.from('app_settings')
-				.select('value')
-				.eq('key', 'mystery_countdown_start')
-				.single();
+				.select('key,value')
+				.in('key', ['mystery_countdown_start', 'mystery_countdown_duration_days', 'global_announcement']);
 
-			if (countdownError) throw countdownError;
-			const startDate = parseSupabaseTimestamp(countdownRow?.value);
+			if (settingsError) throw settingsError;
+			const map = {};
+			(settingsRows || []).forEach((r) => {
+				if (!r?.key) return;
+				map[String(r.key)] = r?.value;
+			});
+
+			const startDate = parseSupabaseTimestamp(map?.mystery_countdown_start);
+			const durationDays = Math.max(1, Math.min(parseInt(map?.mystery_countdown_duration_days || '15', 10) || 15, 365));
+
+			let countdownRunning = false;
 			if (startDate) {
-				startCountdown({ startMs: startDate.getTime(), durationDays: 15 });
+				const startMs = startDate.getTime();
+				const endMs = startMs + durationDays * 24 * 60 * 60 * 1000;
+				countdownRunning = Date.now() < endMs;
+				if (countdownRunning) {
+					startCountdown({ startMs, durationDays });
+				} else {
+					setCountdownVisible(false);
+				}
 			} else {
 				setCountdownVisible(false);
+			}
+
+			// Announcement: show only when countdown is not running.
+			if (!countdownRunning && map?.global_announcement && globalAnnouncementModal) {
+				try {
+					const announcement = JSON.parse(String(map.global_announcement));
+					if (shouldShowAnnouncementNow({ publishedAt: announcement?.published_at })) {
+						renderAnnouncement(announcement);
+					}
+				} catch (e) {
+					// ignore invalid JSON
+				}
 			}
 		} catch (e) {
 			// Keep the homepage clean if the setting isn't available.

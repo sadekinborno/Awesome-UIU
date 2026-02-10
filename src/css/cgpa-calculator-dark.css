@@ -3,6 +3,7 @@
 body.cgpa-calculator-page {
     background: #0a0a0f;
     color: #e5e7eb;
+	color-scheme: dark;
 }
 
 body.cgpa-calculator-page .app-container {
@@ -181,6 +182,16 @@ body.cgpa-calculator-page .form-group select {
     border-radius: 8px;
     color: #f9fafb;
     box-shadow: none;
+}
+
+body.cgpa-calculator-page select {
+    color-scheme: dark;
+}
+
+body.cgpa-calculator-page select option,
+body.cgpa-calculator-page select optgroup {
+    background: #0a0a0f;
+    color: #f9fafb;
 }
 
 body.cgpa-calculator-page .input-wrapper input::placeholder,

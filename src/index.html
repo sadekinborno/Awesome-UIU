@@ -57,6 +57,58 @@
                     <span class="mystery-countdown-time" aria-label="Time left" id="mysteryCountdownText">—</span>
                 </div>
 
+                <!-- Global Announcement Modal (admin-published) -->
+                <div id="globalAnnouncementModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9998; align-items: center; justify-content: center;">
+                    <div style="position: relative; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 2rem; border-radius: 20px; max-width: 560px; width: 92%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid rgba(148, 163, 184, 0.2); animation: modalSlideIn 0.3s ease;">
+                        <button id="globalAnnouncementClose" aria-label="Close announcement" style="position: absolute; top: 0.75rem; right: 0.75rem; width: 40px; height: 40px; border-radius: 12px; background: transparent; border: 1px solid rgba(148, 163, 184, 0.25); color: #f8fafc; font-size: 1.25rem; font-weight: 800; cursor: pointer;">×</button>
+                        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom: 1rem;">
+                            <div style="width:44px; height:44px; border-radius: 14px; display:flex; align-items:center; justify-content:center; background: rgba(102, 126, 234, 0.18); border: 1px solid rgba(102, 126, 234, 0.28);">
+                                <i class="fa-solid fa-bell" aria-hidden="true" style="color:#a5b4fc;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.15rem; font-weight: 800; color: #f8fafc;">Announcements</div>
+                                <div id="globalAnnouncementPublishedAt" style="font-size: 0.9rem; color: rgba(148, 163, 184, 0.95);">—</div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap: 1rem;">
+                            <div id="globalAnnouncementGiftNotice" style="display:none; padding: 0.85rem 0.95rem; border-radius: 14px; background: rgba(34, 197, 94, 0.10); border: 1px solid rgba(34, 197, 94, 0.22); color: rgba(248, 250, 252, 0.95); font-weight: 800; display:flex; align-items:center; gap:0.6rem;">
+                                <i class="fa-solid fa-gift" aria-hidden="true" style="color: rgba(134, 239, 172, 0.95);"></i>
+                                <span id="globalAnnouncementGiftNoticeText"></span>
+                            </div>
+
+                            <div id="globalAnnouncementWinners" style="display:none; padding: 1rem; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.18); background: rgba(15, 23, 42, 0.35);">
+                                <div style="display:flex; align-items:center; gap:0.55rem; font-weight: 900; margin-bottom: 0.5rem; color: #f8fafc;">
+                                    <i class="fa-solid fa-trophy" aria-hidden="true" style="color:#fbbf24;"></i>
+                                    Winners
+                                </div>
+                                <ul id="globalAnnouncementWinnersList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95);"></ul>
+                            </div>
+
+                            <div style="display:flex; gap: 1rem; flex-wrap: wrap;">
+                                <div id="globalAnnouncementNew" style="display:none; flex: 1; min-width: 240px; padding: 1rem; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.18); background: rgba(15, 23, 42, 0.25);">
+                                    <div style="display:flex; align-items:center; gap:0.55rem; font-weight: 900; margin-bottom: 0.5rem; color: #f8fafc;">
+                                        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true" style="color:#a5b4fc;"></i>
+                                        New features
+                                    </div>
+                                    <ul id="globalAnnouncementNewList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95);"></ul>
+                                </div>
+                                <div id="globalAnnouncementUpcoming" style="display:none; flex: 1; min-width: 240px; padding: 1rem; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.18); background: rgba(15, 23, 42, 0.25);">
+                                    <div style="display:flex; align-items:center; gap:0.55rem; font-weight: 900; margin-bottom: 0.5rem; color: #f8fafc;">
+                                        <i class="fa-solid fa-rocket" aria-hidden="true" style="color:#93c5fd;"></i>
+                                        Upcoming features
+                                    </div>
+                                    <ul id="globalAnnouncementUpcomingList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95);"></ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.25rem; display:flex; justify-content:flex-end; gap: 0.75rem;">
+                            <button id="globalAnnouncementDismiss" style="padding: 0.875rem 1rem; background: transparent; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 12px; color: #f8fafc; font-size: 1rem; font-weight: 700; cursor: pointer;">Got it</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="hero-stats">
                     <div class="stat-item">
                         <div class="stat-number" id="globalVisitCount">0</div>
@@ -155,6 +207,17 @@
                         </svg>
                     </div>
                 </a>
+                <!-- Academic Calendar -->
+                <div class="tool-card tool-card-coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tool-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+                    </div>
+                    <div class="tool-content">
+                        <h3 class="tool-title">Academic Calendar</h3>
+                        <p class="tool-description">All important trimester dates in one place (registration, add/drop, exams, breaks).</p>
+                    </div>
+                </div>
 
                 <!-- Scholarship Probability Checker -->
                 <div class="tool-card tool-card-coming-soon" style="position: relative;">
@@ -167,18 +230,6 @@
                         <p style="margin-top: 0.25rem; margin-bottom: 0; padding: 0.6rem 0.75rem; background: rgba(251, 191, 36, 0.1); border-radius: 8px; font-size: 0.875rem; color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2);">
                             Launches at <strong>500 registered users</strong> — register to unlock.
                         </p>
-                    </div>
-                </div>
-
-                <!-- Academic Calendar -->
-                <div class="tool-card tool-card-coming-soon">
-                    <div class="coming-soon-badge">Coming Soon</div>
-                    <div class="tool-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                        <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
-                    </div>
-                    <div class="tool-content">
-                        <h3 class="tool-title">Academic Calendar</h3>
-                        <p class="tool-description">All important trimester dates in one place (registration, add/drop, exams, breaks).</p>
                     </div>
                 </div>
             </div>
@@ -346,19 +397,25 @@
 
     <!-- Logout Modal -->
     <div id="logoutModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center;">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 2rem; border-radius: 20px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid rgba(148, 163, 184, 0.2); animation: modalSlideIn 0.3s ease;">
+        <div style="position: relative; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 2rem; border-radius: 20px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid rgba(148, 163, 184, 0.2); animation: modalSlideIn 0.3s ease;">
+            <button id="closeLogout" aria-label="Close" style="position: absolute; top: 0.75rem; right: 0.75rem; width: 40px; height: 40px; border-radius: 12px; background: transparent; border: 1px solid rgba(148, 163, 184, 0.25); color: #f8fafc; font-size: 1.25rem; font-weight: 700; cursor: pointer;">
+                ×
+            </button>
             <div style="text-align: center; margin-bottom: 1.5rem;">
                 <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1rem; color: #ffffff;">
                     <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
                 </div>
                 <h2 style="color: #f8fafc; font-size: 1.5rem; margin-bottom: 0.5rem;">Logout</h2>
-                <p style="color: #94a3b8; font-size: 0.95rem;">Are you sure you want to logout?</p>
+                <p style="color: #94a3b8; font-size: 0.95rem;">Manage your session</p>
             </div>
-            <div style="display: flex; gap: 1rem;">
-                <button id="cancelLogout" style="flex: 1; padding: 0.875rem; background: transparent; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 12px; color: #f8fafc; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                    Cancel
+            <div style="display: grid; gap: 1rem;">
+                <button id="copyReferralModalBtn" style="width: 100%; padding: 0.875rem; background: transparent; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 12px; color: #f8fafc; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    Copy Referral Link
                 </button>
-                <button id="confirmLogout" style="flex: 1; padding: 0.875rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                <div id="accountModalFeedback" style="display:none; padding: 0.75rem 0.875rem; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.25); background: rgba(2, 6, 23, 0.6); color: #f8fafc; font-size: 0.95rem;">
+                    
+                </div>
+                <button id="confirmLogout" style="width: 100%; padding: 0.875rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
                     Logout
                 </button>
             </div>
@@ -408,6 +465,47 @@
             const loginBtn = document.getElementById('loginBtn');
             const userMenuBtn = document.getElementById('userMenuBtn');
             const userEmailSpan = document.getElementById('userEmail');
+            const copyReferralModalBtn = document.getElementById('copyReferralModalBtn');
+            const closeLogoutBtn = document.getElementById('closeLogout');
+            const accountModalFeedback = document.getElementById('accountModalFeedback');
+
+            function setAccountFeedback(message, type) {
+                if (!accountModalFeedback) return;
+                accountModalFeedback.textContent = message;
+                accountModalFeedback.style.display = 'block';
+
+                const isError = type === 'error';
+                const isSuccess = type === 'success';
+
+                accountModalFeedback.style.borderColor = isError
+                    ? 'rgba(239, 68, 68, 0.35)'
+                    : isSuccess
+                        ? 'rgba(16, 185, 129, 0.35)'
+                        : 'rgba(148, 163, 184, 0.25)';
+
+                accountModalFeedback.style.background = isError
+                    ? 'rgba(239, 68, 68, 0.08)'
+                    : isSuccess
+                        ? 'rgba(16, 185, 129, 0.08)'
+                        : 'rgba(2, 6, 23, 0.6)';
+
+                accountModalFeedback.style.color = isError
+                    ? '#fecaca'
+                    : isSuccess
+                        ? '#bbf7d0'
+                        : '#f8fafc';
+            }
+
+            function flashButtonState(button, text, durationMs) {
+                if (!button) return;
+                const original = button.textContent;
+                button.textContent = text;
+                button.disabled = true;
+                setTimeout(() => {
+                    button.textContent = original;
+                    button.disabled = false;
+                }, durationMs);
+            }
             
             if (reviewAuth.isLoggedIn()) {
                 const userData = reviewAuth.getUserData();
@@ -419,7 +517,51 @@
                     // Add logout functionality
                     userMenuBtn.addEventListener('click', () => {
                         document.getElementById('logoutModal').style.display = 'flex';
+                        if (accountModalFeedback) accountModalFeedback.style.display = 'none';
                     });
+
+                    if (copyReferralModalBtn) {
+                        copyReferralModalBtn.addEventListener('click', async () => {
+                            try {
+                                if (accountModalFeedback) accountModalFeedback.style.display = 'none';
+                                let code = userData.referral_code;
+                                if (!code && window.supabaseClient && userData.email) {
+                                    const { data: fetched, error } = await window.supabaseClient
+                                        .rpc('ensure_referral_code', { p_user_email: userData.email });
+                                    if (!error && fetched) {
+                                        code = fetched;
+                                    }
+                                }
+
+                                if (!code) {
+                                    setAccountFeedback('Referral code is not available yet. Please try again.', 'error');
+                                    return;
+                                }
+
+                                const url = `${location.origin}${location.pathname.replace(/[^/]*$/, '')}review-login.html?ref=${encodeURIComponent(String(code).trim().toUpperCase())}&redirect=index.html`;
+
+                                if (navigator.clipboard && navigator.clipboard.writeText) {
+                                    await navigator.clipboard.writeText(url);
+                                } else {
+                                    const temp = document.createElement('textarea');
+                                    temp.value = url;
+                                    temp.setAttribute('readonly', '');
+                                    temp.style.position = 'absolute';
+                                    temp.style.left = '-9999px';
+                                    document.body.appendChild(temp);
+                                    temp.select();
+                                    document.execCommand('copy');
+                                    temp.remove();
+                                }
+
+                                setAccountFeedback('Referral link copied to clipboard.', 'success');
+                                flashButtonState(copyReferralModalBtn, 'Copied!', 1200);
+                            } catch (e) {
+                                console.error('Copy referral link failed:', e);
+                                setAccountFeedback('Could not copy referral link. Please try again.', 'error');
+                            }
+                        });
+                    }
                 }
             } else {
                 loginBtn.style.display = 'inline-flex';
@@ -440,7 +582,7 @@
             }
 
             // Logout modal handlers
-            document.getElementById('cancelLogout')?.addEventListener('click', () => {
+            closeLogoutBtn?.addEventListener('click', () => {
                 document.getElementById('logoutModal').style.display = 'none';
             });
 
@@ -454,6 +596,21 @@
                 if (e.target.id === 'logoutModal') {
                     document.getElementById('logoutModal').style.display = 'none';
                 }
+            });
+
+            // Global announcement modal handlers (content is injected by home-stats.js)
+            const gaModal = document.getElementById('globalAnnouncementModal');
+            const gaClose = document.getElementById('globalAnnouncementClose');
+            const gaDismiss = document.getElementById('globalAnnouncementDismiss');
+
+            const closeAnnouncement = () => {
+                if (gaModal) gaModal.style.display = 'none';
+            };
+
+            gaClose?.addEventListener('click', closeAnnouncement);
+            gaDismiss?.addEventListener('click', closeAnnouncement);
+            gaModal?.addEventListener('click', (e) => {
+                if (e.target?.id === 'globalAnnouncementModal') closeAnnouncement();
             });
         });
     </script>

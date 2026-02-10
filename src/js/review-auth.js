@@ -441,6 +441,14 @@ async function verifyOTP(email, otp) {
                 .single();
             if (updateError) throw updateError;
             userData = updated;
+
+            // If the user already existed, a referral should not be applied.
+            // Clear any pending referral code to avoid it lingering across sessions.
+            try {
+                localStorage.removeItem('pending_ref_code');
+            } catch {
+                // ignore
+            }
         } else {
             // Create new user
             const { data: newUser, error: insertError } = await getDbClient()
@@ -456,6 +464,40 @@ async function verifyOTP(email, otp) {
                 .single();
             if (insertError) throw insertError;
             userData = newUser;
+
+            // First-time registration: attempt to apply referral (if present)
+            try {
+                const pendingRef = localStorage.getItem('pending_ref_code');
+                if (pendingRef && String(pendingRef).trim().length > 0) {
+                    const cleaned = String(pendingRef).trim().toUpperCase();
+                    const { data: applied, error: referralError } = await getDbClient()
+                        .rpc('apply_referral', { p_referred_user_id: userData.id, p_ref_code: cleaned });
+
+                    // Clear regardless (this can only be claimed on first registration)
+                    localStorage.removeItem('pending_ref_code');
+
+                    if (referralError) {
+                        console.warn('Referral apply failed:', referralError);
+                    } else if (applied) {
+                        console.log('Referral applied');
+                    }
+                }
+            } catch (refError) {
+                console.warn('Referral claim skipped:', refError);
+            }
+        }
+
+        // Ensure the user has a referral code available for sharing
+        try {
+            if (!userData?.referral_code && userData?.email) {
+                const { data: code, error: codeError } = await getDbClient()
+                    .rpc('ensure_referral_code', { p_user_email: userData.email });
+                if (!codeError && code) {
+                    userData = { ...userData, referral_code: code };
+                }
+            }
+        } catch (e) {
+            console.warn('ensure_referral_code skipped:', e);
         }
         // Save session
         saveSession(userData);

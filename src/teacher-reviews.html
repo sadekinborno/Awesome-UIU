@@ -35,6 +35,8 @@
             line-height: 1.6;
         }
 
+		html { color-scheme: dark; }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -187,6 +189,13 @@
             font-size: 1rem;
             transition: all 0.3s ease;
         }
+
+		.filter-group select { color-scheme: dark; }
+		.filter-group select option,
+		.filter-group select optgroup {
+			background: var(--dark-bg);
+			color: var(--text-primary);
+		}
 
         .filter-group input:focus,
         .filter-group select:focus {

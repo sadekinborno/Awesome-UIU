@@ -43,6 +43,8 @@
             overflow-x: hidden;
         }
 
+		html { color-scheme: dark; }
+
         .icon-inline {
             margin-right: 0.5rem;
         }
@@ -641,6 +643,13 @@
             font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
         }
+
+		.form-group select { color-scheme: dark; }
+		.form-group select option,
+		.form-group select optgroup {
+			background: var(--bg-darker);
+			color: var(--text-primary);
+		}
 
         .form-group input::placeholder {
             color: var(--text-secondary);

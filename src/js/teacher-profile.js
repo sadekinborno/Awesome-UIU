@@ -7,6 +7,8 @@ const REVIEWS_PAGE_SIZE = 5;
 
 let pendingDeleteReviewId = null;
 
+let myVotesByReviewId = {};
+
 function toLowerTrim(value) {
     return String(value ?? '').trim().toLowerCase();
 }
@@ -25,6 +27,55 @@ function isReviewByUser(review, user) {
     // Deterministic identity: teacher_reviews.student_id is the author key.
     const reviewStudentId = String(review.student_id ?? '').trim();
     return Boolean(reviewStudentId && user.id && reviewStudentId === String(user.id));
+}
+
+function getRedirectTarget() {
+    const file = (window.location.pathname.split('/').pop() || 'teacher-profile.html');
+    return `${file}${window.location.search || ''}`;
+}
+
+function getDbClient() {
+    return window.supabasePublicClient || window.supabaseClient;
+}
+
+function setVoteFeedback(container, message) {
+    if (!container) return;
+    let el = container.querySelector('.vote-feedback');
+    if (!el) {
+        el = document.createElement('div');
+        el.className = 'vote-feedback';
+        el.style.marginTop = '0.5rem';
+        el.style.fontSize = '0.85rem';
+        el.style.color = 'var(--text-muted)';
+        container.appendChild(el);
+    }
+    el.textContent = message || '';
+    el.style.display = message ? 'block' : 'none';
+}
+
+async function loadMyVotesForReviews(reviewIds) {
+    const user = getLoggedInUser();
+    if (!user?.id || !Array.isArray(reviewIds) || reviewIds.length === 0) return {};
+
+    try {
+        const { data, error } = await getDbClient()
+            .from('review_votes')
+            .select('review_id, vote_type')
+            .eq('voter_user_id', user.id)
+            .in('review_id', reviewIds);
+
+        if (error) throw error;
+
+        const map = {};
+        (data || []).forEach((row) => {
+            if (!row?.review_id) return;
+            map[String(row.review_id)] = row?.vote_type;
+        });
+        return map;
+    } catch {
+        // If the column/function isn't installed yet, don't break the page.
+        return {};
+    }
 }
 
 // Initialize page
@@ -177,6 +228,9 @@ async function loadTeacherProfile() {
             // keep newest first otherwise
             return new Date(b.created_at) - new Date(a.created_at);
         });
+
+        // Preload my vote state so buttons can reflect it.
+        myVotesByReviewId = await loadMyVotesForReviews((sortedReviews || []).map(r => r.id));
 
         // Display profile
         displayProfile(teacher, sortedReviews);
@@ -448,6 +502,10 @@ function createReviewCard(review) {
     const isMine = isReviewByUser(review, loggedInUser);
     const reviewText = String(review.review_text ?? '').trim();
 
+    const myVote = myVotesByReviewId?.[String(review.id)] || null;
+    const helpfulVotedClass = myVote === 'helpful' ? ' voted' : '';
+    const notHelpfulVotedClass = myVote === 'not_helpful' ? ' voted' : '';
+
     card.innerHTML = `
         <div class="review-main">
             <div class="review-header">
@@ -498,11 +556,11 @@ function createReviewCard(review) {
             </div>
             
             <div class="review-votes">
-                <button class="vote-btn" data-review-id="${review.id}" data-vote="helpful">
+                <button class="vote-btn${helpfulVotedClass}" data-review-id="${review.id}" data-vote="helpful">
                     <i class="fas fa-thumbs-up"></i>
                     <span>Helpful (${review.helpful_count || 0})</span>
                 </button>
-                <button class="vote-btn" data-review-id="${review.id}" data-vote="not-helpful">
+                <button class="vote-btn${notHelpfulVotedClass}" data-review-id="${review.id}" data-vote="not-helpful">
                     <i class="fas fa-thumbs-down"></i>
                     <span>Not Helpful (${review.not_helpful_count || 0})</span>
                 </button>
@@ -559,37 +617,86 @@ function getReviewerDisplayName(review) {
 
 // Handle voting on reviews
 async function handleVote(button) {
-    // In a full implementation, you would check if user already voted
-    // For now, just increment the count
-    button.classList.toggle('voted');
-    
+    const user = getLoggedInUser();
+    if (!user?.id) {
+        const redirect = encodeURIComponent(getRedirectTarget());
+        window.location.href = `review-login.html?redirect=${redirect}`;
+        return;
+    }
+
     const reviewId = button.dataset.reviewId;
-    const voteType = button.dataset.vote === 'helpful';
-    
+    const voteType = button.dataset.vote === 'helpful' ? 'helpful' : 'not_helpful';
+
+    const container = button.closest('.review-votes');
+    setVoteFeedback(container, '');
+    const helpfulBtn = container?.querySelector('[data-vote="helpful"]');
+    const notHelpfulBtn = container?.querySelector('[data-vote="not-helpful"]');
+
+    const prevHelpfulVoted = helpfulBtn?.classList.contains('voted');
+    const prevNotHelpfulVoted = notHelpfulBtn?.classList.contains('voted');
+
+    if (helpfulBtn) helpfulBtn.disabled = true;
+    if (notHelpfulBtn) notHelpfulBtn.disabled = true;
+
     try {
-        // Update vote count in database
-        const field = voteType ? 'helpful_count' : 'not_helpful_count';
-        
-        const { data: review } = await window.supabaseClient
-            .from('teacher_reviews')
-            .select(field)
-            .eq('id', reviewId)
-            .single();
+        const { data, error } = await getDbClient()
+            .rpc('toggle_review_vote', {
+                p_review_id: reviewId,
+                p_voter_user_id: user.id,
+                p_vote_type: voteType
+            });
 
-        const newCount = (review[field] || 0) + (button.classList.contains('voted') ? 1 : -1);
+        if (error) throw error;
 
-        await window.supabaseClient
-            .from('teacher_reviews')
-            .update({ [field]: newCount })
-            .eq('id', reviewId);
+        const row = Array.isArray(data) ? data[0] : data;
+        const helpfulCount = Number(row?.helpful_count ?? 0);
+        const notHelpfulCount = Number(row?.not_helpful_count ?? 0);
+        const currentVoteType = row?.current_vote_type || null;
 
-        // Update button text
-        const span = button.querySelector('span');
-        const label = voteType ? 'Helpful' : 'Not Helpful';
-        span.textContent = `${label} (${newCount})`;
+        // Persist my vote state locally for this page.
+        if (currentVoteType) {
+            myVotesByReviewId[String(reviewId)] = currentVoteType;
+        } else {
+            delete myVotesByReviewId[String(reviewId)];
+        }
 
+        // Update button voted state
+        if (helpfulBtn) helpfulBtn.classList.toggle('voted', currentVoteType === 'helpful');
+        if (notHelpfulBtn) notHelpfulBtn.classList.toggle('voted', currentVoteType === 'not_helpful');
+
+        // Update counts in the UI
+        if (helpfulBtn) {
+            const span = helpfulBtn.querySelector('span');
+            if (span) span.textContent = `Helpful (${helpfulCount})`;
+        }
+        if (notHelpfulBtn) {
+            const span = notHelpfulBtn.querySelector('span');
+            if (span) span.textContent = `Not Helpful (${notHelpfulCount})`;
+        }
+
+        // Keep in-memory review list in sync (used by pagination re-render)
+        const idx = (allReviews || []).findIndex(r => String(r.id) === String(reviewId));
+        if (idx >= 0) {
+            allReviews[idx] = {
+                ...allReviews[idx],
+                helpful_count: helpfulCount,
+                not_helpful_count: notHelpfulCount
+            };
+        }
     } catch (error) {
+        // Revert UI state on failure
+        if (helpfulBtn) helpfulBtn.classList.toggle('voted', Boolean(prevHelpfulVoted));
+        if (notHelpfulBtn) notHelpfulBtn.classList.toggle('voted', Boolean(prevNotHelpfulVoted));
         console.error('Error voting:', error);
+        const msg = String(error?.message || error || '').toLowerCase();
+        if (msg.includes('toggle_review_vote') || msg.includes('function') || msg.includes('rpc')) {
+            setVoteFeedback(container, 'Voting is not available yet (DB vote function not installed). Run add-review-vote-rpc.sql in Supabase.');
+        } else {
+            setVoteFeedback(container, 'Vote failed. Please try again.');
+        }
+    } finally {
+        if (helpfulBtn) helpfulBtn.disabled = false;
+        if (notHelpfulBtn) notHelpfulBtn.disabled = false;
     }
 }
 
