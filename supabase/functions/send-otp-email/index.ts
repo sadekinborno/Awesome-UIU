@@ -48,7 +48,7 @@ serve(async (req: Request) => {
       body: JSON.stringify({
   from: 'The Awesome UIU <noreply@awesomeuiu.tech>',
         to: [email],
-        subject: 'Your Verification Code - The Awesome UIU',
+        subject: 'Your Login Verification Code - The Awesome UIU',
         html: `
 <!DOCTYPE html>
 <html>
@@ -64,14 +64,14 @@ serve(async (req: Request) => {
           <tr>
             <td align="center" style="padding-bottom: 20px;">
               <h1 style="color: #333333; font-size: 24px; margin: 0;">The Awesome UIU</h1>
-              <p style="color: #666666; font-size: 14px; margin: 5px 0 0 0;">Scholarship Probability Checker</p>
+              <p style="color: #666666; font-size: 14px; margin: 5px 0 0 0;">Login Verification</p>
             </td>
           </tr>
           <tr>
             <td style="padding: 20px 0;">
               <h2 style="color: #333333; font-size: 20px; margin: 0 0 10px 0;">Verify Your Email</h2>
               <p style="color: #666666; font-size: 16px; line-height: 1.6; margin: 0;">
-                You requested to check your scholarship probability. Please use the verification code below:
+                You requested to log in to The Awesome UIU. Please use the verification code below:
               </p>
             </td>
           </tr>
