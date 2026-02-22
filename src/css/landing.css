@@ -923,6 +923,17 @@ body {
 
 /* Responsive Design */
 
+/* Laptop layout for cleaner tool card organization */
+@media (min-width: 1025px) and (max-width: 1366px) {
+    .tools-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tool-card-featured {
+        grid-column: span 2;
+    }
+}
+
 /* Large tablets and small desktops */
 @media (max-width: 1024px) {
     .container {

@@ -2,9 +2,15 @@
 let selectedTeacherId = null;
 let selectedCourseCode = null;
 let existingReviewId = null;
+let isTeacherSelectionLocked = false;
+const DETAILED_RATING_CATEGORIES = ['teaching', 'grading', 'approachability', 'punctuality'];
+const ADD_REVIEW_RETURN_KEY = 'addReviewReturnUrl';
+let returnPageUrl = 'teacher-reviews.html';
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
+    initializeReturnNavigation();
+
     // Check if teacher ID is in URL (coming from profile page)
     const urlParams = new URLSearchParams(window.location.search);
     const teacherIdFromUrl = urlParams.get('teacher');
@@ -24,6 +30,41 @@ function getLoggedInUser() {
     }
 }
 
+function normalizeReturnUrl(rawUrl) {
+    if (!rawUrl) return null;
+
+    try {
+        const resolved = new URL(rawUrl, window.location.origin);
+        if (resolved.origin !== window.location.origin) return null;
+
+        const fileName = (resolved.pathname.split('/').pop() || '').toLowerCase();
+        if (fileName === 'add-review.html') return null;
+
+        return `${fileName || 'teacher-reviews.html'}${resolved.search || ''}`;
+    } catch {
+        return null;
+    }
+}
+
+function initializeReturnNavigation() {
+    const params = new URLSearchParams(window.location.search);
+    const explicitReturn = normalizeReturnUrl(params.get('return'));
+    const referrerReturn = normalizeReturnUrl(document.referrer);
+    const storedReturn = normalizeReturnUrl(sessionStorage.getItem(ADD_REVIEW_RETURN_KEY));
+
+    returnPageUrl = explicitReturn || referrerReturn || storedReturn || 'teacher-reviews.html';
+    sessionStorage.setItem(ADD_REVIEW_RETURN_KEY, returnPageUrl);
+
+    const backLink = document.getElementById('backToOriginLink');
+    if (backLink) {
+        backLink.href = returnPageUrl;
+    }
+}
+
+function goBackToOrigin() {
+    window.location.href = returnPageUrl || 'teacher-reviews.html';
+}
+
 function toLowerTrim(value) {
     return String(value ?? '').trim().toLowerCase();
 }
@@ -36,6 +77,7 @@ function isMissingColumnError(error) {
 function setSubmitMode(isEdit) {
     const btn = document.getElementById('submitBtn');
     if (!btn) return;
+    btn.disabled = false;
     btn.innerHTML = isEdit
         ? '<i class="fas fa-save"></i> Update Review'
         : '<i class="fas fa-paper-plane"></i> Submit Review';
@@ -78,6 +120,69 @@ function setSliderValue(prefix, value) {
     if (valueDisplay) valueDisplay.textContent = String(value);
 }
 
+function getSelectedOverallRatingElement() {
+    return document.querySelector('input[name="overall"]:checked');
+}
+
+function setOverallRatingAttention(show) {
+    const ratingError = document.getElementById('overallRatingError');
+    const ratingBox = document.getElementById('overallRatingBox');
+    if (ratingError) {
+        ratingError.classList.toggle('show', show);
+    }
+    if (ratingBox) {
+        ratingBox.classList.toggle('needs-attention', show);
+    }
+}
+
+function updateSubmitAvailability() {
+    const submitBtn = document.getElementById('submitBtn');
+    if (!submitBtn) return;
+    submitBtn.disabled = false;
+}
+
+function setDetailedRatingConfirmed(category, confirmed) {
+    const slider = document.getElementById(`${category}Slider`);
+    if (!slider) return;
+    slider.dataset.confirmed = confirmed ? 'true' : 'false';
+
+    const card = document.getElementById(`${category}RatingCard`);
+    if (card) {
+        card.classList.toggle('needs-attention', !confirmed);
+    }
+}
+
+function hasConfirmedDetailedRatings() {
+    return DETAILED_RATING_CATEGORIES.every((category) => {
+        const slider = document.getElementById(`${category}Slider`);
+        return slider?.dataset.confirmed === 'true';
+    });
+}
+
+function setDetailedRatingsAttention(show) {
+    const errorEl = document.getElementById('detailedRatingsError');
+    if (errorEl) {
+        errorEl.classList.toggle('show', show);
+    }
+
+    DETAILED_RATING_CATEGORIES.forEach((category) => {
+        const slider = document.getElementById(`${category}Slider`);
+        if (!slider) return;
+        const confirmed = slider.dataset.confirmed === 'true';
+        const card = document.getElementById(`${category}RatingCard`);
+        if (card) {
+            card.classList.toggle('needs-attention', show && !confirmed);
+        }
+    });
+}
+
+function setAllDetailedRatingsConfirmed(confirmed) {
+    DETAILED_RATING_CATEGORIES.forEach((category) => {
+        setDetailedRatingConfirmed(category, confirmed);
+    });
+    setDetailedRatingsAttention(false);
+}
+
 async function prefillFormFromReview(review) {
     if (!review) return;
 
@@ -105,6 +210,8 @@ async function prefillFormFromReview(review) {
     if (review.overall_rating) {
         setRadioValue('overall', review.overall_rating);
     }
+    setOverallRatingAttention(false);
+    updateSubmitAvailability();
 
     // Category sliders (schema may vary: fair_grading vs grading_fairness)
     if (review.teaching_quality != null) setSliderValue('teaching', review.teaching_quality);
@@ -158,6 +265,19 @@ async function preloadTeacher(teacherId) {
         // Show preview
         showTeacherPreview(teacher.name, teacher.department);
 
+        // Lock teacher selection when coming from a specific teacher profile
+        const departmentSelect = document.getElementById('departmentSelect');
+        const teacherSelect = document.getElementById('teacherSelect');
+        if (departmentSelect) {
+            departmentSelect.disabled = true;
+            departmentSelect.classList.add('locked-select');
+        }
+        if (teacherSelect) {
+            teacherSelect.disabled = true;
+            teacherSelect.classList.add('locked-select');
+        }
+        isTeacherSelectionLocked = true;
+
     } catch (error) {
         console.error('Error preloading teacher:', error);
     }
@@ -165,8 +285,25 @@ async function preloadTeacher(teacherId) {
 
 // Setup event listeners
 function setupEventListeners() {
+    const backLink = document.getElementById('backToOriginLink');
+    if (backLink) {
+        backLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            goBackToOrigin();
+        });
+    }
+
+    const cancelBtn = document.getElementById('cancelBtn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            goBackToOrigin();
+        });
+    }
+
     // Department selection
     document.getElementById('departmentSelect').addEventListener('change', async (e) => {
+        if (isTeacherSelectionLocked) return;
+
         const department = e.target.value;
         if (department) {
             await loadTeachersForDepartment(department);
@@ -181,6 +318,8 @@ function setupEventListeners() {
 
     // Teacher selection
     document.getElementById('teacherSelect').addEventListener('change', async (e) => {
+        if (isTeacherSelectionLocked) return;
+
         selectedTeacherId = e.target.value;
         if (selectedTeacherId) {
             await loadCoursesForTeacher(selectedTeacherId);
@@ -210,9 +349,10 @@ function setupEventListeners() {
     });
 
     // Slider updates
-    ['teaching', 'grading', 'approachability', 'punctuality'].forEach(category => {
+    DETAILED_RATING_CATEGORIES.forEach(category => {
         const slider = document.getElementById(`${category}Slider`);
         const valueDisplay = document.getElementById(`${category}Value`);
+
         slider.addEventListener('input', (e) => {
             valueDisplay.textContent = e.target.value;
         });
@@ -223,8 +363,18 @@ function setupEventListeners() {
         document.getElementById('charCount').textContent = e.target.value.length;
     });
 
+    // Overall rating selection
+    document.querySelectorAll('input[name="overall"]').forEach((starInput) => {
+        starInput.addEventListener('change', () => {
+            setOverallRatingAttention(false);
+        });
+    });
+
     // Form submission
     document.getElementById('reviewForm').addEventListener('submit', handleSubmit);
+
+    setOverallRatingAttention(false);
+    updateSubmitAvailability();
 }
 
 // Load teachers for selected department
@@ -317,6 +467,17 @@ function hideTeacherPreview() {
 async function handleSubmit(e) {
     e.preventDefault();
 
+    const overallRatingElement = getSelectedOverallRatingElement();
+    if (!overallRatingElement) {
+        setOverallRatingAttention(true);
+        const overallRatingBox = document.getElementById('overallRatingBox');
+        if (overallRatingBox) {
+            overallRatingBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        showAlert('Please select an overall star rating', 'error');
+        return;
+    }
+
     const submitBtn = document.getElementById('submitBtn');
     setLoading(true, 'Submitting your review…');
     submitBtn.disabled = true;
@@ -327,11 +488,6 @@ async function handleSubmit(e) {
         const teacherId = selectedTeacherId;
         const courseCode = selectedCourseCode || null; // Course is optional
         
-        // Check if overall rating is selected
-        const overallRatingElement = document.querySelector('input[name="overall"]:checked');
-        if (!overallRatingElement) {
-            throw new Error('Please select an overall rating (stars)');
-        }
         const overallRating = parseInt(overallRatingElement.value);
         
         const teachingQuality = parseInt(document.getElementById('teachingSlider').value);
@@ -387,7 +543,7 @@ async function handleSubmit(e) {
         console.error('Error submitting review:', error);
         showAlert(formatSubmitError(error), 'error');
         setLoading(false);
-        submitBtn.disabled = false;
+        updateSubmitAvailability();
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Review';
     }
 }

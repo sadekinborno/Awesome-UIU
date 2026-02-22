@@ -157,6 +157,14 @@
             transition: all 0.3s ease;
         }
 
+        .form-group select.locked-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: none;
+            padding-right: 1rem;
+        }
+
         .form-group select:focus,
         .form-group textarea:focus,
         .form-group input:focus {
@@ -176,6 +184,38 @@
             gap: 0.75rem;
             flex-direction: row-reverse;
             justify-content: flex-end;
+        }
+
+        .overall-rating-box {
+            border: 1px solid var(--border-color);
+            border-radius: 0.9rem;
+            padding: 1rem 1.1rem;
+            background: var(--dark-bg);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .overall-rating-box.needs-attention {
+            border-color: #f87171;
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14);
+        }
+
+        .overall-rating-hint {
+            margin-top: 0.6rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .overall-rating-error {
+            margin-top: 0.45rem;
+            color: #f87171;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .overall-rating-error.show {
+            display: block;
         }
 
         .star-rating input {
@@ -207,6 +247,30 @@
             border: 1px solid var(--border-color);
             border-radius: 1rem;
             transition: all 0.3s ease;
+        }
+
+        .category-rating.needs-attention {
+            border-color: #f87171;
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14);
+        }
+
+        .detailed-rating-hint {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+
+        .detailed-rating-error {
+            margin-top: 0.9rem;
+            color: #f87171;
+            font-size: 0.92rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .detailed-rating-error.show {
+            display: block;
         }
 
         .category-rating:hover {
@@ -667,7 +731,7 @@
         <div class="review-form-container">
             <!-- Back Button and User Menu -->
             <div class="top-bar">
-                <a href="teacher-reviews.html" class="back-button">
+                <a href="teacher-reviews.html" class="back-button" id="backToOriginLink">
                     <i class="fas fa-arrow-left"></i>
                     Back to Teachers
                 </a>
@@ -731,25 +795,30 @@
                 <!-- Overall Rating -->
                 <div class="form-section">
                     <h3><i class="fas fa-star"></i> Overall Rating <span class="required">*</span></h3>
-                    <div class="star-rating">
-                        <input type="radio" name="overall" value="5" id="overall5">
-                        <label for="overall5"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="overall" value="4" id="overall4">
-                        <label for="overall4"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="overall" value="3" id="overall3" checked>
-                        <label for="overall3"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="overall" value="2" id="overall2">
-                        <label for="overall2"><i class="fas fa-star"></i></label>
-                        <input type="radio" name="overall" value="1" id="overall1">
-                        <label for="overall1"><i class="fas fa-star"></i></label>
+                    <div class="overall-rating-box" id="overallRatingBox">
+                        <div class="star-rating" role="radiogroup" aria-label="Overall rating">
+                            <input type="radio" name="overall" value="5" id="overall5">
+                            <label for="overall5"><i class="fas fa-star"></i></label>
+                            <input type="radio" name="overall" value="4" id="overall4">
+                            <label for="overall4"><i class="fas fa-star"></i></label>
+                            <input type="radio" name="overall" value="3" id="overall3">
+                            <label for="overall3"><i class="fas fa-star"></i></label>
+                            <input type="radio" name="overall" value="2" id="overall2">
+                            <label for="overall2"><i class="fas fa-star"></i></label>
+                            <input type="radio" name="overall" value="1" id="overall1">
+                            <label for="overall1"><i class="fas fa-star"></i></label>
+                        </div>
+                        <p class="overall-rating-hint">Select your overall rating by tapping a star (required).</p>
+                        <p class="overall-rating-error" id="overallRatingError" aria-live="polite">Please select an overall star rating before submitting.</p>
                     </div>
                 </div>
 
                 <!-- Category Ratings -->
-                <div class="form-section">
+                <div class="form-section" id="detailedRatingsSection">
                     <h3><i class="fas fa-sliders-h"></i> Detailed Ratings <span class="required">*</span></h3>
+                    <p class="detailed-rating-hint">Detailed sliders start at 3 by default. Adjust them only if needed.</p>
                     <div class="rating-categories">
-                        <div class="category-rating">
+                        <div class="category-rating" id="teachingRatingCard">
                             <div class="category-header">
                                 <span class="category-name">Teaching Quality</span>
                                 <span class="category-value" id="teachingValue">3</span>
@@ -764,7 +833,7 @@
                             </div>
                         </div>
 
-                        <div class="category-rating">
+                        <div class="category-rating" id="gradingRatingCard">
                             <div class="category-header">
                                 <span class="category-name">Grading Fairness</span>
                                 <span class="category-value" id="gradingValue">3</span>
@@ -779,7 +848,7 @@
                             </div>
                         </div>
 
-                        <div class="category-rating">
+                        <div class="category-rating" id="approachabilityRatingCard">
                             <div class="category-header">
                                 <span class="category-name">Approachability</span>
                                 <span class="category-value" id="approachabilityValue">3</span>
@@ -794,7 +863,7 @@
                             </div>
                         </div>
 
-                        <div class="category-rating">
+                        <div class="category-rating" id="punctualityRatingCard">
                             <div class="category-header">
                                 <span class="category-name">Punctuality</span>
                                 <span class="category-value" id="punctualityValue">3</span>
@@ -842,7 +911,7 @@
 
                 <!-- Submit Section -->
                 <div class="submit-section">
-                    <button type="button" class="cancel-btn" onclick="history.back()">
+                    <button type="button" class="cancel-btn" id="cancelBtn">
                         <i class="fas fa-times"></i> Cancel
                     </button>
                     <button type="submit" class="submit-btn" id="submitBtn">
