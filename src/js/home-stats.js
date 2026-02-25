@@ -17,6 +17,7 @@
 	const globalAnnouncementNewList = document.getElementById('globalAnnouncementNewList');
 
 	let countdownIntervalId = null;
+	let cachedGlobalAnnouncement = null;
 
 	const setPlaceholder = (value) => {
 		if (visitElement) visitElement.textContent = value;
@@ -201,7 +202,8 @@
 		const publishedAt = announcement?.published_at || null;
 
 		if (globalAnnouncementPublishedAt) {
-			globalAnnouncementPublishedAt.textContent = publishedAt ? `Published: ${publishedAt}` : '';
+			globalAnnouncementPublishedAt.textContent = '';
+			globalAnnouncementPublishedAt.style.display = 'none';
 		}
 
 		if (globalAnnouncementGiftNotice) {
@@ -215,7 +217,7 @@
 		}
 
 		if (globalAnnouncementCountdownEnded) {
-			globalAnnouncementCountdownEnded.style.display = 'block';
+			globalAnnouncementCountdownEnded.style.display = 'none';
 		}
 
 		if (globalAnnouncementWinners && globalAnnouncementWinnersList) {
@@ -231,6 +233,35 @@
 		globalAnnouncementModal.style.display = 'flex';
 		markAnnouncementSeen({ publishedAt });
 	};
+
+	const openAnnouncementOnDemand = async () => {
+		try {
+			if (!globalAnnouncementModal) return false;
+
+			let announcement = cachedGlobalAnnouncement;
+			if (!announcement) {
+				const client = await ensureSupabaseClient();
+				const { data, error } = await client
+					.from('app_settings')
+					.select('value')
+					.eq('key', 'global_announcement')
+					.maybeSingle();
+
+				if (error) throw error;
+				if (!data?.value) return false;
+				announcement = JSON.parse(String(data.value));
+				cachedGlobalAnnouncement = announcement;
+			}
+
+			renderAnnouncement(announcement);
+			return true;
+		} catch (e) {
+			console.warn('[stats] Could not open announcement on demand:', e);
+			return false;
+		}
+	};
+
+	window.showMysteryResultsModal = openAnnouncementOnDemand;
 
 	try {
 		// Avoid leaving the default "0" which looks like a real value.
@@ -274,6 +305,7 @@
 			if (!countdownRunning && map?.global_announcement && globalAnnouncementModal) {
 				try {
 					const announcement = JSON.parse(String(map.global_announcement));
+					cachedGlobalAnnouncement = announcement;
 					if (shouldShowAnnouncementNow({ publishedAt: announcement?.published_at })) {
 						renderAnnouncement(announcement);
 					}

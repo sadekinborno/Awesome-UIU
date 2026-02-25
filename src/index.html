@@ -61,14 +61,9 @@
                 <div id="globalAnnouncementModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9998; align-items: center; justify-content: center;">
                     <div style="position: relative; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 2rem; border-radius: 20px; max-width: 560px; width: 92%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid rgba(148, 163, 184, 0.2); animation: modalSlideIn 0.3s ease;">
                         <button id="globalAnnouncementClose" aria-label="Close announcement" style="position: absolute; top: 0.75rem; right: 0.75rem; width: 40px; height: 40px; border-radius: 12px; background: transparent; border: 1px solid rgba(148, 163, 184, 0.25); color: #f8fafc; font-size: 1.25rem; font-weight: 800; cursor: pointer;">×</button>
-                        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom: 1rem;">
-                            <div style="width:44px; height:44px; border-radius: 14px; display:flex; align-items:center; justify-content:center; background: rgba(102, 126, 234, 0.18); border: 1px solid rgba(102, 126, 234, 0.28);">
-                                <i class="fa-solid fa-bell" aria-hidden="true" style="color:#a5b4fc;"></i>
-                            </div>
-                            <div>
-                                <div style="font-size: 1.15rem; font-weight: 800; color: #f8fafc;">Mystery Countdown Ended</div>
-                                <div id="globalAnnouncementPublishedAt" style="font-size: 0.9rem; color: rgba(148, 163, 184, 0.95);">—</div>
-                            </div>
+                        <div style="margin-bottom: 0.9rem; padding-right: 2.25rem;">
+                            <div style="font-size: 1.85rem; line-height: 1.1; font-weight: 900; color: #f8fafc;">Mystery Countdown Ended</div>
+                            <div id="globalAnnouncementPublishedAt" style="font-size: 1rem; color: rgba(148, 163, 184, 0.95); margin-top: 0.2rem;">—</div>
                         </div>
 
                         <div style="display:flex; flex-direction:column; gap: 1rem;">
@@ -86,22 +81,18 @@
                                     <i class="fa-solid fa-trophy" aria-hidden="true" style="color:#fbbf24;"></i>
                                     Winners / Top contributors
                                 </div>
-                                <ul id="globalAnnouncementWinnersList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95);"></ul>
+                                <ul id="globalAnnouncementWinnersList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95); text-align: left;"></ul>
 
-                                <div id="globalAnnouncementCriteriaWrap" style="margin-top: 0.75rem;">
-                                    <button id="globalAnnouncementCriteriaToggle" type="button" style="padding: 0.5rem 0.75rem; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.3); background: rgba(15, 23, 42, 0.45); color: #cbd5e1; font-size: 0.88rem; font-weight: 700; cursor: pointer;">
-                                        How winners are selected
-                                    </button>
-                                    <div id="globalAnnouncementCriteriaPanel" style="display:none; margin-top: 0.6rem; padding: 0.75rem; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(2, 6, 23, 0.45); color: #e2e8f0; font-size: 0.88rem;">
-                                        <ul id="globalAnnouncementCriteriaList" style="margin:0; padding-left: 1.1rem;">
-                                            <li>Only verified users are considered.</li>
-                                            <li>Main criteria: most successful referrals.</li>
-                                            <li>Main criteria: most reviews submitted.</li>
-                                            <li>Main criteria: most votes cast on reviews.</li>
-                                            <li>Tie-breaker: more page visits.</li>
-                                        </ul>
-                                    </div>
-                                </div>
+                                <details style="margin-top: 0.75rem;">
+                                    <summary style="cursor:pointer; color:#cbd5e1; font-size: 0.88rem; font-weight: 700;">How winners are selected</summary>
+                                    <ul id="globalAnnouncementCriteriaList" style="margin:0.55rem 0 0; padding-left: 1.1rem; color:#e2e8f0; font-size: 0.88rem; text-align: left;">
+                                        <li>Only verified users are considered.</li>
+                                        <li>Criteria1: most successful referrals.</li>
+                                        <li>Criteria2: most reviews submitted.</li>
+                                        <li>Criteria3: most votes cast on reviews.</li>
+                                        <li>Tie-breaker: more page visits.</li>
+                                    </ul>
+                                </details>
                             </div>
 
                             <div style="display:flex; gap: 1rem; flex-wrap: wrap;">
@@ -110,7 +101,7 @@
                                         <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true" style="color:#a5b4fc;"></i>
                                         Latest features
                                     </div>
-                                    <ul id="globalAnnouncementNewList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95);"></ul>
+                                    <ul id="globalAnnouncementNewList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95); text-align: left;"></ul>
                                 </div>
                             </div>
                         </div>
@@ -423,6 +414,9 @@
                 <button id="copyReferralModalBtn" style="width: 100%; padding: 0.875rem; background: transparent; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 12px; color: #f8fafc; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
                     Copy Referral Link
                 </button>
+                <button id="showMysteryResultModalBtn" style="width: 100%; padding: 0.875rem; background: transparent; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 12px; color: #f8fafc; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    Show Mystery Result
+                </button>
                 <div id="accountModalFeedback" style="display:none; padding: 0.75rem 0.875rem; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.25); background: rgba(2, 6, 23, 0.6); color: #f8fafc; font-size: 0.95rem;">
                     
                 </div>
@@ -468,6 +462,67 @@
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Header Coachmark */
+        #headerCoachmark {
+            position: fixed;
+            z-index: 10001;
+            max-width: 320px;
+            padding: 0.8rem 0.95rem;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.96) 100%);
+            color: #f8fafc;
+            box-shadow: 0 14px 40px rgba(2, 6, 23, 0.45);
+            display: none;
+        }
+
+        #headerCoachmarkText {
+            display: block;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            font-weight: 600;
+            color: rgba(241, 245, 249, 0.95);
+            padding-right: 1.65rem;
+        }
+
+        #headerCoachmarkClose {
+            position: absolute;
+            top: 0.42rem;
+            right: 0.42rem;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: transparent;
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        #headerCoachmark::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: rgba(20, 30, 48, 0.98);
+            border-left: 1px solid rgba(148, 163, 184, 0.28);
+            border-top: 1px solid rgba(148, 163, 184, 0.28);
+            transform: rotate(45deg);
+        }
+
+        #headerCoachmark[data-side='bottom']::after {
+            top: -7px;
+            left: var(--coachmark-arrow-left, 24px);
+        }
+
+        #headerCoachmark[data-side='top']::after {
+            bottom: -7px;
+            left: var(--coachmark-arrow-left, 24px);
+            transform: rotate(225deg);
+        }
     </style>
     
     <script>
@@ -477,8 +532,100 @@
             const userMenuBtn = document.getElementById('userMenuBtn');
             const userEmailSpan = document.getElementById('userEmail');
             const copyReferralModalBtn = document.getElementById('copyReferralModalBtn');
+            const showMysteryResultModalBtn = document.getElementById('showMysteryResultModalBtn');
             const closeLogoutBtn = document.getElementById('closeLogout');
             const accountModalFeedback = document.getElementById('accountModalFeedback');
+            const headerCoachmark = document.getElementById('headerCoachmark');
+            const headerCoachmarkText = document.getElementById('headerCoachmarkText');
+            const headerCoachmarkClose = document.getElementById('headerCoachmarkClose');
+
+            const COACHMARK_LAST_SHOWN_KEY = 'home_header_coachmark_last_shown_at';
+            const COACHMARK_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+            let coachmarkTarget = null;
+
+            function hideCoachmark() {
+                if (!headerCoachmark) return;
+                headerCoachmark.style.display = 'none';
+                coachmarkTarget = null;
+            }
+
+            function positionCoachmark() {
+                if (!headerCoachmark || !coachmarkTarget) return;
+
+                const targetRect = coachmarkTarget.getBoundingClientRect();
+                const coachRect = headerCoachmark.getBoundingClientRect();
+                const viewportPadding = 12;
+
+                let top = targetRect.bottom + 10;
+                let side = 'bottom';
+                if (top + coachRect.height > window.innerHeight - viewportPadding) {
+                    top = Math.max(viewportPadding, targetRect.top - coachRect.height - 10);
+                    side = 'top';
+                }
+
+                let left = targetRect.left + targetRect.width / 2 - coachRect.width / 2;
+                left = Math.max(viewportPadding, Math.min(left, window.innerWidth - coachRect.width - viewportPadding));
+
+                const targetCenterX = targetRect.left + targetRect.width / 2;
+                const minArrowLeft = 14;
+                const maxArrowLeft = Math.max(minArrowLeft, coachRect.width - 24);
+                const arrowLeft = Math.max(minArrowLeft, Math.min(targetCenterX - left - 6, maxArrowLeft));
+
+                headerCoachmark.setAttribute('data-side', side);
+                headerCoachmark.style.top = `${top}px`;
+                headerCoachmark.style.left = `${left}px`;
+                headerCoachmark.style.setProperty('--coachmark-arrow-left', `${arrowLeft}px`);
+            }
+
+            function shouldShowCoachmark() {
+                try {
+                    const lastShownAt = parseInt(localStorage.getItem(COACHMARK_LAST_SHOWN_KEY) || '0', 10) || 0;
+                    if (Date.now() - lastShownAt < COACHMARK_COOLDOWN_MS) return false;
+                    return true;
+                } catch {
+                    return false;
+                }
+            }
+
+            function chooseCoachmarkMessage(isLoggedIn) {
+                if (isLoggedIn) {
+                    const options = [
+                        'Click here to see Mystery Countdown results.',
+                        'Click here to refer a friend.'
+                    ];
+                    return options[Math.floor(Math.random() * options.length)];
+                }
+                return 'Click here to log in.';
+            }
+
+            function showCoachmark(target, message) {
+                if (!headerCoachmark || !headerCoachmarkText || !target || !message) return;
+                coachmarkTarget = target;
+                headerCoachmarkText.textContent = message;
+                headerCoachmark.style.display = 'block';
+                positionCoachmark();
+
+                try {
+                    localStorage.setItem(COACHMARK_LAST_SHOWN_KEY, String(Date.now()));
+                } catch {
+                    // ignore localStorage errors
+                }
+            }
+
+            window.addEventListener('resize', positionCoachmark);
+            window.addEventListener('scroll', positionCoachmark, { passive: true });
+            headerCoachmarkClose?.addEventListener('click', hideCoachmark);
+            document.addEventListener('click', (event) => {
+                if (!headerCoachmark || headerCoachmark.style.display !== 'block') return;
+
+                const clickedInsideCoachmark = headerCoachmark.contains(event.target);
+                const clickedCoachmarkTarget = coachmarkTarget && coachmarkTarget.contains(event.target);
+
+                if (!clickedInsideCoachmark && !clickedCoachmarkTarget) {
+                    hideCoachmark();
+                }
+            });
 
             function setAccountFeedback(message, type) {
                 if (!accountModalFeedback) return;
@@ -524,9 +671,16 @@
                     loginBtn.style.display = 'none';
                     userMenuBtn.style.display = 'inline-flex';
                     userEmailSpan.textContent = userData.email.split('@')[0];
+
+                    setTimeout(() => {
+                        if (shouldShowCoachmark()) {
+                            showCoachmark(userMenuBtn, chooseCoachmarkMessage(true));
+                        }
+                    }, 450);
                     
                     // Add logout functionality
                     userMenuBtn.addEventListener('click', () => {
+                        hideCoachmark();
                         document.getElementById('logoutModal').style.display = 'flex';
                         if (accountModalFeedback) accountModalFeedback.style.display = 'none';
                     });
@@ -573,10 +727,40 @@
                             }
                         });
                     }
+
+                    if (showMysteryResultModalBtn) {
+                        showMysteryResultModalBtn.addEventListener('click', async () => {
+                            try {
+                                if (accountModalFeedback) accountModalFeedback.style.display = 'none';
+
+                                if (typeof window.showMysteryResultsModal !== 'function') {
+                                    setAccountFeedback('Mystery result is not ready yet. Please try again.', 'error');
+                                    return;
+                                }
+
+                                const opened = await window.showMysteryResultsModal();
+                                if (!opened) {
+                                    setAccountFeedback('No mystery result is published yet.', 'error');
+                                    return;
+                                }
+
+                                document.getElementById('logoutModal').style.display = 'none';
+                            } catch (e) {
+                                console.error('Show mystery result failed:', e);
+                                setAccountFeedback('Could not open mystery result. Please try again.', 'error');
+                            }
+                        });
+                    }
                 }
             } else {
                 loginBtn.style.display = 'inline-flex';
                 userMenuBtn.style.display = 'none';
+
+                setTimeout(() => {
+                    if (shouldShowCoachmark()) {
+                        showCoachmark(loginBtn, chooseCoachmarkMessage(false));
+                    }
+                }, 450);
                 
                 // Add glowing border animation to login button
                 loginBtn.classList.add('animate-glow');
@@ -588,6 +772,7 @@
                 
                 // Stop animation when user clicks
                 loginBtn.addEventListener('click', () => {
+                    hideCoachmark();
                     loginBtn.classList.remove('animate-glow');
                 });
             }
@@ -613,23 +798,10 @@
             const gaModal = document.getElementById('globalAnnouncementModal');
             const gaClose = document.getElementById('globalAnnouncementClose');
             const gaDismiss = document.getElementById('globalAnnouncementDismiss');
-            const gaCriteriaToggle = document.getElementById('globalAnnouncementCriteriaToggle');
-            const gaCriteriaPanel = document.getElementById('globalAnnouncementCriteriaPanel');
 
             const closeAnnouncement = () => {
                 if (gaModal) gaModal.style.display = 'none';
-                if (gaCriteriaPanel) gaCriteriaPanel.style.display = 'none';
-                if (gaCriteriaToggle) gaCriteriaToggle.textContent = 'How winners are selected';
             };
-
-            gaCriteriaToggle?.addEventListener('click', () => {
-                if (!gaCriteriaPanel) return;
-                const isOpen = gaCriteriaPanel.style.display === 'block';
-                gaCriteriaPanel.style.display = isOpen ? 'none' : 'block';
-                gaCriteriaToggle.textContent = isOpen
-                    ? 'How winners are selected'
-                    : 'Hide winner selection criteria';
-            });
 
             gaClose?.addEventListener('click', closeAnnouncement);
             gaDismiss?.addEventListener('click', closeAnnouncement);
@@ -638,6 +810,12 @@
             });
         });
     </script>
+
+    <div id="headerCoachmark" aria-live="polite" data-side="bottom">
+        <button id="headerCoachmarkClose" aria-label="Dismiss tip">✕</button>
+        <span id="headerCoachmarkText"></span>
+    </div>
+
     <script src="js/home-stats.js"></script>
     <script src="js/landing.js"></script>
 

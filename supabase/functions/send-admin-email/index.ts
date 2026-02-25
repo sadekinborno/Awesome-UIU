@@ -1,7 +1,7 @@
-// Supabase Edge Function: send-admin-email
-// Admin-only email sender for specific users using Resend.
+// Supabase Edge Function for sending admin emails
+// Deploy with: supabase functions deploy send-admin-email
 
-// @ts-nocheck
+// @ts-nocheck - Deno edge function
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
 
 import { serve } from 'https://deno.land/std@0.203.0/http/server.ts'
@@ -17,77 +17,64 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-function normalizeRecipients(input) {
-  const source = Array.isArray(input) ? input.join('\n') : String(input || '')
-  const normalized = source.replace(/[;,]/g, '\n')
-  const lines = normalized.split(/\r?\n/)
-  const set = new Set()
-  for (const line of lines) {
-    const email = String(line || '').trim().toLowerCase()
-    if (!email) continue
-    if (!/^\S+@\S+\.\S+$/.test(email)) continue
-    set.add(email)
-  }
-  return Array.from(set)
+function normalizeRecipients(input: unknown): string[] {
+  if (!input) return []
+  const text = Array.isArray(input) ? input.join('\n') : String(input)
+  return text
+    .replace(/[;,]/g, '\n')
+    .split(/\r?\n/)
+    .map((v) => v.trim().toLowerCase())
+    .filter((v) => /^\S+@\S+\.\S+$/.test(v))
 }
 
-function textToHtml(text) {
+function textToHtml(text: string): string {
   const escaped = String(text || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/\n/g, '<br/>')
-
-  return '<div style="font-family: Inter, Arial, sans-serif; line-height: 1.6; color: #1f2937;">' +
-    '<h2 style="margin: 0 0 12px;">The Awesome UIU</h2>' +
-    '<div>' + escaped + '</div>' +
-    '<hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;"/>' +
-    '<p style="font-size: 12px; color: #6b7280; margin: 0;">This email was sent from The Awesome UIU admin panel.</p>' +
-    '</div>'
+  return `<div style="font-family: Inter, Arial, sans-serif; line-height: 1.6; color: #1f2937;">${escaped}</div>`
 }
 
-async function checkAdmin(authHeader) {
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_admin`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_ANON_KEY || '',
-      'Authorization': authHeader,
-    },
-    body: '{}',
-  })
-
-  if (!response.ok) return false
-  const data = await response.json().catch(() => null)
-  return data === true
+async function checkIsAdmin(authHeader: string): Promise<boolean> {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !authHeader) return false
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_admin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: authHeader,
+      },
+      body: '{}',
+    })
+    if (!res.ok) return false
+    const data = await res.json().catch(() => null)
+    return data === true
+  } catch {
+    return false
+  }
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  try {
-    if (req.method !== 'POST') {
-      return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
-        status: 405,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
 
+  try {
     if (!RESEND_API_KEY || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
       throw new Error('Missing required environment variables')
     }
 
     const authHeader = req.headers.get('Authorization') || ''
-    if (!authHeader.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    const isAdmin = await checkAdmin(authHeader)
+    const isAdmin = await checkIsAdmin(authHeader)
     if (!isAdmin) {
       return new Response(JSON.stringify({ success: false, error: 'admin_only' }), {
         status: 403,
@@ -95,26 +82,35 @@ serve(async (req) => {
       })
     }
 
-    const payload = await req.json()
-    const recipients = normalizeRecipients(payload && payload.emails)
-    const subject = String((payload && payload.subject) || '').trim()
-    const text = String((payload && payload.text) || '').trim()
-    const htmlInput = String((payload && payload.html) || '').trim()
-    const html = htmlInput || textToHtml(text)
+    const body = await req.json().catch(() => ({}))
+    const recipients = normalizeRecipients(body?.emails ?? body?.to ?? body?.email)
+    const subject = String(body?.subject || '').trim()
+    const text = String(body?.text ?? body?.message ?? '').trim()
+    const html = String(body?.html || '').trim() || textToHtml(text)
 
-    if (!recipients.length) throw new Error('At least one valid recipient email is required')
-    if (!subject) throw new Error('Subject is required')
-    if (!text && !html) throw new Error('Email body is required')
+    if (!recipients.length) {
+      return new Response(JSON.stringify({ success: false, error: 'no_recipients' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
-    const sent = []
-    const failed = []
+    if (!subject) {
+      return new Response(JSON.stringify({ success: false, error: 'missing_subject' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const sent: string[] = []
+    const failed: Array<{ email: string; error: string }> = []
 
     for (const email of recipients) {
-      const resendResponse = await fetch('https://api.resend.com/emails', {
+      const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${RESEND_API_KEY}`,
+          Authorization: `Bearer ${RESEND_API_KEY}`,
         },
         body: JSON.stringify({
           from: EMAIL_FROM,
@@ -125,12 +121,9 @@ serve(async (req) => {
         }),
       })
 
-      const resendData = await resendResponse.json().catch(() => null)
-      if (!resendResponse.ok) {
-        failed.push({
-          email,
-          error: JSON.stringify(resendData || { status: resendResponse.status }),
-        })
+      if (!res.ok) {
+        const err = await res.text()
+        failed.push({ email, error: err || `resend_${res.status}` })
       } else {
         sent.push(email)
       }
@@ -151,12 +144,9 @@ serve(async (req) => {
     )
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred'
-    return new Response(
-      JSON.stringify({ success: false, error: message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      },
-    )
+    return new Response(JSON.stringify({ success: false, error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })
