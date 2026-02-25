@@ -66,12 +66,16 @@
                                 <i class="fa-solid fa-bell" aria-hidden="true" style="color:#a5b4fc;"></i>
                             </div>
                             <div>
-                                <div style="font-size: 1.15rem; font-weight: 800; color: #f8fafc;">Announcements</div>
+                                <div style="font-size: 1.15rem; font-weight: 800; color: #f8fafc;">Mystery Countdown Ended</div>
                                 <div id="globalAnnouncementPublishedAt" style="font-size: 0.9rem; color: rgba(148, 163, 184, 0.95);">—</div>
                             </div>
                         </div>
 
                         <div style="display:flex; flex-direction:column; gap: 1rem;">
+                            <div id="globalAnnouncementCountdownEnded" style="display:none; margin-bottom: 0.15rem; color: rgba(248, 250, 252, 0.95); font-weight: 800; text-align: center;">
+                                Countdown ended
+                            </div>
+
                             <div id="globalAnnouncementGiftNotice" style="display:none; padding: 0.85rem 0.95rem; border-radius: 14px; background: rgba(34, 197, 94, 0.10); border: 1px solid rgba(34, 197, 94, 0.22); color: rgba(248, 250, 252, 0.95); font-weight: 800; display:flex; align-items:center; gap:0.6rem;">
                                 <i class="fa-solid fa-gift" aria-hidden="true" style="color: rgba(134, 239, 172, 0.95);"></i>
                                 <span id="globalAnnouncementGiftNoticeText"></span>
@@ -80,25 +84,33 @@
                             <div id="globalAnnouncementWinners" style="display:none; padding: 1rem; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.18); background: rgba(15, 23, 42, 0.35);">
                                 <div style="display:flex; align-items:center; gap:0.55rem; font-weight: 900; margin-bottom: 0.5rem; color: #f8fafc;">
                                     <i class="fa-solid fa-trophy" aria-hidden="true" style="color:#fbbf24;"></i>
-                                    Winners
+                                    Winners / Top contributors
                                 </div>
                                 <ul id="globalAnnouncementWinnersList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95);"></ul>
+
+                                <div id="globalAnnouncementCriteriaWrap" style="margin-top: 0.75rem;">
+                                    <button id="globalAnnouncementCriteriaToggle" type="button" style="padding: 0.5rem 0.75rem; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.3); background: rgba(15, 23, 42, 0.45); color: #cbd5e1; font-size: 0.88rem; font-weight: 700; cursor: pointer;">
+                                        How winners are selected
+                                    </button>
+                                    <div id="globalAnnouncementCriteriaPanel" style="display:none; margin-top: 0.6rem; padding: 0.75rem; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(2, 6, 23, 0.45); color: #e2e8f0; font-size: 0.88rem;">
+                                        <ul id="globalAnnouncementCriteriaList" style="margin:0; padding-left: 1.1rem;">
+                                            <li>Only verified users are considered.</li>
+                                            <li>Main criteria: most successful referrals.</li>
+                                            <li>Main criteria: most reviews submitted.</li>
+                                            <li>Main criteria: most votes cast on reviews.</li>
+                                            <li>Tie-breaker: more page visits.</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
 
                             <div style="display:flex; gap: 1rem; flex-wrap: wrap;">
                                 <div id="globalAnnouncementNew" style="display:none; flex: 1; min-width: 240px; padding: 1rem; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.18); background: rgba(15, 23, 42, 0.25);">
                                     <div style="display:flex; align-items:center; gap:0.55rem; font-weight: 900; margin-bottom: 0.5rem; color: #f8fafc;">
                                         <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true" style="color:#a5b4fc;"></i>
-                                        New features
+                                        Latest features
                                     </div>
                                     <ul id="globalAnnouncementNewList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95);"></ul>
-                                </div>
-                                <div id="globalAnnouncementUpcoming" style="display:none; flex: 1; min-width: 240px; padding: 1rem; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.18); background: rgba(15, 23, 42, 0.25);">
-                                    <div style="display:flex; align-items:center; gap:0.55rem; font-weight: 900; margin-bottom: 0.5rem; color: #f8fafc;">
-                                        <i class="fa-solid fa-rocket" aria-hidden="true" style="color:#93c5fd;"></i>
-                                        Upcoming features
-                                    </div>
-                                    <ul id="globalAnnouncementUpcomingList" style="margin:0; padding-left: 1.25rem; color: rgba(248, 250, 252, 0.95);"></ul>
                                 </div>
                             </div>
                         </div>
@@ -602,10 +614,23 @@
             const gaModal = document.getElementById('globalAnnouncementModal');
             const gaClose = document.getElementById('globalAnnouncementClose');
             const gaDismiss = document.getElementById('globalAnnouncementDismiss');
+            const gaCriteriaToggle = document.getElementById('globalAnnouncementCriteriaToggle');
+            const gaCriteriaPanel = document.getElementById('globalAnnouncementCriteriaPanel');
 
             const closeAnnouncement = () => {
                 if (gaModal) gaModal.style.display = 'none';
+                if (gaCriteriaPanel) gaCriteriaPanel.style.display = 'none';
+                if (gaCriteriaToggle) gaCriteriaToggle.textContent = 'How winners are selected';
             };
+
+            gaCriteriaToggle?.addEventListener('click', () => {
+                if (!gaCriteriaPanel) return;
+                const isOpen = gaCriteriaPanel.style.display === 'block';
+                gaCriteriaPanel.style.display = isOpen ? 'none' : 'block';
+                gaCriteriaToggle.textContent = isOpen
+                    ? 'How winners are selected'
+                    : 'Hide winner selection criteria';
+            });
 
             gaClose?.addEventListener('click', closeAnnouncement);
             gaDismiss?.addEventListener('click', closeAnnouncement);

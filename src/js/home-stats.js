@@ -8,14 +8,13 @@
 	const mysteryCountdownTextEl = document.getElementById('mysteryCountdownText');
 	const globalAnnouncementModal = document.getElementById('globalAnnouncementModal');
 	const globalAnnouncementPublishedAt = document.getElementById('globalAnnouncementPublishedAt');
+	const globalAnnouncementCountdownEnded = document.getElementById('globalAnnouncementCountdownEnded');
 	const globalAnnouncementGiftNotice = document.getElementById('globalAnnouncementGiftNotice');
 	const globalAnnouncementGiftNoticeText = document.getElementById('globalAnnouncementGiftNoticeText');
 	const globalAnnouncementWinners = document.getElementById('globalAnnouncementWinners');
 	const globalAnnouncementWinnersList = document.getElementById('globalAnnouncementWinnersList');
 	const globalAnnouncementNew = document.getElementById('globalAnnouncementNew');
 	const globalAnnouncementNewList = document.getElementById('globalAnnouncementNewList');
-	const globalAnnouncementUpcoming = document.getElementById('globalAnnouncementUpcoming');
-	const globalAnnouncementUpcomingList = document.getElementById('globalAnnouncementUpcomingList');
 
 	let countdownIntervalId = null;
 
@@ -199,7 +198,6 @@
 		const giftNotice = announcement?.gift_notice || null;
 		const winners = Array.isArray(announcement?.winners) ? announcement.winners : [];
 		const newFeatures = Array.isArray(announcement?.new_features) ? announcement.new_features : [];
-		const upcomingFeatures = Array.isArray(announcement?.upcoming_features) ? announcement.upcoming_features : [];
 		const publishedAt = announcement?.published_at || null;
 
 		if (globalAnnouncementPublishedAt) {
@@ -216,6 +214,10 @@
 			}
 		}
 
+		if (globalAnnouncementCountdownEnded) {
+			globalAnnouncementCountdownEnded.style.display = 'block';
+		}
+
 		if (globalAnnouncementWinners && globalAnnouncementWinnersList) {
 			globalAnnouncementWinners.style.display = winners.length ? 'block' : 'none';
 			globalAnnouncementWinnersList.innerHTML = winners.map((x) => `<li>${escapeHtml(String(x))}</li>`).join('');
@@ -224,10 +226,6 @@
 		if (globalAnnouncementNew && globalAnnouncementNewList) {
 			globalAnnouncementNew.style.display = newFeatures.length ? 'block' : 'none';
 			globalAnnouncementNewList.innerHTML = newFeatures.map((x) => `<li>${escapeHtml(String(x))}</li>`).join('');
-		}
-		if (globalAnnouncementUpcoming && globalAnnouncementUpcomingList) {
-			globalAnnouncementUpcoming.style.display = upcomingFeatures.length ? 'block' : 'none';
-			globalAnnouncementUpcomingList.innerHTML = upcomingFeatures.map((x) => `<li>${escapeHtml(String(x))}</li>`).join('');
 		}
 
 		globalAnnouncementModal.style.display = 'flex';
