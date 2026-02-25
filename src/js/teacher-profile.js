@@ -4,6 +4,8 @@ let teacherData = null;
 let allReviews = [];
 let currentReviewPage = 1;
 const REVIEWS_PAGE_SIZE = 5;
+const PROFILE_STATE_KEY = 'teacherProfileViewState';
+const PROFILE_STATE_MAX_AGE_MS = 1000 * 60 * 30;
 
 let pendingDeleteReviewId = null;
 
@@ -36,6 +38,64 @@ function getRedirectTarget() {
 
 function getDbClient() {
     return window.supabasePublicClient || window.supabaseClient;
+}
+
+function saveTeacherProfileState() {
+    try {
+        const state = {
+            teacherId,
+            currentReviewPage,
+            scrollY: window.scrollY || 0,
+            savedAt: Date.now()
+        };
+        sessionStorage.setItem(PROFILE_STATE_KEY, JSON.stringify(state));
+    } catch (error) {
+        console.warn('Could not save teacher profile state:', error);
+    }
+}
+
+function loadTeacherProfileState() {
+    try {
+        const raw = sessionStorage.getItem(PROFILE_STATE_KEY);
+        if (!raw) return null;
+
+        const state = JSON.parse(raw);
+        const age = Date.now() - Number(state?.savedAt || 0);
+        if (!state || age > PROFILE_STATE_MAX_AGE_MS) {
+            sessionStorage.removeItem(PROFILE_STATE_KEY);
+            return null;
+        }
+
+        return state;
+    } catch (error) {
+        console.warn('Could not read teacher profile state:', error);
+        return null;
+    }
+}
+
+function restoreTeacherProfileStateIfNeeded() {
+    const savedState = loadTeacherProfileState();
+    const returnedFromAddReview = document.referrer?.includes('add-review.html');
+
+    if (!savedState || !returnedFromAddReview) {
+        return;
+    }
+
+    if (!savedState.teacherId || String(savedState.teacherId) !== String(teacherId)) {
+        return;
+    }
+
+    const totalPages = Math.ceil(allReviews.length / REVIEWS_PAGE_SIZE) || 1;
+    const targetPage = Number(savedState.currentReviewPage || 1);
+    currentReviewPage = Math.min(Math.max(targetPage, 1), totalPages);
+    renderReviewsPage();
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: Number(savedState.scrollY || 0), behavior: 'auto' });
+            sessionStorage.removeItem(PROFILE_STATE_KEY);
+        });
+    });
 }
 
 function setVoteFeedback(container, message) {
@@ -90,6 +150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     await loadTeacherProfile();
+    restoreTeacherProfileStateIfNeeded();
     setupEventListeners();
 });
 
@@ -102,7 +163,10 @@ function setupEventListeners() {
         .filter(Boolean)
         .forEach((btn) => {
             btn.addEventListener('click', () => {
-                window.location.href = `add-review.html?teacher=${teacherId}`;
+                saveTeacherProfileState();
+                const currentFile = window.location.pathname.split('/').pop() || 'teacher-profile.html';
+                const returnTo = encodeURIComponent(`${currentFile}${window.location.search || ''}`);
+                window.location.href = `add-review.html?teacher=${teacherId}&return=${returnTo}`;
             });
         });
 

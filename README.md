@@ -4,7 +4,7 @@
 
 ### *Your Ultimate Student Hub for United International University*
 
-### **🌐 [Visit Live Site: theawesomeuiu.netlify.app](https://theawesomeuiu.netlify.app/)**
+### **🌐 [Visit Live Site: awesomeuiu.tech](https://awesomeuiu.tech/)**
 
 ---
 

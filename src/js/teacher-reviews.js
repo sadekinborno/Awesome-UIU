@@ -1,23 +1,116 @@
 // Teacher Reviews List Page Logic
 const PAGE_SIZE = 24;
+const REVIEWS_STATE_KEY = 'teacherReviewsListState';
+const REVIEWS_STATE_MAX_AGE_MS = 1000 * 60 * 30;
 let allTeachers = [];
 let filteredTeachers = [];
-let currentSort = 'rating';
+let currentSort = 'reviews';
 let currentPage = 0;
 let hasMore = true;
 let isLoading = false;
 let totalTeachersCount = 0;
+let latestFilterRequestId = 0;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
-    await loadTeachersPage(true);
+    const restored = await restoreTeachersState();
+    if (!restored) {
+        await loadTeachersPage(true);
+    }
 });
+
+function getTeachersListStateFromForm() {
+    return {
+        searchTerm: document.getElementById('searchInput')?.value || '',
+        department: document.getElementById('departmentFilter')?.value || '',
+        minRating: document.getElementById('ratingFilter')?.value || '',
+        currentSort,
+        loadedPages: Math.max(currentPage, 1),
+        scrollY: window.scrollY || 0,
+        savedAt: Date.now(),
+        fromPath: window.location.pathname
+    };
+}
+
+function saveTeachersListState() {
+    try {
+        const state = getTeachersListStateFromForm();
+        sessionStorage.setItem(REVIEWS_STATE_KEY, JSON.stringify(state));
+    } catch (error) {
+        console.warn('Could not save teacher list state:', error);
+    }
+}
+
+function loadTeachersListState() {
+    try {
+        const raw = sessionStorage.getItem(REVIEWS_STATE_KEY);
+        if (!raw) return null;
+
+        const state = JSON.parse(raw);
+        const age = Date.now() - Number(state?.savedAt || 0);
+        if (!state || age > REVIEWS_STATE_MAX_AGE_MS) {
+            sessionStorage.removeItem(REVIEWS_STATE_KEY);
+            return null;
+        }
+
+        return state;
+    } catch (error) {
+        console.warn('Could not read teacher list state:', error);
+        return null;
+    }
+}
+
+async function restoreTeachersState() {
+    const savedState = loadTeachersListState();
+    const fromProfilePage = document.referrer?.includes('teacher-profile.html');
+
+    if (!savedState || !fromProfilePage) {
+        return false;
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    const departmentFilter = document.getElementById('departmentFilter');
+    const ratingFilter = document.getElementById('ratingFilter');
+
+    if (searchInput) searchInput.value = savedState.searchTerm || '';
+    if (departmentFilter) departmentFilter.value = savedState.department || '';
+    if (ratingFilter) ratingFilter.value = savedState.minRating || '';
+
+    const nextSort = savedState.currentSort || 'reviews';
+    currentSort = nextSort;
+    document.querySelectorAll('.sort-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.sort === nextSort);
+    });
+
+    const pagesToLoad = Math.max(1, Number(savedState.loadedPages || 1));
+    await loadTeachersPage(true);
+    for (let page = 1; page < pagesToLoad && hasMore; page++) {
+        await loadTeachersPage(false);
+    }
+
+    if ((savedState.searchTerm || '').trim().length > 0) {
+        await filterTeachers();
+    }
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: Number(savedState.scrollY || 0), behavior: 'auto' });
+            sessionStorage.removeItem(REVIEWS_STATE_KEY);
+        });
+    });
+
+    return true;
+}
 
 // Setup event listeners
 function setupEventListeners() {
+    const debouncedFilterTeachers = debounce(() => {
+        filterTeachers();
+    }, 150);
+
     // Search input
-    document.getElementById('searchInput').addEventListener('input', filterTeachers);
+    document.getElementById('searchInput').addEventListener('input', debouncedFilterTeachers);
     
     // Department filter
     document.getElementById('departmentFilter').addEventListener('change', filterTeachers);
@@ -42,6 +135,18 @@ function setupEventListeners() {
             await loadTeachersPage(false);
         });
     }
+}
+
+function debounce(fn, delayMs = 150) {
+    let timer = null;
+    return (...args) => {
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+            fn(...args);
+        }, delayMs);
+    };
 }
 
 // Load one page of teachers with their stats (used on page load and "Load More")
@@ -76,7 +181,8 @@ async function loadTeachersPage(reset = false) {
         const { data: teachers, error, count } = await window.supabaseClient
             .from('teachers')
             .select('*', { count: 'exact' })
-            .order('name')
+            .order('total_reviews', { ascending: false, nullsFirst: false })
+            .order('name', { ascending: true })
             .range(start, end);
 
         if (error) {
@@ -136,7 +242,7 @@ async function loadTeachersPage(reset = false) {
         }
 
         filteredTeachers = [...allTeachers];
-        filterTeachers();
+        await filterTeachers();
 
         currentPage++;
         if (teachers.length < PAGE_SIZE) {
@@ -183,6 +289,8 @@ async function updateStats() {
 
 // Filter/search teachers
 async function filterTeachers() {
+    const requestId = ++latestFilterRequestId;
+
     const searchInput = document.getElementById('searchInput');
     const departmentSelect = document.getElementById('departmentFilter');
     const ratingSelect = document.getElementById('ratingFilter');
@@ -197,7 +305,8 @@ async function filterTeachers() {
             let query = window.supabaseClient
                 .from('teachers')
                 .select('*')
-                .order('name');
+                .order('total_reviews', { ascending: false, nullsFirst: false })
+                .order('name', { ascending: true });
 
             // Name search
             query = query.ilike('name', `%${searchTerm}%`);
@@ -213,6 +322,10 @@ async function filterTeachers() {
             }
 
             const { data: teachers, error } = await query;
+
+            if (requestId !== latestFilterRequestId) {
+                return;
+            }
 
             if (error) {
                 console.error('Supabase search error:', error);
@@ -253,6 +366,10 @@ async function filterTeachers() {
                 })
             );
 
+            if (requestId !== latestFilterRequestId) {
+                return;
+            }
+
             // In search mode, we just show results and hide "Load More"
             filteredTeachers = teachersWithCourses;
 
@@ -266,10 +383,17 @@ async function filterTeachers() {
             sortAndDisplayTeachers();
             return;
         } catch (error) {
+            if (requestId !== latestFilterRequestId) {
+                return;
+            }
             console.error('Error searching teachers:', error);
             showError('Failed to search teachers. Please try again.');
             return;
         }
+    }
+
+    if (requestId !== latestFilterRequestId) {
+        return;
     }
 
     // No search term: filter already-loaded teachers (paginated list)
@@ -285,6 +409,10 @@ async function filterTeachers() {
     if (loadMoreContainer && loadMoreBtn) {
         loadMoreContainer.style.display = hasMore ? 'block' : 'none';
         loadMoreBtn.disabled = !hasMore;
+    }
+
+    if (requestId !== latestFilterRequestId) {
+        return;
     }
 
     sortAndDisplayTeachers();
@@ -346,6 +474,7 @@ function createTeacherCard(teacher) {
     const card = document.createElement('div');
     card.className = 'teacher-card';
     card.onclick = () => {
+        saveTeachersListState();
         window.location.href = `teacher-profile.html?id=${teacher.id}`;
     };
 
