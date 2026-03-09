@@ -33,6 +33,7 @@ let currentState = {
     difficulty: '',
     retakeCourses: []
 };
+const GPA_DISPLAY_TOLERANCE = 0.005;
 
 let retakeCourseCount = 0;
 
@@ -207,6 +208,9 @@ function handleCalculate() {
     currentState.currentCGPA = parseFloat(elements.currentCGPA.value);
     currentState.completedCredits = parseFloat(elements.completedCredits.value);
     currentState.targetCGPA = parseFloat(elements.targetCGPA.value);
+
+    // New calculation invalidates any previous retake simulation output.
+    resetRetakeSimulationView();
     
     // Calculate remaining credits
     currentState.remainingCredits = currentState.totalCredits - currentState.completedCredits;
@@ -277,12 +281,14 @@ function validateInputs() {
 // ============================================
 function analyzeDifficulty() {
     const required = currentState.requiredGPA;
+    const impossibleThreshold = 4.0 + GPA_DISPLAY_TOLERANCE;
     
-    if (required > 4.00) {
+    if (required > impossibleThreshold) {
         currentState.difficulty = 'impossible';
     } else if (required >= 3.80) {
         // Check if 90%+ need 4.00
-        const perfectCreditsNeeded = (currentState.requiredGPA - 3.00) / (4.00 - 3.00) * currentState.remainingCredits;
+        const cappedRequired = Math.min(currentState.requiredGPA, 4.0);
+        const perfectCreditsNeeded = (cappedRequired - 3.00) / (4.00 - 3.00) * currentState.remainingCredits;
         const percentageNeeded = (perfectCreditsNeeded / currentState.remainingCredits) * 100;
         
         if (percentageNeeded >= 90) {
@@ -305,7 +311,7 @@ function analyzeDifficulty() {
 function displayResults() {
     // Update stats
     elements.remainingCredits.textContent = currentState.remainingCredits.toFixed(1);
-    elements.requiredGPA.textContent = currentState.requiredGPA.toFixed(2);
+    elements.requiredGPA.textContent = formatRequiredGPA();
     elements.difficultyLevel.textContent = getDifficultyEmoji();
     
     // Update meter
@@ -380,7 +386,7 @@ function displayResultMessage() {
             messageHTML = `
                 <h3>✅ Excellent News!</h3>
                 <p>Your target CGPA of <strong>${targetCGPA.toFixed(2)}</strong> is very achievable!</p>
-                <p>You need an average GPA of <strong>${requiredGPA.toFixed(2)}</strong> in your remaining ${remainingCredits.toFixed(1)} credits.</p>
+                <p>You need an average GPA of <strong>${formatRequiredGPA()}</strong> in your remaining ${remainingCredits.toFixed(1)} credits.</p>
                 <p>💡 <strong>Strategy:</strong> Stay consistent with your current performance and you'll reach your goal!</p>
             `;
             buttons = `
@@ -399,7 +405,7 @@ function displayResultMessage() {
             messageHTML = `
                 <h3>⚠️ Challenging But Doable!</h3>
                 <p>Your target CGPA of <strong>${targetCGPA.toFixed(2)}</strong> requires solid effort.</p>
-                <p>You need an average GPA of <strong>${requiredGPA.toFixed(2)}</strong> in your remaining ${remainingCredits.toFixed(1)} credits.</p>
+                <p>You need an average GPA of <strong>${formatRequiredGPA()}</strong> in your remaining ${remainingCredits.toFixed(1)} credits.</p>
                 <p>💡 <strong>Strategy:</strong> Focus on your studies, manage your time well, and aim for B+ or higher in most courses.</p>
             `;
             buttons = `
@@ -418,7 +424,7 @@ function displayResultMessage() {
             messageHTML = `
                 <h3>🔥 Hard Mode Activated!</h3>
                 <p>Your target CGPA of <strong>${targetCGPA.toFixed(2)}</strong> will require exceptional performance.</p>
-                <p>You need an average GPA of <strong>${requiredGPA.toFixed(2)}</strong> in your remaining ${remainingCredits.toFixed(1)} credits.</p>
+                <p>You need an average GPA of <strong>${formatRequiredGPA()}</strong> in your remaining ${remainingCredits.toFixed(1)} credits.</p>
                 <p>💡 <strong>Strategy:</strong> You'll need mostly A- and A grades.</p>
                 <p><strong>Can you handle the HARD MODE challenge?</strong></p>
             `;
@@ -444,7 +450,7 @@ function displayResultMessage() {
             messageHTML = `
                 <h3>💪 BEAST MODE REQUIRED!</h3>
                 <p>Your target CGPA of <strong>${targetCGPA.toFixed(2)}</strong> requires LEGENDARY performance!</p>
-                <p>You need an average GPA of <strong>${requiredGPA.toFixed(2)}</strong> in your remaining ${remainingCredits.toFixed(1)} credits.</p>
+                <p>You need an average GPA of <strong>${formatRequiredGPA()}</strong> in your remaining ${remainingCredits.toFixed(1)} credits.</p>
                 <p>⚠️ This means getting 4.00 (A) in approximately <strong>${perfectPercentage.toFixed(0)}%</strong> of your remaining courses!</p>
                 <p><strong>Are you ready to go full GIGACHAD mode?</strong></p>
             `;
@@ -473,7 +479,7 @@ function displayResultMessage() {
                     </svg>
                     Try Retake Simulation
                 </button>
-                <button class="secondary-btn" onclick="startOver()">Try Lower Target</button>
+                <button class="secondary-btn" onclick="tryLowerTarget()">Try Lower Target</button>
             `;
             break;
     }
@@ -500,7 +506,34 @@ function calculatePerfectPercentage() {
     
     // Assume rest get 3.00 (B-)
     const perfectCreditsNeeded = (neededPoints - (3.00 * currentState.remainingCredits)) / (4.00 - 3.00);
-    return (perfectCreditsNeeded / currentState.remainingCredits) * 100;
+    const percentage = (perfectCreditsNeeded / currentState.remainingCredits) * 100;
+    return Math.max(0, Math.min(100, percentage));
+}
+
+function formatRequiredGPA() {
+    if (currentState.requiredGPA > 4.0 + GPA_DISPLAY_TOLERANCE) {
+        return '4.00+';
+    }
+    return Math.min(currentState.requiredGPA, 4.0).toFixed(2);
+}
+
+function resetRetakeSimulationView() {
+    elements.retakeResults.innerHTML = '';
+    elements.retakeResults.classList.add('hidden');
+    elements.retakeSection.classList.add('hidden');
+}
+
+function tryLowerTarget() {
+    resetRetakeSimulationView();
+    elements.resultsSection.classList.add('hidden');
+    elements.startOverContainer.classList.add('hidden');
+    elements.targetCGPA.value = '';
+    currentState.targetCGPA = 0;
+
+    elements.targetCGPA.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+        elements.targetCGPA.focus();
+    }, 250);
 }
 
 // ============================================
@@ -643,6 +676,8 @@ function showHardModeNo() {
 // ============================================
 function showRetakeSection() {
     initializeRetakeCourses();
+    elements.retakeResults.innerHTML = '';
+    elements.retakeResults.classList.add('hidden');
     elements.retakeSection.classList.remove('hidden');
     elements.retakeSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -801,13 +836,13 @@ function simulateRetakes(courses) {
                             </p>
                         </div>
                     </div>
-                    <p class="beast-mode-question">Do you think you can do it?</p>
+                    <p class="beast-mode-question">Are you ready to go full GIGACHAD mode?</p>
                     <div class="gigachad-buttons">
                         <button class="gigachad-yes" onclick="showGigaChadChallenge()">
-                            💪 LET'S GO!
+                            💪 YES, I'M BUILT DIFFERENT
                         </button>
                         <button class="gigachad-no" onclick="elements.retakeResults.classList.add('hidden')">
-                            🤔 MAYBE NOT
+                            🤔 MAYBE NOT YET
                         </button>
                     </div>
                 </div>
@@ -918,6 +953,8 @@ function startOver() {
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+window.tryLowerTarget = tryLowerTarget;
 
 // ============================================
 // Initialize

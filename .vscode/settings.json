@@ -10,5 +10,6 @@
   },
   "[javascript]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
-  }
+  },
+  "liveServer.settings.port": 5502
 }

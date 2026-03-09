@@ -31,8 +31,8 @@
 	const CATEGORIES = {
 		deadline: { label: 'Deadline', dot: 'dot-high' },
 		exam: { label: 'Exam', dot: 'dot-mid' },
-		holiday: { label: 'Holiday', dot: 'dot-low' },
-		registration: { label: 'Registration', dot: 'dot-reg' },
+		holiday: { label: 'Holiday', dot: 'dot-reg' },
+		registration: { label: 'Registration', dot: 'dot-low' },
 		payment: { label: 'Payment', dot: 'dot-high' },
 		classes: { label: 'Classes', dot: 'dot-low' },
 		advising: { label: 'Advising', dot: 'dot-mid' },

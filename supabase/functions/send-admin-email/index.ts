@@ -10,6 +10,7 @@ const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')
 const EMAIL_FROM = Deno.env.get('ADMIN_EMAIL_FROM') || 'The Awesome UIU <noreply@awesomeuiu.tech>'
+const EMAIL_REPLY_TO = Deno.env.get('ADMIN_EMAIL_REPLY_TO') || ''
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -115,6 +116,7 @@ serve(async (req: Request) => {
         body: JSON.stringify({
           from: EMAIL_FROM,
           to: [email],
+          reply_to: EMAIL_REPLY_TO || undefined,
           subject,
           html,
           text: text || undefined,

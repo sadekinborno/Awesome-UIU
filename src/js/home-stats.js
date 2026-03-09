@@ -18,11 +18,48 @@
 
 	let countdownIntervalId = null;
 	let cachedGlobalAnnouncement = null;
+	const ALLOWED_TRENDING_TOOLS = new Set([
+		'teacher-reviews',
+		'goal-planner',
+		'cgpa-calculator',
+		'academic-calendar',
+		'scholarship-checker'
+	]);
 
 	const setPlaceholder = (value) => {
 		if (visitElement) visitElement.textContent = value;
 		if (studentsElement) studentsElement.textContent = value;
 		if (teacherReviewsCountElement) teacherReviewsCountElement.textContent = value;
+	};
+
+	const renderTrendingBadge = (toolKeyRaw) => {
+		document.querySelectorAll('.tool-badges .trending-now-badge').forEach((el) => el.remove());
+
+		// Remove empty badges containers created for cards that no longer have highlights.
+		document.querySelectorAll('.tools-grid .tool-card .tool-badges').forEach((container) => {
+			if (!container.querySelector('.tool-count-badge') && !container.querySelector('.trending-now-badge')) {
+				container.remove();
+			}
+		});
+
+		const toolKey = String(toolKeyRaw || '').trim().toLowerCase();
+		if (!ALLOWED_TRENDING_TOOLS.has(toolKey)) return;
+
+		const card = document.querySelector(`.tools-grid .tool-card[data-tool-key="${toolKey}"]`);
+		if (!card) return;
+
+		let badges = card.querySelector('.tool-badges');
+		if (!badges) {
+			badges = document.createElement('div');
+			badges.className = 'tool-badges';
+			badges.setAttribute('aria-label', 'Tool highlights');
+			card.insertBefore(badges, card.firstChild);
+		}
+
+		const badge = document.createElement('div');
+		badge.className = 'trending-now-badge';
+		badge.innerHTML = '<span>Trending Now</span>';
+		badges.appendChild(badge);
 	};
 
 	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -266,6 +303,7 @@
 	try {
 		// Avoid leaving the default "0" which looks like a real value.
 		setPlaceholder('...');
+		renderTrendingBadge(null);
 
 		const client = await ensureSupabaseClient();
 		const pageName = 'homepage';
@@ -275,7 +313,7 @@
 			const { data: settingsRows, error: settingsError } = await client
 				.from('app_settings')
 				.select('key,value')
-				.in('key', ['mystery_countdown_start', 'mystery_countdown_duration_days', 'global_announcement']);
+				.in('key', ['mystery_countdown_start', 'mystery_countdown_duration_days', 'global_announcement', 'homepage_trending_tool']);
 
 			if (settingsError) throw settingsError;
 			const map = {};
@@ -283,6 +321,8 @@
 				if (!r?.key) return;
 				map[String(r.key)] = r?.value;
 			});
+
+			renderTrendingBadge(map?.homepage_trending_tool);
 
 			const startDate = parseSupabaseTimestamp(map?.mystery_countdown_start);
 			const durationDays = Math.max(1, Math.min(parseInt(map?.mystery_countdown_duration_days || '15', 10) || 15, 365));

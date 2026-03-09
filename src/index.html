@@ -140,15 +140,14 @@
 
             <div class="tools-grid">
                 <!-- Teacher Reviews -->
-                <a href="teacher-reviews.html" class="tool-card tool-card-featured" style="text-decoration: none; color: inherit;">
+                <a href="teacher-reviews.html" class="tool-card tool-card-featured" data-tool-key="teacher-reviews" style="text-decoration: none; color: inherit;">
                     <div class="tool-badges" aria-label="Teacher reviews highlights">
                         <div class="tool-count-badge" aria-label="Total teacher reviews">
                             <span class="tool-count-number" id="teacherReviewsCount">...</span>
                             <span class="tool-count-label">Reviews</span>
                         </div>
-                        <div class="trending-now-badge"><span>Trending Now</span></div>
                     </div>
-                    <div class="tool-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="tool-icon tool-icon-reviews">
                         <i class="fa-solid fa-star" aria-hidden="true"></i>
                     </div>
                     <div class="tool-content">
@@ -168,8 +167,8 @@
                 </a>
 
                 <!-- CGPA Goal Planner -->
-                <a href="goal-planner.html" class="tool-card tool-card-featured">
-                    <div class="tool-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <a href="goal-planner.html" class="tool-card tool-card-featured" data-tool-key="goal-planner">
+                    <div class="tool-icon tool-icon-goal-planner">
                         <i class="fa-solid fa-bullseye" aria-hidden="true"></i>
                     </div>
                     <div class="tool-content">
@@ -190,8 +189,8 @@
                 </a>
 
                 <!-- CGPA Calculator -->
-                <a href="cgpa-calculator.html" class="tool-card tool-card-featured">
-                    <div class="tool-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <a href="cgpa-calculator.html" class="tool-card tool-card-featured" data-tool-key="cgpa-calculator">
+                    <div class="tool-icon tool-icon-cgpa-calculator">
                         <i class="fa-solid fa-calculator" aria-hidden="true"></i>
                     </div>
                     <div class="tool-content">
@@ -211,8 +210,8 @@
                     </div>
                 </a>
                 <!-- Academic Calendar -->
-                <a href="academic-calendar.html" class="tool-card">
-                    <div class="tool-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <a href="academic-calendar.html" class="tool-card" data-tool-key="academic-calendar">
+                    <div class="tool-icon tool-icon-academic-calendar">
                         <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
                     </div>
                     <div class="tool-content">
@@ -222,9 +221,9 @@
                 </a>
 
                 <!-- Scholarship Probability Checker -->
-                <div class="tool-card tool-card-coming-soon" style="position: relative;">
+                <div class="tool-card tool-card-coming-soon" data-tool-key="scholarship-checker" style="position: relative;">
                     <div class="coming-soon-badge">Coming Soon</div>
-                    <div class="tool-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <div class="tool-icon tool-icon-scholarship">
                         <i class="fa-solid fa-award" aria-hidden="true"></i>
                     </div>
                     <div class="tool-content">
@@ -249,7 +248,7 @@
             <div class="resources-grid">
                 <!-- Question Banks -->
                 <!-- Question Banks -->
-                <a href="question-banks.html" class="resource-card">
+                <a href="question-banks.html" class="resource-card resource-card-questions">
                     <div class="resource-header">
                         <div class="resource-icon"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></div>
                         <h3 class="resource-title">Question Banks</h3>
@@ -268,7 +267,7 @@
                 </a>
 
                 <!-- Lecture Notes -->
-                <div class="resource-card resource-card-coming-soon">
+                <div class="resource-card resource-card-coming-soon resource-card-notes">
                     <div class="coming-soon-badge">Coming Soon</div>
                     <div class="resource-header">
                         <div class="resource-icon"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></div>
@@ -288,7 +287,7 @@
                 </div>
 
                 <!-- Study Guides -->
-                <div class="resource-card resource-card-coming-soon">
+                <div class="resource-card resource-card-coming-soon resource-card-guides">
                     <div class="coming-soon-badge">Coming Soon</div>
                     <div class="resource-header">
                         <div class="resource-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
@@ -308,7 +307,7 @@
                 </div>
 
                 <!-- Books & References -->
-                <div class="resource-card resource-card-coming-soon">
+                <div class="resource-card resource-card-coming-soon resource-card-books">
                     <div class="coming-soon-badge">Coming Soon</div>
                     <div class="resource-header">
                         <div class="resource-icon"><i class="fa-solid fa-book" aria-hidden="true"></i></div>
@@ -534,15 +533,31 @@
             const copyReferralModalBtn = document.getElementById('copyReferralModalBtn');
             const showMysteryResultModalBtn = document.getElementById('showMysteryResultModalBtn');
             const closeLogoutBtn = document.getElementById('closeLogout');
+            const logoutModal = document.getElementById('logoutModal');
             const accountModalFeedback = document.getElementById('accountModalFeedback');
             const headerCoachmark = document.getElementById('headerCoachmark');
             const headerCoachmarkText = document.getElementById('headerCoachmarkText');
             const headerCoachmarkClose = document.getElementById('headerCoachmarkClose');
+            const gaModal = document.getElementById('globalAnnouncementModal');
+            const gaClose = document.getElementById('globalAnnouncementClose');
+            const gaDismiss = document.getElementById('globalAnnouncementDismiss');
 
             const COACHMARK_LAST_SHOWN_KEY = 'home_header_coachmark_last_shown_at';
             const COACHMARK_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+            const PRIORITY_MODAL_SELECTORS = ['#globalAnnouncementModal', '#logoutModal'];
 
             let coachmarkTarget = null;
+            let pendingCoachmark = null;
+
+            function isModalVisible(el) {
+                if (!el) return false;
+                const style = window.getComputedStyle(el);
+                return style.display !== 'none' && style.visibility !== 'hidden';
+            }
+
+            function isAnyPriorityModalVisible() {
+                return PRIORITY_MODAL_SELECTORS.some((selector) => isModalVisible(document.querySelector(selector)));
+            }
 
             function hideCoachmark() {
                 if (!headerCoachmark) return;
@@ -613,6 +628,39 @@
                 }
             }
 
+            function queueOrShowCoachmark(target, message) {
+                if (!target || !message) return;
+                if (isAnyPriorityModalVisible()) {
+                    pendingCoachmark = { target, message };
+                    hideCoachmark();
+                    return;
+                }
+                pendingCoachmark = null;
+                showCoachmark(target, message);
+            }
+
+            function flushPendingCoachmark() {
+                if (!pendingCoachmark) return;
+                const { target, message } = pendingCoachmark;
+                pendingCoachmark = null;
+                showCoachmark(target, message);
+            }
+
+            function syncCoachmarkWithPriorityModals() {
+                if (isAnyPriorityModalVisible()) {
+                    if (headerCoachmark?.style.display === 'block' && coachmarkTarget && headerCoachmarkText?.textContent) {
+                        pendingCoachmark = {
+                            target: coachmarkTarget,
+                            message: headerCoachmarkText.textContent
+                        };
+                    }
+                    hideCoachmark();
+                    return;
+                }
+
+                flushPendingCoachmark();
+            }
+
             window.addEventListener('resize', positionCoachmark);
             window.addEventListener('scroll', positionCoachmark, { passive: true });
             headerCoachmarkClose?.addEventListener('click', hideCoachmark);
@@ -674,14 +722,15 @@
 
                     setTimeout(() => {
                         if (shouldShowCoachmark()) {
-                            showCoachmark(userMenuBtn, chooseCoachmarkMessage(true));
+                            queueOrShowCoachmark(userMenuBtn, chooseCoachmarkMessage(true));
                         }
                     }, 450);
                     
                     // Add logout functionality
                     userMenuBtn.addEventListener('click', () => {
                         hideCoachmark();
-                        document.getElementById('logoutModal').style.display = 'flex';
+                        if (logoutModal) logoutModal.style.display = 'flex';
+                        syncCoachmarkWithPriorityModals();
                         if (accountModalFeedback) accountModalFeedback.style.display = 'none';
                     });
 
@@ -744,7 +793,8 @@
                                     return;
                                 }
 
-                                document.getElementById('logoutModal').style.display = 'none';
+                                if (logoutModal) logoutModal.style.display = 'none';
+                                syncCoachmarkWithPriorityModals();
                             } catch (e) {
                                 console.error('Show mystery result failed:', e);
                                 setAccountFeedback('Could not open mystery result. Please try again.', 'error');
@@ -758,7 +808,7 @@
 
                 setTimeout(() => {
                     if (shouldShowCoachmark()) {
-                        showCoachmark(loginBtn, chooseCoachmarkMessage(false));
+                        queueOrShowCoachmark(loginBtn, chooseCoachmarkMessage(false));
                     }
                 }, 450);
                 
@@ -779,7 +829,8 @@
 
             // Logout modal handlers
             closeLogoutBtn?.addEventListener('click', () => {
-                document.getElementById('logoutModal').style.display = 'none';
+                if (logoutModal) logoutModal.style.display = 'none';
+                syncCoachmarkWithPriorityModals();
             });
 
             document.getElementById('confirmLogout')?.addEventListener('click', () => {
@@ -787,27 +838,26 @@
                 location.reload();
             });
 
-            // Close modal on background click
-            document.getElementById('logoutModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'logoutModal') {
-                    document.getElementById('logoutModal').style.display = 'none';
-                }
-            });
-
-            // Global announcement modal handlers (content is injected by home-stats.js)
-            const gaModal = document.getElementById('globalAnnouncementModal');
-            const gaClose = document.getElementById('globalAnnouncementClose');
-            const gaDismiss = document.getElementById('globalAnnouncementDismiss');
+            // Keep the account modal open on backdrop click.
+            // It should only close through explicit actions (X button or Logout).
 
             const closeAnnouncement = () => {
                 if (gaModal) gaModal.style.display = 'none';
+                syncCoachmarkWithPriorityModals();
             };
 
             gaClose?.addEventListener('click', closeAnnouncement);
             gaDismiss?.addEventListener('click', closeAnnouncement);
-            gaModal?.addEventListener('click', (e) => {
-                if (e.target?.id === 'globalAnnouncementModal') closeAnnouncement();
+            // Keep announcement modal open on backdrop click.
+            // It should only close via explicit controls (X or "Got it").
+
+            [gaModal, logoutModal].forEach((modalEl) => {
+                if (!modalEl) return;
+                const modalObserver = new MutationObserver(syncCoachmarkWithPriorityModals);
+                modalObserver.observe(modalEl, { attributes: true, attributeFilter: ['style', 'class'] });
             });
+
+            syncCoachmarkWithPriorityModals();
         });
     </script>
 
