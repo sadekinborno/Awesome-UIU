@@ -19,12 +19,18 @@ jobs:
             echo "REMINDER_CRON_SECRET secret is missing"
             exit 1
           fi
+          if [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "SUPABASE_ANON_KEY secret is missing"
+            exit 1
+          fi
 
       - name: Trigger send-calendar-reminders
         run: |
           set -euo pipefail
           response=$(curl -sS -w '\n%{http_code}' -X POST "${{ secrets.SUPABASE_FUNCTION_URL }}" \
             -H "Content-Type: application/json" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "x-reminder-secret: ${{ secrets.REMINDER_CRON_SECRET }}" \
             -d '{}')
           body=$(echo "$response" | sed '$d')
