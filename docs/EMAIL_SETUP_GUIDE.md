@@ -278,3 +278,85 @@ After completing these steps:
 - ✅ You can monitor email delivery and edge function logs
 
 **Next**: Toggle coming soon mode off and launch! 🚀
+
+---
+
+## 📅 Academic Calendar Reminders (Admin Approval)
+
+This project now supports reminder requests for calendar events without push notifications.
+
+### What was added
+
+- Student flow on `academic-calendar.html`:
+   - `Request Reminders` form (email + days-before + selected events)
+   - Requests are inserted as `pending`
+- Admin flow in `admin-v2.html` → **Academic Calendar**:
+   - Reminder Requests table
+   - Approve / Reject actions
+- New DB migration:
+   - `db/migrations/add-academic-calendar-reminders.sql`
+- New edge function:
+   - `supabase/functions/send-calendar-reminders/index.ts`
+
+### 1) Run migration
+
+Run this in Supabase SQL Editor:
+
+`db/migrations/add-academic-calendar-reminders.sql`
+
+Then run the batch-upgrade migration (required for grouped admin review + duplicate prevention):
+
+`db/migrations/update-academic-calendar-reminders-request-batches.sql`
+
+### 2) Set required secrets
+
+In Supabase Edge Function secrets, set:
+
+- `RESEND_API_KEY` (already used by OTP)
+- `REMINDER_CRON_SECRET` (a strong random string)
+- Optional: `REMINDER_EMAIL_FROM`
+- Optional: `REMINDER_EMAIL_REPLY_TO`
+
+### 3) Deploy reminder sender function
+
+```powershell
+supabase functions deploy send-calendar-reminders
+```
+
+Also deploy the status-check function used by the Reminder modal:
+
+```powershell
+supabase functions deploy get-calendar-reminder-status
+```
+
+### 4) Trigger it daily (scheduler)
+
+Call the function once per day (Asia/Dhaka morning is ideal):
+
+```powershell
+$url = "https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-calendar-reminders"
+$headers = @{
+   "Content-Type" = "application/json"
+   "x-reminder-secret" = "YOUR_REMINDER_CRON_SECRET"
+}
+Invoke-RestMethod -Uri $url -Method POST -Headers $headers -Body "{}"
+```
+
+Recommended scheduling options:
+
+- GitHub Actions cron (free)
+- A small external cron service
+- Supabase scheduled execution if enabled in your plan/setup
+
+### 5) Reminder behavior
+
+- Only `approved` requests are sent
+- Uses event `start_date` and requested `days_before`
+- Sent emails are logged in `academic_calendar_reminder_dispatch_log`
+- Duplicate sends are avoided per `(request_id, event_start_date)`
+
+### Notes on limits
+
+- Resend quota/rate limits depend on your plan and can change over time.
+- Always check the Resend dashboard for current limits.
+- If volume grows, consider daily digest reminders to reduce send count.

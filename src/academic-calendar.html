@@ -37,6 +37,7 @@
 				</label>
 
 				<div class="ac-month-nav" aria-label="Month navigation">
+					<button id="openReminderModalBtn" class="ac-btn" type="button">Reminder</button>
 					<button id="prevMonthBtn" class="ac-btn ac-btn-icon" type="button" aria-label="Previous month">
 						<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
 					</button>
@@ -59,6 +60,7 @@
 							<span class="ac-legend-item"><span class="dot dot-high" aria-hidden="true"></span> Deadline</span>
 							<span class="ac-legend-item"><span class="dot dot-mid" aria-hidden="true"></span> Exam</span>
 							<span class="ac-legend-item"><span class="dot dot-reg" aria-hidden="true"></span> Holiday</span>
+							<span class="ac-legend-item"><span class="dot dot-reminder" aria-hidden="true"></span> My Reminder</span>
 							<span class="ac-legend-item"><span class="dot dot-low" aria-hidden="true"></span> Other</span>
 						</div>
 					</div>
@@ -82,6 +84,7 @@
 							<div class="ac-modal-sub ac-muted" id="selectedDateSub">—</div>
 						</div>
 						<div class="ac-modal-actions">
+							<button id="openAddDayReminderBtn" class="ac-btn" type="button">Add Reminder</button>
 							<button id="dayModalCloseBtn" class="ac-btn ac-btn-icon" type="button" aria-label="Close">
 								<i class="fa-solid fa-xmark" aria-hidden="true"></i>
 							</button>
@@ -92,12 +95,134 @@
 					</div>
 				</div>
 			</div>
+
+			<div id="reminderModal" class="ac-modal" role="dialog" aria-modal="true" aria-label="Reminder settings" hidden>
+				<div id="reminderModalBackdrop" class="ac-modal-backdrop" aria-hidden="true"></div>
+				<div class="ac-modal-panel ac-reminder-modal-panel" role="document">
+					<div class="ac-modal-head">
+						<div>
+							<div class="ac-modal-title">Reminder Settings</div>
+							<div class="ac-modal-sub ac-muted">Choose reminder types for this term.</div>
+						</div>
+						<div class="ac-modal-actions">
+							<button id="reminderModalCloseBtn" class="ac-btn ac-btn-icon" type="button" aria-label="Close">
+								<i class="fa-solid fa-xmark" aria-hidden="true"></i>
+							</button>
+						</div>
+					</div>
+					<div class="ac-modal-body">
+						<div id="reminderRequestFormWrap">
+							<form id="reminderRequestForm" class="ac-reminder-form" novalidate>
+								<label class="ac-field">
+									<span>Days Before</span>
+									<select id="reminderDaysBefore" class="ac-input" required>
+										<option value="1">1 day before</option>
+										<option value="2">2 days before</option>
+										<option value="3" selected>3 days before</option>
+										<option value="5">5 days before</option>
+										<option value="7">7 days before</option>
+										<option value="14">14 days before</option>
+									</select>
+								</label>
+
+								<div class="ac-reminder-types">
+									<label class="ac-reminder-type"><input type="checkbox" id="remTypeRegistration" /> Registration deadlines</label>
+									<label class="ac-reminder-type"><input type="checkbox" id="remTypeInstallment" /> Installment deadlines</label>
+									<label class="ac-reminder-type"><input type="checkbox" id="remTypeExams" /> Exams (before first of consecutive days)</label>
+									<label class="ac-reminder-type"><input type="checkbox" id="remTypeDrop" /> Drop deadlines</label>
+									<label class="ac-reminder-type"><input type="checkbox" id="remTypeHoliday" /> Holidays</label>
+								</div>
+
+								<div class="ac-reminder-actions">
+									<button id="submitReminderRequestBtn" class="ac-btn" type="submit">Request</button>
+									<div id="reminderFormStatus" class="ac-muted" role="status" aria-live="polite"></div>
+								</div>
+							</form>
+						</div>
+
+						<div id="reminderPendingView" class="ac-reminder-pending" hidden>
+							<div class="ac-reminder-pending-head">
+								<div class="ac-reminder-pending-icon" aria-hidden="true"><i class="fa-regular fa-hourglass-half"></i></div>
+								<div>
+									<div id="reminderPendingTitle" class="ac-reminder-pending-title">Request Under Review</div>
+									<div id="reminderPendingText" class="ac-reminder-pending-text">Your reminder request is currently pending admin approval.</div>
+									<div id="reminderPendingNote" class="ac-reminder-pending-note" hidden></div>
+								</div>
+							</div>
+							<div class="ac-reminder-pending-actions">
+								<button id="reminderPendingActionBtn" class="ac-btn" type="button" hidden>Continue</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="addDayReminderModal" class="ac-modal" role="dialog" aria-modal="true" aria-label="Add personal reminder" hidden>
+				<div id="addDayReminderBackdrop" class="ac-modal-backdrop" aria-hidden="true"></div>
+				<div class="ac-modal-panel ac-reminder-modal-panel" role="document">
+					<div class="ac-modal-head">
+						<div>
+							<div class="ac-modal-title">Add Reminder</div>
+							<div class="ac-modal-sub ac-muted">Set a personal reminder and get an email on your chosen time.</div>
+						</div>
+						<div class="ac-modal-actions">
+							<button id="addDayReminderCloseBtn" class="ac-btn ac-btn-icon" type="button" aria-label="Close">
+								<i class="fa-solid fa-xmark" aria-hidden="true"></i>
+							</button>
+						</div>
+					</div>
+					<div class="ac-modal-body">
+						<form id="addDayReminderForm" class="ac-reminder-form" novalidate>
+							<label class="ac-field">
+								<span>Reminder Title</span>
+								<input id="dayReminderTitle" class="ac-input" type="text" maxlength="140" placeholder="e.g. Submit assignment" required />
+							</label>
+
+							<label class="ac-field">
+								<span>Date</span>
+								<input id="dayReminderDate" class="ac-input" type="date" required />
+							</label>
+
+							<label class="ac-field">
+								<span>Remind Before</span>
+								<select id="dayReminderDaysBefore" class="ac-input" required>
+									<option value="0" selected>On event day</option>
+									<option value="1">1 day before</option>
+									<option value="2">2 days before</option>
+									<option value="3">3 days before</option>
+									<option value="5">5 days before</option>
+									<option value="7">7 days before</option>
+									<option value="14">14 days before</option>
+								</select>
+							</label>
+
+							<label class="ac-field">
+								<span>Remind Time</span>
+								<input id="dayReminderTime" class="ac-input" type="time" required />
+							</label>
+
+							<label class="ac-field">
+								<span>Note (optional)</span>
+								<textarea id="dayReminderDescription" class="ac-input ac-textarea" rows="3" maxlength="300" placeholder="Add extra context for your reminder email"></textarea>
+							</label>
+
+							<div class="ac-reminder-actions">
+								<button id="addDayReminderSubmitBtn" class="ac-btn" type="submit">Save Reminder</button>
+								<div id="dayReminderStatus" class="ac-muted" role="status" aria-live="polite"></div>
+							</div>
+
+							<div id="dayReminderLimitInfo" class="ac-reminder-limit">Active reminders: 0/5</div>
+						</form>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
 	<!-- Supabase JS SDK -->
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 	<script src="js/supabase-config.js"></script>
+	<script src="js/user-activity.js"></script>
 	<script src="js/academic-calendar.js"></script>
 </body>
 </html>

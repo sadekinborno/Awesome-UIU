@@ -1,0 +1,36 @@
+name: Reminder Dispatch
+
+on:
+  schedule:
+    - cron: '*/3 * * * *'
+  workflow_dispatch:
+
+jobs:
+  dispatch-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required secrets
+        run: |
+          if [ -z "${{ secrets.SUPABASE_FUNCTION_URL }}" ]; then
+            echo "SUPABASE_FUNCTION_URL secret is missing"
+            exit 1
+          fi
+          if [ -z "${{ secrets.REMINDER_CRON_SECRET }}" ]; then
+            echo "REMINDER_CRON_SECRET secret is missing"
+            exit 1
+          fi
+
+      - name: Trigger send-calendar-reminders
+        run: |
+          set -euo pipefail
+          response=$(curl -sS -w '\n%{http_code}' -X POST "${{ secrets.SUPABASE_FUNCTION_URL }}" \
+            -H "Content-Type: application/json" \
+            -H "x-reminder-secret: ${{ secrets.REMINDER_CRON_SECRET }}" \
+            -d '{}')
+          body=$(echo "$response" | sed '$d')
+          status=$(echo "$response" | tail -n1)
+          echo "HTTP Status: $status"
+          echo "Response: $body"
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            exit 1
+          fi
