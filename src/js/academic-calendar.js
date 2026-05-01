@@ -3,6 +3,10 @@
 (function () {
 	'use strict';
 
+	if (typeof window.trackToolUsage === 'function') {
+		window.trackToolUsage('Academic Calendar');
+	}
+
 	const els = {
 		termSelect: document.getElementById('termSelect'),
 		openReminderModalBtn: document.getElementById('openReminderModalBtn'),

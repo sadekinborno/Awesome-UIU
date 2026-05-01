@@ -16,6 +16,10 @@ let currentStudentId = '';
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    if (typeof window.trackToolUsage === 'function') {
+        window.trackToolUsage('Scholarship Checker');
+    }
+
     // Load active trimester from database FIRST
     await loadActiveTrimester();
     

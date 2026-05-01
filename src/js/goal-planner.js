@@ -116,6 +116,9 @@ elements.startOverBtn.addEventListener('click', startOver);
 
 // Preload audio files when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.trackToolUsage === 'function') {
+        window.trackToolUsage('Goal Planner');
+    }
     elements.gigachadAudio.load();
     elements.dripgokuAudio.load();
     elements.therockAudio.load();
@@ -197,6 +200,10 @@ window.removeRetakeCourse = removeRetakeCourse;
 // Main Calculation Function
 // ============================================
 function handleCalculate() {
+    if (typeof window.trackToolUsage === 'function') {
+        window.trackToolUsage('Goal Planner', true);
+    }
+
     // Validate inputs
     if (!validateInputs()) {
         return;

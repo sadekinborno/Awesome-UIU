@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Routine & Seat Plan - The Awesome UIU</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/exam-seatplan.css">
+    <link rel="icon" href="assets/icons/uiu-logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q4RPT8K73D"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);} 
+      gtag('js', new Date());
+      gtag('config', 'G-Q4RPT8K73D');
+    </script>
+</head>
+<body class="exam-seatplan-page">
+    <div class="gradient-overlay" aria-hidden="true"></div>
+
+    <div class="app-container">
+        <header class="seatplan-header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="index.html" class="back-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Back to Hub
+                    </a>
+
+                    <p class="seatplan-tool-title">Exam Routine & Seat Plan</p>
+
+                    <div class="seatplan-hero">
+                        <div class="seatplan-hero-icon" aria-hidden="true">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                        </div>
+                        <h1 class="seatplan-hero-title">
+                            Find your <span class="gradient-text">exam room</span> instantly
+                        </h1>
+                        <p class="seatplan-hero-subtitle">
+                            Select your session, department, course, section, and student ID to see your room and exam date/time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="card form-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Search</h2>
+                    <p>Use the official published routine and seat plan for your session.</p>
+                </div>
+
+                <form id="seatPlanForm" class="seatplan-form" autocomplete="off">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="sessionSelect">Session</label>
+                            <div class="custom-select-wrapper">
+                                <select id="sessionSelect" required></select>
+                                <i class="fa-solid fa-chevron-down custom-select-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="departmentSelect">Department</label>
+                            <div class="custom-select-wrapper">
+                                <select id="departmentSelect" required disabled>
+                                    <option value="">Select department</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down custom-select-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="input-group autocomplete-container" id="courseAutocompleteContainer">
+                            <label for="courseCodeInput">Course</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="courseCodeInput" placeholder="Start typing course code or title" required disabled>
+                            </div>
+                            <div class="autocomplete-dropdown" id="courseDropdown"></div>
+                            <div class="seatplan-hint" id="courseHint" aria-live="polite"></div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="sectionSelect">Section</label>
+                            <div class="custom-select-wrapper">
+                                <select id="sectionSelect" required disabled>
+                                    <option value="">Select section</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down custom-select-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="input-group seatplan-student-id">
+                            <label for="studentIdInput">Student ID</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="studentIdInput" placeholder="e.g. 0312520033" inputmode="numeric" required>
+                            </div>
+                            <div class="seatplan-hint">Digits only (9–10). Hyphens are ok.</div>
+                        </div>
+                    </div>
+
+                    <div class="seatplan-actions">
+                        <button id="findBtn" type="submit" class="btn btn-primary full-width modern-btn">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            Find Room
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card" id="resultCard" style="display:none;">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i> Result</h2>
+                    <p id="resultSub">—</p>
+                </div>
+                <div class="seatplan-result" id="resultBody"></div>
+            </div>
+
+            <div class="seatplan-status" id="pageStatus" aria-live="polite"></div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/user-activity.js"></script>
+    <script src="js/exam-seatplan.js"></script>
+</body>
+</html>

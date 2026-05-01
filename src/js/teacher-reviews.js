@@ -151,6 +151,10 @@ function debounce(fn, delayMs = 150) {
 
 // Load one page of teachers with their stats (used on page load and "Load More")
 async function loadTeachersPage(reset = false) {
+    if (typeof window.trackToolUsage === 'function' && reset && currentPage === 0) {
+        window.trackToolUsage('Teacher Reviews');
+    }
+
     try {
         if (isLoading) return;
 

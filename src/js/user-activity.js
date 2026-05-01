@@ -97,6 +97,20 @@
         }
     }
 
+    window.trackToolUsage = async function(toolName, isAction = false) {
+        try {
+            const client = window.supabasePublicClient || window.supabaseClient;
+            if (!client) return;
+
+            const { data, error } = await client.rpc('increment_tool_visit', { p_tool_name: toolName, p_is_action: isAction });
+            if (error) {
+                console.error('Supabase tool track error:', error);
+            }
+        } catch (e) {
+            console.warn('Track tool usage failed:', e);
+        }
+    };
+
     // Run after DOM is ready (and after supabase-config.js loads)
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', run);

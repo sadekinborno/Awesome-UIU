@@ -245,6 +245,11 @@ class CGPACalculatorApp {
     }
 
     calculateResults() {
+        // Track usage if possible
+        if (typeof window.trackToolUsage === 'function') {
+            window.trackToolUsage('CGPA Calculator', true);
+        }
+
         // Get current academic status
         const totalCredits = parseFloat(this.totalCreditsInput.value) || 0;
         const currentCgpa = parseFloat(this.currentCgpaInput.value) || 0;
@@ -518,5 +523,8 @@ class CGPACalculatorApp {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.trackToolUsage === 'function') {
+        window.trackToolUsage('CGPA Calculator');
+    }
     window.app = new CGPACalculatorApp();
 });
